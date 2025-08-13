@@ -1,8 +1,17 @@
 #!/bin/bash
 
 cd rust
-# cargo clean
+cargo clean
 cargo build --release
+
+# Ensure the wasm32 target is added and wasm-pack is installed
+# yay rustup; rustup default stable
+rustup target add wasm32-unknown-unknown
+export PATH="$HOME/.cargo/bin:$PATH"
+cargo install wasm-pack
+wasm-pack build --release --target web
+
+
 cd polygon_query_test
 
 # Compile the C test program
@@ -26,3 +35,4 @@ do
 done
 
 echo "All tests completed."
+
