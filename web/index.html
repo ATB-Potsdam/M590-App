@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>polylookup WASM test</title>
+<script type="module">
+    import init, { WasmLayer } from "./pkg/polylookup.js";
+
+    async function main() {
+        await init(); // loads the .wasm
+        // Fetch your 2 MB .fgb from same origin (or bundle it alongside)
+        const bytes = await (
+            await fetch("./data/Klimaräume.fgb")
+        ).arrayBuffer();
+        const layer = WasmLayer.loadLayerFromBytes(new Uint8Array(bytes));
+
+        const results = [];
+        for (const location of [
+            [13.4178058, 52.5167835, -252],
+            [9.7122609, 53.3178489, -125],
+            [12.1246426, 53.1517263, -204],
+            [9.0993541, 53.6832796, -82],
+            [8.9982722, 53.9532901, -48],
+        ]) {
+            const json = layer.queryPointJSON(location[0], location[1]);
+            const matches = JSON.parse(json);
+            if (Array.isArray(matches)) {
+                if (matches[0].kwb === location[2]) {
+                    results.push({
+                        result: "success",
+                        lat: location[1],
+                        lon: location[0],
+                        matches,
+                        expected: location[2],
+                    });
+                } else {
+                    results.push({
+                        result: "failure",
+                        lat: location[1],
+                        lon: location[0],
+                        matches,
+                        expected: location[2],
+                    });
+                }
+            } else {
+                results.push({
+                    result: "failure",
+                    lat: location[1],
+                    lon: location[0],
+                    matches,
+                    expected: location[2],
+                });
+            }
+        }
+        document.body.innerHTML = `<pre>${JSON.stringify(
+            results,
+            null,
+            2
+        )}</pre>`;
+    }
+    main();
+</script>

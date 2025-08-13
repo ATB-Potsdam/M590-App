@@ -11,6 +11,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 cargo install wasm-pack
 wasm-pack build --release --target web
 
+cp -r ./pkg ../web/
 
 cd polygon_query_test
 

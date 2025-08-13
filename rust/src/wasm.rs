@@ -1,5 +1,5 @@
 use flatgeobuf::{FallibleStreamingIterator, FeatureProperties, FgbReader};
-use geo::{Covers, Point}; // use Covers for nicer boundary handling
+use geo::{Contains, Intersects, Point};
 use geo_traits::to_geo::ToGeoGeometry;
 use geo_types::Geometry;
 use serde::Serialize;
@@ -9,7 +9,6 @@ use wasm_bindgen::prelude::*;
 #[derive(Serialize)]
 struct Match {
     id: u64,
-    // adjust the field name/type to what you want to return
     kwb: Option<i64>,
 }
 
@@ -20,7 +19,6 @@ pub struct WasmLayer {
 
 #[wasm_bindgen]
 impl WasmLayer {
-    /// Load FlatGeobuf bytes (e.g., fetched as ArrayBuffer in JS)
     #[wasm_bindgen(js_name = loadLayerFromBytes)]
     pub fn load_from_bytes(bytes: &[u8]) -> Result<WasmLayer, JsValue> {
         Ok(WasmLayer {
@@ -28,10 +26,8 @@ impl WasmLayer {
         })
     }
 
-    /// Query point; returns JSON like: `[{"id":0,"kwb":123}, ...]`
     #[wasm_bindgen(js_name = queryPointJSON)]
     pub fn query_point_json(&self, lon: f64, lat: f64) -> Result<String, JsValue> {
-        // tiny epsilon to avoid degenerate bbox oddities
         let eps = 1e-9;
         let (minx, miny, maxx, maxy) = (lon - eps, lat - eps, lon + eps, lat + eps);
 
@@ -45,17 +41,15 @@ impl WasmLayer {
         let mut idx = 0u64;
 
         while let Some(feat) = iter.next().map_err(to_js)? {
-            // Example: read an i64 property "KWB"; fall back to parse string if needed
-            let kwb: Option<i64> = feat.property::<i64>("KWB").ok().flatten().or_else(|| {
-                feat.properties()
-                    .ok()
-                    .and_then(|p| p.get("KWB"))
-                    .and_then(|s| s.trim().parse::<i64>().ok())
+            // numeric first, fallback to string parse
+            let kwb = feat.properties().ok().and_then(|p| {
+                p.get("KWB")
+                    .and_then(|v| v.as_str().to_string().trim().parse::<i64>().ok())
             });
 
             if let Some(gt) = feat.geometry_trait().map_err(to_js)? {
                 let g: Geometry<f64> = gt.to_geometry();
-                if g.covers(&pt) {
+                if g.contains(&pt) || g.intersects(&pt) {
                     out.push(Match { id: idx, kwb });
                 }
             }
