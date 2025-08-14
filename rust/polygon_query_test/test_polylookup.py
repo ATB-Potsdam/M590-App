@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import ctypes
-import json
 import os
 import sys
 
@@ -32,7 +31,7 @@ s = ctypes.string_at(ptr).decode("utf-8")
 lib.free_cstring(ptr)
 
 print("raw json:", s)
-try:
-    print("parsed:", json.dumps(json.loads(s), indent=2, ensure_ascii=False))
-except Exception:
-    pass
+# try:
+#    print("parsed:", json.dumps(json.loads(s), indent=2, ensure_ascii=False))
+# except Exception:
+#    pass
