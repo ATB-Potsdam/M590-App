@@ -3,7 +3,7 @@ import { Geolocation } from "@capacitor/geolocation";
 
 export type LatLon = { lat: number; lon: number };
 
-export async function getCurrentLatLon(): Promise<LatLon> {
+export const getCurrentLatLon = async (): Promise<LatLon> => {
     // On native: Capacitor plugin; on web, falls back to W3C API.
     if (Capacitor.getPlatform() === "web" && "geolocation" in navigator) {
         const pos = await new Promise<GeolocationPosition>((res, rej) =>
@@ -22,4 +22,4 @@ export async function getCurrentLatLon(): Promise<LatLon> {
         maximumAge: 0,
     });
     return { lat: pos.coords.latitude, lon: pos.coords.longitude };
-}
+};
