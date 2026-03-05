@@ -1,5 +1,6 @@
 import {useEffect} from 'react';
 import {Navigate, Route, Routes} from 'react-router';
+import "./App.scss";
 import {BottomNav} from './components/BottomNav';
 import {Messages} from './components/Messages';
 import {useFarm} from './hooks/useFarm';
@@ -51,51 +52,6 @@ const App = () => {
             <BottomNav />
         </>
     );
-    // const handleQueryHere = () => {
-    //     const message = addMessage({
-    //         type: 'info',
-    //         message: ['Getting location…'],
-    //     });
-    //     getCurrentLatLon()
-    //         .finally(() => delMessage(message))
-    //         .then((location) => {
-    //             setCoord(location);
-    //             const message = addMessage({
-    //                 type: 'info',
-    //                 message: ['Querying…'],
-    //             });
-    //             latLonToClimateClass(location)
-    //                 .then((climateClass) => {
-    //                     delMessage(message);
-    //                     setClimateClass(climateClass);
-    //                 })
-    //                 .catch(err => {
-    //                     addMessage({
-    //                         type: "error",
-    //                         message: ['Query failed: ' + (err?.message ?? String(err))]
-    //                     });
-    //                 });
-    //         });
-    // };
-
-
-    // return (
-    //     <main style={{fontFamily: 'system-ui, sans-serif', padding: 24}}>
-    //         <Messages />
-    //         <h1>Polylookup demo</h1>
-    //         <p style={{marginBottom: 8}}>
-    //             <button onClick={handleQueryHere}>2) Get my location & query</button>
-    //         </p>
-    //         <p><b>Status:</b> {status}</p>
-    //         {coord && <p><b>Here:</b> lat {coord.lat.toFixed(6)}, lon {coord.lon.toFixed(6)}</p>}
-    //         {climateClass && (
-    //             <>
-    //                 <h3>Matches</h3>
-    //                 <pre>{climateClass[0]} ({climateClass[1]})</pre>
-    //             </>
-    //         )}
-    //     </main>
-    // );
 };
 
 export default App;

@@ -1,7 +1,9 @@
 // src/components/FieldForm.tsx
-import {useState, type SubmitEvent} from "react";
+import {useRef, useState, type SubmitEvent} from "react";
+import {getCurrentLatLon} from "../lib/location";
 import type {Field, GeoPoint} from "../types/farm";
-import {LocationPicker} from "./LocationPicker";
+import "./FieldForm.scss";
+import {LocationPicker, type LocationPickerHandle} from "./LocationPicker";
 
 interface Props {
     initialValues?: Omit<Field, "id" | "climateClass" | "climateClassStatus">;
@@ -9,10 +11,29 @@ interface Props {
     onSave: (field: Omit<Field, "id" | "climateClass" | "climateClassStatus">) => void;
     onCancel: () => void;
 }
+
 export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
     const [areaHa, setAreaHa] = useState<number | "">(initialValues?.areaHa ?? "");
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
+    const [locating, setLocating] = useState(false);
+    const locationPickerRef = useRef<LocationPickerHandle | null>(null);
+
+    const handleUseCurrentLocation = () => {
+        setLocating(true);
+        getCurrentLatLon()
+            .then((latLon) => {
+                const point = {lat: latLon.lat, lon: latLon.lon};
+                setLocation(point);
+                locationPickerRef.current?.flyTo(point);
+            })
+            .catch((e) => {
+                console.error("Standort konnte nicht ermittelt werden:", e);
+            })
+            .finally(() => {
+                setLocating(false);
+            });
+    };
 
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
@@ -21,7 +42,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{display: "flex", flexDirection: "column", gap: 12}}>
+        <form onSubmit={handleSubmit} className="field-form">
             <label>
                 Feldname
                 <input
@@ -48,11 +69,16 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             <p style={{margin: 0, fontWeight: 600}}>
                 Standort wählen – auf die Karte klicken:
             </p>
+
             <LocationPicker
+                ref={locationPickerRef}
                 value={location}
                 onChange={setLocation}
                 existingLocations={existingLocations}
+                onLocate={handleUseCurrentLocation}
+                locating={locating}
             />
+
             {location && (
                 <small>
                     Lat: {location.lat.toFixed(5)}, Lon: {location.lon.toFixed(5)}

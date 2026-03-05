@@ -11,7 +11,7 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
         case "error":
             return <span style={{color: "red"}}>⚠️ Klimazone nicht verfügbar</span>;
         case "done":
-            return <span style={{color: "green"}}>🌿 Klimazone: <strong>{field.climateClass![0]}(KWB: {field.climateClass![1]})</strong></span>;
+            return <span style={{color: "green"}}>🌿 Klimazone: <strong>{field.climateClass![0]} (KWB: {field.climateClass![1]})</strong></span>;
         default:
             return null;
     }
@@ -23,7 +23,7 @@ export const FarmPage = () => {
     const [editingField, setEditingField] = useState<Field | null>(null);
 
     return (
-        <div style={{maxWidth: 720, margin: "0 auto", padding: 16}}>
+        <div className="page">
             <h1>Betriebsstammdaten</h1>
 
             <label>

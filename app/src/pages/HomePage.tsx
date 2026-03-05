@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import {useFarm} from "../hooks/useFarm";
 import type {Field} from "../types/farm";
 import "./HomePage.scss";
@@ -30,11 +31,11 @@ export const HomePage = () => {
     const totalArea = farm.fields.reduce((sum, f) => sum + f.areaHa, 0);
 
     return (
-        <div className="home-page">
+        <div className={clsx("home-page", "page")}>
             <header className="home-page__header">
                 <h1>{farm.name || "Mein Betrieb"}</h1>
                 <p className="home-page__meta">
-                    {farm.fields.length} Feld(er) · {totalArea.toFixed(1)} ha gesamt
+                    {farm.fields.length} Feld{farm.fields.length !== 1 ? "er" : ""} · {totalArea.toFixed(1)} ha gesamt
                 </p>
             </header>
 
@@ -45,7 +46,7 @@ export const HomePage = () => {
                         {Object.entries(climateSummary).map(([zone, count]) => (
                             <div key={zone} className="climate-summary__item">
                                 <span className="climate-summary__zone">🌿 Klasse {zone}</span>
-                                <span className="climate-summary__count">{count} Feld(er)</span>
+                                <span className="climate-summary__count">{count} Feld{count !== 1 ? "er" : ""}</span>
                             </div>
                         ))}
                     </div>
