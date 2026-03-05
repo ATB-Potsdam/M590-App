@@ -1,6 +1,6 @@
-import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
-import type { WasmLayer } from "../pkg/polylookup";
+import {create} from "zustand";
+import {subscribeWithSelector} from "zustand/middleware";
+import type {WasmLayer} from "../pkg/polylookup";
 
 export interface MessageType {
     type: "error" | "info" | "warning";
@@ -20,9 +20,9 @@ type AppState = {
 };
 
 export const useAppStore = create<AppState>()(
-    subscribeWithSelector((set, _get) => ({
+    subscribeWithSelector((set) => ({
         layer: undefined,
-        setLayer: (layer: WasmLayer) => set({ layer }),
+        setLayer: (layer: WasmLayer) => set({layer}),
 
         messages: [],
         addMessage: (message: MessageType) => {

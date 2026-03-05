@@ -5,6 +5,7 @@ const config: CapacitorConfig = {
   appName: 'M590-app',
   webDir: 'dist',
   bundledWebRuntime: false,
+  packageManager: "yarn",
 };
 
 export default config;

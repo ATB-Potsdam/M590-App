@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Messages } from './components/Messages';
-import { getCurrentLatLon } from './lib/location';
-import { loadLayerFromPublic } from './lib/polylookup';
-import { latLonToClimateClass } from './lib/tools';
-import { useAppStore } from './stores/useAppStore';
-import type { ClimateClassType } from './types';
+import {useEffect, useState} from 'react';
+import {Messages} from './components/Messages';
+import {getCurrentLatLon} from './lib/location';
+import {loadLayerFromPublic} from './lib/polylookup';
+import {latLonToClimateClass} from './lib/tools';
+import {useAppStore} from './stores/useAppStore';
+import type {ClimateClassType} from './types';
 
 const App = () => {
     const layer = useAppStore((state) => state.layer);
     const addMessage = useAppStore((state) => state.addMessage);
     const delMessage = useAppStore((state) => state.delMessage);
 
-    const [coord, setCoord] = useState<{ lat: number; lon: number } | null>(null);
+    const [coord, setCoord] = useState<{lat: number; lon: number;} | null>(null);
     const [climateClass, setClimateClass] = useState<ClimateClassType | null>(null);
 
     useEffect(() => {
@@ -23,14 +23,14 @@ const App = () => {
             loadLayerFromPublic()
                 .finally(() => delMessage(message))
                 .then((layer) => {
-                    useAppStore.setState({ layer });
-                    addMessage({ type: "info", message: ['Layer loaded ✅'] });
+                    useAppStore.setState({layer});
+                    addMessage({type: "info", message: ['Layer loaded ✅']});
                 })
-                .catch((e: any) => {
-                    addMessage({ type: "error", message: ['Layer loaded failed: ' + (e?.message ?? String(e))] });
+                .catch((e) => {
+                    addMessage({type: "error", message: ['Layer loaded failed: ' + (e?.message ?? String(e))]});
                 });
         }
-    }, [layer]);
+    }, [addMessage, delMessage, layer]);
 
     if (!layer) {
         return <Messages />;
@@ -40,7 +40,7 @@ const App = () => {
         const message = addMessage({
             type: 'info',
             message: ['Getting location…'],
-        })
+        });
         getCurrentLatLon()
             .finally(() => delMessage(message))
             .then((location) => {
@@ -48,10 +48,10 @@ const App = () => {
                 const message = addMessage({
                     type: 'info',
                     message: ['Querying…'],
-                })
+                });
                 latLonToClimateClass(location)
                     .then((climateClass) => {
-                        delMessage(message)
+                        delMessage(message);
                         setClimateClass(climateClass);
                     })
                     .catch(err => {
@@ -61,13 +61,13 @@ const App = () => {
                         });
                     });
             });
-    }
+    };
 
     return (
-        <main style={{ fontFamily: 'system-ui, sans-serif', padding: 24 }}>
+        <main style={{fontFamily: 'system-ui, sans-serif', padding: 24}}>
             <Messages />
             <h1>Polylookup demo</h1>
-            <p style={{ marginBottom: 8 }}>
+            <p style={{marginBottom: 8}}>
                 <button onClick={handleQueryHere}>2) Get my location & query</button>
             </p>
             <p><b>Status:</b> {status}</p>
@@ -80,6 +80,6 @@ const App = () => {
             )}
         </main>
     );
-}
+};
 
 export default App;
