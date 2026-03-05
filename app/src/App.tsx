@@ -1,16 +1,19 @@
 import {useEffect} from 'react';
+import {Navigate, Route, Routes} from 'react-router';
+import {BottomNav} from './components/BottomNav';
 import {Messages} from './components/Messages';
+import {useFarm} from './hooks/useFarm';
 import {loadLayerFromPublic} from './lib/polylookup';
 import {FarmPage} from './pages/FarmPage';
+import {HomePage} from './pages/HomePage';
 import {useAppStore} from './stores/useAppStore';
 
 const App = () => {
     const layer = useAppStore((state) => state.layer);
     const addMessage = useAppStore((state) => state.addMessage);
     const delMessage = useAppStore((state) => state.delMessage);
-
-    // const [coord, setCoord] = useState<{lat: number; lon: number;} | null>(null);
-    // const [climateClass, setClimateClass] = useState<ClimateClassType | null>(null);
+    const {farm} = useFarm();
+    const hasFarm = farm.name.trim().length > 0 || farm.fields.length > 0;
 
     useEffect(() => {
         if (!layer) {
@@ -35,6 +38,19 @@ const App = () => {
         return <Messages />;
     }
 
+    return (
+        <>
+            <Routes>
+                <Route
+                    path="/"
+                    element={hasFarm ? <HomePage /> : <Navigate to="/farm" replace />}
+                />
+                <Route path="/farm" element={<FarmPage />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <BottomNav />
+        </>
+    );
     // const handleQueryHere = () => {
     //     const message = addMessage({
     //         type: 'info',
@@ -62,7 +78,6 @@ const App = () => {
     //         });
     // };
 
-    return <FarmPage />;
 
     // return (
     //     <main style={{fontFamily: 'system-ui, sans-serif', padding: 24}}>

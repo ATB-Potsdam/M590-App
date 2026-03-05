@@ -5,11 +5,11 @@ import {LocationPicker} from "./LocationPicker";
 
 interface Props {
     initialValues?: Omit<Field, "id" | "climateClass" | "climateClassStatus">;
+    existingLocations?: Array<GeoPoint & {name: string;}>;
     onSave: (field: Omit<Field, "id" | "climateClass" | "climateClassStatus">) => void;
     onCancel: () => void;
 }
-
-export const FieldForm = ({initialValues, onSave, onCancel}: Props) => {
+export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
     const [areaHa, setAreaHa] = useState<number | "">(initialValues?.areaHa ?? "");
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
@@ -48,7 +48,11 @@ export const FieldForm = ({initialValues, onSave, onCancel}: Props) => {
             <p style={{margin: 0, fontWeight: 600}}>
                 Standort wählen – auf die Karte klicken:
             </p>
-            <LocationPicker value={location} onChange={setLocation} />
+            <LocationPicker
+                value={location}
+                onChange={setLocation}
+                existingLocations={existingLocations}
+            />
             {location && (
                 <small>
                     Lat: {location.lat.toFixed(5)}, Lon: {location.lon.toFixed(5)}

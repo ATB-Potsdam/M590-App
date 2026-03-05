@@ -11,7 +11,7 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
         case "error":
             return <span style={{color: "red"}}>⚠️ Klimazone nicht verfügbar</span>;
         case "done":
-            return <span style={{color: "green"}}>🌿 Klimazone: <strong>{field.climateClass}</strong></span>;
+            return <span style={{color: "green"}}>🌿 Klimazone: <strong>{field.climateClass![0]}(KWB: {field.climateClass![1]})</strong></span>;
         default:
             return null;
     }
@@ -45,6 +45,7 @@ export const FarmPage = () => {
                     {editingField?.id === field.id ? (
                         <FieldForm
                             initialValues={{name: field.name, areaHa: field.areaHa, location: field.location}}
+                            existingLocations={farm.fields.map((f) => ({...f.location, name: f.name}))}
                             onSave={(data) => {
                                 editField(field.id, data);
                                 setEditingField(null);
@@ -74,6 +75,7 @@ export const FarmPage = () => {
             {!editingField && (
                 showAddField ? (
                     <FieldForm
+                        existingLocations={farm.fields.map((f) => ({...f.location, name: f.name}))}
                         onSave={(f) => {addField(f); setShowAddField(false);}}
                         onCancel={() => setShowAddField(false)}
                     />

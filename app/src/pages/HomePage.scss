@@ -1,0 +1,118 @@
+.home-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px 16px 80px; // 80px = Platz für BottomNav
+
+    &__header {
+        margin-bottom: 24px;
+
+        h1 {
+            margin: 0 0 4px;
+        }
+    }
+
+    &__meta {
+        color: #666;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    &__section {
+        margin-bottom: 24px;
+
+        h2 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            color: #444;
+        }
+    }
+
+    &__empty {
+        color: #888;
+        font-style: italic;
+    }
+}
+
+.climate-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    &__item {
+        background: #f1f8e9;
+        border: 1px solid #c5e1a5;
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        min-width: 100px;
+    }
+
+    &__zone {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    &__count {
+        font-size: 12px;
+        color: #666;
+    }
+}
+
+.field-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &__item {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        small {
+            color: #999;
+            font-size: 11px;
+        }
+    }
+}
+
+.badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+
+    &--loading {
+        background: #f5f5f5;
+        color: #888;
+    }
+
+    &--error {
+        background: #fdecea;
+        color: #c62828;
+    }
+
+    &--done {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+}
