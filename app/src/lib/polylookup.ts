@@ -1,7 +1,9 @@
 import initWasm, * as poly from "../pkg/polylookup.js"; // static import so Vite bundles it
 
+const basename = import.meta.env.BASE_URL;
+
 const WASM_BIN = new URL("../pkg/polylookup_bg.wasm", import.meta.url);
-const FGB_URL = "/data/Klimaraeume.fgb"; // put file in public/data/
+const FGB_URL = (basename + "/data/Klimaraeume.fgb").replace(/\/+/, "/"); // put file in public/data/
 
 let ready = false;
 

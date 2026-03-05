@@ -1,12 +1,12 @@
 // src/hooks/useFarm.ts
 import {v4 as uuidv4} from "uuid";
 import {latLonToClimateClass} from "../lib/tools";
+import {useAppStore} from "../stores/useAppStore";
 import {type Farm, type Field} from "../types/farm";
-import {useLocalStorage} from "./useLocalStorage";
 
-const STORAGE_KEY = "dwa_farm";
+export const STORAGE_KEY = "dwa_farm";
 
-const defaultFarm: Farm = {
+export const defaultFarm: Farm = {
     id: uuidv4(),
     name: "",
     fields: [],
@@ -15,7 +15,8 @@ const defaultFarm: Farm = {
 };
 
 export const useFarm = () => {
-    const [farm, setFarm] = useLocalStorage<Farm>(STORAGE_KEY, defaultFarm);
+    const farm = useAppStore(state => state.farm)!;
+    const setFarm = useAppStore(state => state.setFarm);
 
     const updateFarmName = (name: string) => {
         setFarm((prev: Farm) => ({...prev, name, updatedAt: new Date().toISOString()}));

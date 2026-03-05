@@ -1179,7 +1179,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
+"@types/node@npm:*, @types/node@npm:^25.3.3":
   version: 25.3.3
   resolution: "@types/node@npm:25.3.3"
   dependencies:
@@ -2400,6 +2400,7 @@ __metadata:
     "@capacitor/ios": "npm:^8.1.0"
     "@eslint/js": "npm:^10.0.1"
     "@types/leaflet": "npm:^1.9.21"
+    "@types/node": "npm:^25.3.3"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@types/uuid": "npm:^11.0.0"
