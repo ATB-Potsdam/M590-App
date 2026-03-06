@@ -1,7 +1,9 @@
-import { useAppStore } from "../stores/useAppStore";
-import type { ClimateClassType } from "../types";
+import {allOtherPlants} from "../constants/soilConstants";
+import {useAppStore} from "../stores/useAppStore";
+import type {ClimateClassType} from "../types";
+import type {AnyPlantName, KwbType, NFkweClassName, Range, YearType} from "../types/dataTypes";
 
-type Match = { id: number; kwb: number | null };
+type Match = {id: number; kwb: number | null;};
 
 export const latLonToClimateClass = ({
     lat,
@@ -45,3 +47,33 @@ export const latLonToClimateClass = ({
     }
     return Promise.resolve(["H", kwb]);
 };
+
+
+const nFkwClassIndex: Record<NFkweClassName, number> = {
+    "1-2": 0,
+    "3a": 1,
+    "3b": 2,
+    "4": 3,
+    "5": 4,
+};
+
+export const lookupOtherPlant = (name: AnyPlantName, yearType: YearType, nFkwClass: NFkweClassName) =>
+    allOtherPlants[name][yearType === "normal" ? 0 : 1][nFkwClassIndex[nFkwClass]];
+
+export const getKwb = (kwb: KwbType, time: Range) => {
+    const fromTimeIndex = Math.trunc(time[0] - 1);
+    const fromTimeFactor = 1 - (time[0] % 1);
+    const toTimeIndex = Math.trunc(time[1] - 1);
+    const toTimeFactor = time[1] % 1 | 1;
+    if (fromTimeIndex === toTimeIndex) {
+        const factor = fromTimeFactor - (1 - toTimeFactor);
+        return kwb[fromTimeIndex] * factor;
+    }
+    return (
+        kwb[fromTimeIndex] * fromTimeFactor
+        + kwb[toTimeIndex] * toTimeFactor
+        + kwb.slice(fromTimeIndex + 1, toTimeIndex).reduce((sum, k) => sum + k, 0)
+    );
+
+}
+

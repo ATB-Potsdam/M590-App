@@ -25,7 +25,7 @@ export const FarmPage = () => {
 
     return (
         <div className="page">
-            <h1>Betriebsstammdaten</h1>
+            <h1>Stammdaten</h1>
 
             <label>
                 <strong>Betriebsname</strong>
