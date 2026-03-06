@@ -1,4 +1,5 @@
 // src/pages/FarmPage.tsx
+import clsx from "clsx";
 import {useState} from "react";
 import {FieldForm} from "../components/FieldForm";
 import {useFarm} from "../hooks/useFarm";
@@ -63,8 +64,8 @@ export const FarmPage = () => {
                             <ClimateClassBadge field={field} />
                             <div style={{display: "flex", gap: 8, marginTop: 8}}>
                                 <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
-                                <button onClick={() => removeField(field.id)} style={{color: "red"}}>
-                                    Entfernen
+                                <button onClick={() => removeField(field.id)}>
+                                    🗑 <span className={clsx("red")}>Entfernen</span>
                                 </button>
                             </div>
                         </>

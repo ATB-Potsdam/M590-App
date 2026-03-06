@@ -49,3 +49,18 @@
   margin: 0 auto;
   padding: 16px 16px calc(64px + env(safe-area-inset-bottom) + 16px);
 }
+
+.red {
+  color: rgb(180, 27, 27);
+}
+
+input {
+  border-radius: .3em;
+  font-size: 110%;
+}
+
+label {
+  input {
+    margin: 0 .5em
+  }
+}

@@ -5,8 +5,7 @@ import {useLocalStore} from "../stores/useLocalStore";
 import {type Farm, type Field} from "../types/farm";
 
 export const useFarm = () => {
-    const farm = useLocalStore(state => state.dwa_farm.value);
-    const setFarm = useLocalStore(state => state.dwa_farm.set);
+    const [farm, setFarm] = useLocalStore(state => state.dwa_farm);
 
     const updateFarmName = (name: string) => {
         setFarm((prev: Farm) => ({...prev, name, updatedAt: new Date().toISOString()}));
