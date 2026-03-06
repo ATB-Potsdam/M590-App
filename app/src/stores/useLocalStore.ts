@@ -3,6 +3,7 @@ import {v4 as uuidv4} from "uuid";
 import {create} from "zustand";
 import {subscribeWithSelector} from "zustand/middleware";
 import type {Farm} from "../types/farm";
+import type {ValueSetter} from "../types/types";
 
 
 
@@ -11,10 +12,7 @@ interface LocalStorageTypes {
 }
 
 type LocalStoreState = {
-    [K in keyof LocalStorageTypes]: {
-        value: LocalStorageTypes[K];
-        set: (value: LocalStorageTypes[K] | ((prev: LocalStorageTypes[K]) => LocalStorageTypes[K])) => void;
-    };
+    [K in keyof LocalStorageTypes]: ValueSetter<LocalStorageTypes[K]>;
 };
 
 const defaultValues: {[K in keyof LocalStorageTypes]: LocalStorageTypes[K]} = {
@@ -40,19 +38,21 @@ export const loadFromStorage = <K extends keyof LocalStorageTypes>(
 
 export const useLocalStore = create<LocalStoreState>()(
     subscribeWithSelector((set, get) => {
-        const createStub = <K extends keyof LocalStorageTypes>(key: K) => {
-            return {
-                value: loadFromStorage(key),
-                set: (value: LocalStorageTypes[K] | ((prev: LocalStorageTypes[K]) => LocalStorageTypes[K])) => {
-                    const next = value instanceof Function ? value(get()[key].value) : value;
+        const createStub = <K extends keyof LocalStorageTypes>(key: K): ValueSetter<LocalStorageTypes[K]> => {
+            return [
+                loadFromStorage(key),
+                (value: LocalStorageTypes[K] | ((prev: LocalStorageTypes[K]) => LocalStorageTypes[K])) => {
+                    const previous: LocalStoreState[K] = get()[key];
+                    const nextValue: LocalStorageTypes[K] = value instanceof Function ? value(previous[0]) : value;
+                    const next: LocalStoreState[K] = [nextValue, previous[1]]
                     try {
-                        localStorage.setItem(key, JSON.stringify(value));
+                        localStorage.setItem(key, JSON.stringify(nextValue));
                     } catch (e) {
                         console.error(e);
                     }
                     set({[key]: next});
                 }
-            };
+            ];
         };
         return ({
             dwa_farm: createStub("dwa_farm"),

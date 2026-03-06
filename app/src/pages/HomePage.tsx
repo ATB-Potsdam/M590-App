@@ -10,7 +10,7 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
         case "error":
             return <span className="badge badge--error">⚠️ Nicht verfügbar</span>;
         case "done":
-            return <span className="badge badge--done">🌿 {field.climateClass}</span>;
+            return <span className="badge badge--done">🌿 {field.climateClass?.[0]}</span>;
         default:
             return null;
     }
