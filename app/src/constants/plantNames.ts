@@ -136,7 +136,7 @@ export const agriculturalPlantNames = [
     "Hopfen",
 ] as const;
 
-export const fordderPlantNames = [
+export const fodderPlantNames = [
     "Ausdauerndes Weidelgras|1",
     "Einjähriges Weidelgras|1",
     "Knaulgras|1",

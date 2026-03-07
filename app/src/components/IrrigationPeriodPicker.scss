@@ -1,0 +1,45 @@
+// src/components/IrrigationPeriodPicker.scss
+.irrigation-period-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &__preview {
+        margin: 0;
+        font-size: 13px;
+        color: #2e7d32;
+        font-weight: 500;
+    }
+
+    &__error {
+        margin: 0;
+        font-size: 13px;
+        color: #c62828;
+    }
+}
+
+.bound-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &__label {
+        font-weight: 600;
+        font-size: 14px;
+        min-width: 28px;
+    }
+
+    &__selects {
+        display: flex;
+        gap: 6px;
+        flex: 1;
+
+        select {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    }
+}

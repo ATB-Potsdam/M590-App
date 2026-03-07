@@ -1,4 +1,4 @@
-import type {agriculturalPlantNames, cropNames, fordderPlantNames, fruitNames, medicalPlantNames, vegetableNames} from "../constants/plantNames";
+import type {agriculturalPlantNames, cropNames, fodderPlantNames, fruitNames, medicalPlantNames, vegetableNames} from "../constants/plantNames";
 
 export type Range = [min: number, max: number];
 
@@ -17,7 +17,7 @@ export type VegetableName = typeof vegetableNames[number];
 export type FruitName = typeof fruitNames[number];
 export type MedicalPlantName = typeof medicalPlantNames[number];
 export type AgriculturalPlantName = typeof agriculturalPlantNames[number];
-export type FordderPlantName = typeof fordderPlantNames[number];
+export type FordderPlantName = typeof fodderPlantNames[number];
 
 export type RawData = [norm: [Range | null, Range | null, Range | null, Range | null], dry: [Range | null, Range | null, Range | null, Range | null], time: Range];
 

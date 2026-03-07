@@ -4,6 +4,7 @@ import "./BottomNav.scss";
 
 const NAV_ITEMS: NavItem[] = [
     {path: "/", label: "Übersicht", icon: "🌾"},
+    {path: "/projects", label: "Projekte", icon: "📋"},
     {path: "/farm", label: "Betrieb", icon: "🏡"},
 ];
 
