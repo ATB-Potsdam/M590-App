@@ -2,13 +2,10 @@
 import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {IrrigationPeriodPicker} from "../components/IrrigationPeriodPicker";
+import {MODULES} from "../constants/modules";
+import {PLANT_CATEGORIES} from "../constants/plantCategories";
 import {
-    agriculturalPlantNames,
-    cropNames,
-    fodderPlantNames,
-    fruitNames,
-    medicalPlantNames,
-    vegetableNames,
+    cropNames
 } from "../constants/plantNames";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
@@ -19,28 +16,6 @@ import {
 } from "../utils/plantNameParser";
 import "./AssignmentPage.scss";
 
-// ── Modul-Definitionen ────────────────────────────────────────────────────────
-
-const MODULES: {type: ModuleType; icon: string; label: string;}[] = [
-    {type: "hauptkulturen", icon: "🌾", label: "Hauptkulturen"},
-    {type: "gemuese_obst", icon: "🥦", label: "Gemüse / Obst"},
-    {type: "weinbau", icon: "🍷", label: "Weinbau"},
-    {type: "gruenflaechen", icon: "🌿", label: "Grünflächen"},
-    {type: "naturrasen", icon: "⚽", label: "Naturrasensportplatz"},
-    {type: "golf", icon: "⛳", label: "Golfplatz"},
-    {type: "kunstrasen", icon: "🏟", label: "Kunstrasen"},
-    {type: "tennen", icon: "🎾", label: "Tennenfläche"},
-];
-
-// ── Pflanzenkategorien für Gemüse/Obst ────────────────────────────────────────
-
-const PLANT_CATEGORIES: {type: PlantCategory; label: string; names: readonly string[];}[] = [
-    {type: "gemuese", label: "🥦 Gemüse", names: vegetableNames},
-    {type: "obst", label: "🍎 Obst", names: fruitNames},
-    {type: "medizinal", label: "🌿 Medizinalpflanzen", names: medicalPlantNames},
-    {type: "agrar", label: "🌱 Agrarpflanzen", names: agriculturalPlantNames},
-    {type: "futter", label: "🌾 Futterpflanzen", names: fodderPlantNames},
-];
 
 // ── Komponente ────────────────────────────────────────────────────────────────
 

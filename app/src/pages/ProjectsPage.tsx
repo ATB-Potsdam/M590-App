@@ -2,18 +2,12 @@
 import {useState} from "react";
 import {useNavigate} from "react-router";
 import {ProjectForm} from "../components/ProjectForm";
+import {getScenarioIcon, getScenarioLabel} from "../constants/scenarios";
 import {useProjects} from "../hooks/useProjects";
 import type {Scenario} from "../types/project";
 import "./ProjectsPage.scss";
 
-const ScenarioBadge = ({scenario}: {scenario: Scenario;}) => {
-    const map: Record<Scenario, string> = {
-        normal: "🌤 Normaljahr",
-        dry: "☀️ Trockenjahr",
-        both: "📊 Beide",
-    };
-    return <span className="scenario-badge">{map[scenario]}</span>;
-};
+const ScenarioBadge = ({scenario}: {scenario: Scenario;}) => `${getScenarioIcon(scenario)} ${getScenarioLabel(scenario)}`;
 
 export const ProjectsPage = () => {
     const {projects, addProject, copyProject, removeProject} = useProjects();

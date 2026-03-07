@@ -1,28 +1,12 @@
 // src/pages/ProjectDetailPage.tsx
 import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
+import {getModuleIcon, getModuleLabel} from "../constants/modules";
+import {getScenarioIcon, getScenarioLabel} from "../constants/scenarios";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
-import type {ModuleType, Scenario} from "../types/project";
 import {boundToLabel} from "../utils/irrigationPeriod";
 import "./ProjectDetailPage.scss";
-
-const SCENARIO_LABEL: Record<Scenario, string> = {
-    normal: "🌤 Normaljahr (50 %)",
-    dry: "☀️ Trockenjahr (80 %)",
-    both: "📊 Normal- & Trockenjahr",
-};
-
-const MODULE_LABEL: Record<ModuleType, string> = {
-    hauptkulturen: "🌾 Hauptkulturen",
-    gemuese_obst: "🥦 Gemüse / Obst",
-    weinbau: "🍷 Weinbau",
-    gruenflaechen: "🌿 Grünflächen",
-    naturrasen: "⚽ Naturrasensportplatz",
-    golf: "⛳ Golfplatz",
-    kunstrasen: "🏟 Kunstrasen",
-    tennen: "🎾 Tennenfläche",
-};
 
 const formatPlantKey = (key: string): string => {
     const parts = key.split("|");
@@ -64,7 +48,7 @@ export const ProjectDetailPage = () => {
                     <h1>{project.name}</h1>
                     <span className="project-detail__meta">
                         {project.year && <span>{project.year} · </span>}
-                        {SCENARIO_LABEL[project.scenario]}
+                        {`${getScenarioIcon(project.scenario)} ${getScenarioLabel(project.scenario)}`}
                     </span>
                 </div>
             </div>
@@ -103,7 +87,7 @@ export const ProjectDetailPage = () => {
                                 {/* Zeile 2: Modul + Pflanze */}
                                 <div className="assignment-list__module">
                                     {fa.module
-                                        ? <span className="module-badge module-badge--set">{MODULE_LABEL[fa.module]}</span>
+                                        ? <span className="module-badge module-badge--set">{getModuleIcon(fa.module)} {getModuleLabel(fa.module)}</span>
                                         : <span className="module-badge module-badge--empty">Nutzung wählen →</span>
                                     }
                                     {fa.plantKey && (

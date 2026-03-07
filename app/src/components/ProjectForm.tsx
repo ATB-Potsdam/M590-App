@@ -1,5 +1,6 @@
 // src/components/ProjectForm.tsx
 import {useState, type SubmitEvent} from "react";
+import {SCENARIOS} from "../constants/scenarios";
 import type {Project, Scenario} from "../types/project";
 
 interface Props {
@@ -51,20 +52,16 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
 
             <fieldset style={{border: "1px solid #ddd", borderRadius: 8, padding: "8px 12px"}}>
                 <legend style={{fontWeight: 600, fontSize: 14}}>Szenario</legend>
-                {([
-                    ["normal", "🌤 Normaljahr (50 %)"],
-                    ["dry", "☀️ Trockenjahr (80 %)"],
-                    ["both", "📊 Beide anzeigen"],
-                ] as [Scenario, string][]).map(([value, label]) => (
-                    <label key={value} style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 4}}>
+                {SCENARIOS.map(({type, icon, label, description}) => (
+                    <label key={type} style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 4}}>
                         <input
                             type="radio"
                             name="scenario"
-                            value={value}
-                            checked={scenario === value}
-                            onChange={() => setScenario(value)}
+                            value={type}
+                            checked={scenario === type}
+                            onChange={() => setScenario(type)}
                         />
-                        {label}
+                        {icon} {label} – <small>{description}</small>
                     </label>
                 ))}
             </fieldset>
