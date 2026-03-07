@@ -20,7 +20,7 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
 };
 
 const sample = () => {
-    const plant: AnyPlantName = "Spinat früh";
+    const plant: AnyPlantName = "Spinat|früh";
     const plantData = lookupOtherPlant(plant, "dry", "1-2");
     const time: Range = [4.5, 5];
     const refKwb2 = getKwb(refKwb, time);
