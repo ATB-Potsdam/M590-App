@@ -29,19 +29,20 @@ export const ClimateBarChart = ({precipitation, et0}: Props) => {
     // Separate Maxima für unabhängige Skalierung
     const maxPrecip = Math.max(...values.map((v) => v.precip), 1);
     const maxEt0 = Math.max(...values.map((v) => v.et0), 1);
+    const maxValue = Math.max(maxPrecip, maxEt0);
     const chartHeight = 60;
 
-    const toHeightPrecip = (val: number) => Math.round((val / maxPrecip) * chartHeight);
-    const toHeightEt0 = (val: number) => Math.round((val / maxEt0) * chartHeight);
+    const toHeightPrecip = (val: number) => Math.round((val / maxValue) * chartHeight);
+    const toHeightEt0 = (val: number) => Math.round((val / maxValue) * chartHeight);
 
     return (
         <div className="climate-chart">
             <div className="climate-chart__legend">
                 <span className="climate-chart__legend-item climate-chart__legend-item--precip">
-                    Niederschlag (max. {maxPrecip.toFixed(0)} mm)
+                    Niederschlag
                 </span>
                 <span className="climate-chart__legend-item climate-chart__legend-item--et0">
-                    ET₀ (max. {maxEt0.toFixed(0)} mm)
+                    ET₀
                 </span>
             </div>
 
