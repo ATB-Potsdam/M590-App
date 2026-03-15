@@ -42,9 +42,17 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
-                <span>Tabellenwert (Basis)</span>
-                <span>{formatRange(result.baseRangeMm, "mm/a")}</span>
+                <span>{dryResult && "🌤 "}Tabellenwert (Basis)</span>
+                <span>
+                    {formatRange(result.baseRangeMm, "mm/a")}
+                </span>
             </div>
+            {dryResult && <div className="result-card__value-row">
+                <span>☀️ Tabellenwert (Basis)</span>
+                <span>
+                    {formatRange(dryResult.baseRangeMm, "mm/a")}
+                </span>
+            </div>}
         </details>
 
         {/* Block 3: Zuschläge */}

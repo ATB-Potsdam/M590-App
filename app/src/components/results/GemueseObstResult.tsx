@@ -48,8 +48,8 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                     {formatRange(result.baseRangeMm, 'mm')}
                     {dryResult && (
                         <>
-                            (🌤){" / "}
-                            {formatRange(dryResult.baseRangeMm, 'mm')} (☀️)
+                            {" 🌤 / "}
+                            {formatRange(dryResult.baseRangeMm, 'mm')} ☀️
                         </>
                     )}                </span>
             </div>
