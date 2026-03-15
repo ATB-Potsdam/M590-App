@@ -75,8 +75,8 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         const ref = refKwb[idx] ?? 0;
         const localKwb = localPrecip - localEt0;
         const delta = ref - localKwb;
-        const weighted = delta * (weight ?? 1);
-        deltaKwb += weighted;
+        const weightedDelta = delta * (weight ?? 1);
+        deltaKwb += weightedDelta;
 
         monthlyRows.push({
             label: MONTH_LABELS[idx],
@@ -86,7 +86,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
             localKwb: Math.round(localKwb),
             deltaKwb: Math.round(delta),
             weight: weight ?? 1,
-            weightedDelta: Math.round(weighted),
+            weightedDelta: Math.round(weightedDelta),
         });
     }
 
@@ -103,12 +103,12 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
 
     const totalSurchargeMm = optionalSurchargeMm;
 
-    const correctedBase = addRange(baseRangeMm as Range, correctionMm);
+    const correctedBase = addRange(baseRangeMm, correctionMm);
     const totalRangeMm = addRange(correctedBase, totalSurchargeMm);
     const totalRangeM3 = mmToM3(totalRangeMm, areaHa);
 
     return {
-        baseRangeMm: baseRangeMm as Range,
+        baseRangeMm,
         deltaKwb: Math.round(deltaKwb),
         correctionMm,
         ajSuggestedMm,

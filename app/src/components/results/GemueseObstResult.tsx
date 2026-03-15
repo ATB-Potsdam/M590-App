@@ -44,7 +44,14 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
 
             <div className="result-card__value-row">
                 <span>Basiswert Potsdam</span>
-                <span>{formatRange(result.baseRangeMm, 'mm')}</span>
+                <span>
+                    {formatRange(result.baseRangeMm, 'mm')}
+                    {dryResult && (
+                        <>
+                            (🌤){" / "}
+                            {formatRange(dryResult.baseRangeMm, 'mm')} (☀️)
+                        </>
+                    )}                </span>
             </div>
             <div className="result-card__value-row">
                 <span>ΔKWB Standort</span>
@@ -63,7 +70,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                         <th title="Niederschlag">N (mm)</th>
                         <th title="Gras-ET₀">ET₀</th>
                         <th title="Lokaler KWB = ET₀ − N">KWB</th>
-                        <th title="Referenz-KWB Potsdam">Ref</th>
+                        <th title="Referenz-KWB Potsdam">KWB<sub>Ref</sub></th>
                         <th title="Differenz × Gewicht">ΔKWB</th>
                     </tr>
                 </thead>
