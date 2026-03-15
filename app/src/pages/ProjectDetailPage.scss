@@ -126,6 +126,35 @@
         font-size: 12px;
         color: #2e7d32;
     }
+
+    &__result {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 2px;
+    }
+}
+
+.result-pill {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+
+    &--normal {
+        background: #e3f2fd;
+        color: #1565c0;
+    }
+
+    &--dry {
+        background: #fff3e0;
+        color: #e65100;
+    }
+
+    &--pending {
+        background: #fdecea;
+        color: #c62828;
+    }
 }
 
 .module-badge {
@@ -201,6 +230,16 @@
 
         &--pending span:last-child {
             color: #f57f17;
+        }
+    }
+
+    &__row--result {
+        background: #f9fbe7;
+        font-size: 14px;
+
+        strong {
+            color: #2e7d32;
+            font-size: 15px;
         }
     }
 }

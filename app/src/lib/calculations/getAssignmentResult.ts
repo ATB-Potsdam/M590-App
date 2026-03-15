@@ -1,0 +1,135 @@
+// src/lib/calculations/getAssignmentResult.ts
+import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from "../../types/dataTypes";
+import type {Field} from "../../types/farm";
+import type {FieldAssignment, Scenario} from "../../types/project";
+import {calculateGemueseObst, calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
+import type {HauptkulturenResult} from "./hauptkulturen";
+import {calculateHauptkulturen, calculateHauptkulturenBoth} from "./hauptkulturen";
+
+export interface AssignmentResult {
+    normal?: HauptkulturenResult | GemueseObstResult;
+    dry?: HauptkulturenResult | GemueseObstResult;
+}
+
+export const getAssignmentResult = (
+    fa: FieldAssignment,
+    field: Field,
+    scenario: Scenario
+): AssignmentResult | null => {
+    if (
+        fa.module === "hauptkulturen" &&
+        fa.plantKey &&
+        field.climateClassStatus === "done" &&
+        field.climateClass &&
+        field.nFkweClass
+    ) {
+        const input = {
+            crop: fa.plantKey as CropName,
+            nFkweClass: field.nFkweClass as NFkweClassName,
+            kwbZone: field.climateClass[0] as KwbZone,
+            areaHa: field.areaHa,
+            surchargeIntermediate: fa.surchargeIntermediate,
+            surchargeEmergence: fa.surchargeEmergence,
+            surchargeHeavySoil: fa.surchargeHeavySoil,
+        };
+
+        if (scenario === "both") {
+            const {normal, dry} = calculateHauptkulturenBoth(input);
+            return {normal, dry};
+        }
+        if (scenario === "dry") {
+            return {dry: calculateHauptkulturen({...input, scenario: "dry"})};
+        }
+        return {normal: calculateHauptkulturen({...input, scenario: "normal"})};
+    }
+    if (
+        fa.module === "gemuese_obst" &&
+        fa.plantKey &&
+        fa.irrigationPeriod &&
+        field.climateDataStatus === "done" &&
+        field.climateData &&
+        field.nFkweClass
+    ) {
+        const input = {
+            plant: fa.plantKey as AnyPlantName,
+            nFkweClass: field.nFkweClass,
+            areaHa: field.areaHa,
+            irrigationPeriod: fa.irrigationPeriod,
+            precipitation: field.climateData.precipitation,
+            et0: field.climateData.et0,
+            surchargeIntermediate: fa.surchargeIntermediate,
+            surchargeEmergence: fa.surchargeEmergence,
+        };
+
+        if (scenario === "both") {
+            const {normal, dry} = calculateGemueseObstBoth(input);
+            return {normal, dry};
+        }
+        if (scenario === "dry") return {dry: calculateGemueseObst({...input, scenario: "dry"})};
+        return {normal: calculateGemueseObst({...input, scenario: "normal"})};
+    }
+
+    return null;
+};
+
+// Summiert m³/a-Ranges über alle Assignments
+export const sumResults = (results: AssignmentResult[]): {
+    normalM3: [number, number] | null;
+    dryM3: [number, number] | null;
+} => {
+    let normalMin = 0, normalMax = 0, hasNormal = false;
+    let dryMin = 0, dryMax = 0, hasDry = false;
+
+    results.forEach((r) => {
+        if (r.normal) {
+            normalMin += r.normal.totalRangeM3[0];
+            normalMax += r.normal.totalRangeM3[1];
+            hasNormal = true;
+        }
+        if (r.dry) {
+            dryMin += r.dry.totalRangeM3[0];
+            dryMax += r.dry.totalRangeM3[1];
+            hasDry = true;
+        }
+    });
+
+    return {
+        normalM3: hasNormal ? [normalMin, normalMax] : null,
+        dryM3: hasDry ? [dryMin, dryMax] : null,
+    };
+};
+
+export const getMissingData = (
+    fa: FieldAssignment,
+    field: Field
+): string[] => {
+    const missing: string[] = [];
+
+    if (!fa.module) {
+        missing.push("Nutzungsmodul");
+        return missing; // Rest ergibt keinen Sinn ohne Modul
+    }
+
+    if ((fa.module === "hauptkulturen" || fa.module === "gemuese_obst") && !fa.plantKey) {
+        missing.push("Kultur");
+    }
+
+    if (fa.module === "gemuese_obst" && !fa.irrigationPeriod) {
+        missing.push("Bewässerungszeitraum");
+    }
+
+    if (field.climateClassStatus !== "done") {
+        missing.push("Klimazone");
+    }
+
+    if (field.climateDataStatus !== "done") {
+        missing.push("Klimadaten");
+    }
+
+    if (!field.nFkweClass &&
+        (fa.module === "hauptkulturen" || fa.module === "gemuese_obst")) {
+        missing.push("nFKWe-Klasse");
+    }
+
+    return missing;
+};

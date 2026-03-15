@@ -5,7 +5,7 @@ import {MONTHS, POSITIONS, boundToLabel, isValidPeriod} from "../utils/irrigatio
 import "./IrrigationPeriodPicker.scss";
 
 interface Props {
-    value?: IrrigationPeriod;
+    value: IrrigationPeriod;
     onChange: (period: IrrigationPeriod) => void;
 }
 
@@ -42,12 +42,8 @@ const BoundPicker = ({
 );
 
 export const IrrigationPeriodPicker = ({value, onChange}: Props) => {
-    const [from, setFrom] = useState<IrrigationBound>(
-        value?.from ?? {month: 4, position: "full"}
-    );
-    const [to, setTo] = useState<IrrigationBound>(
-        value?.to ?? {month: 9, position: "full"}
-    );
+    const [from, setFrom] = useState<IrrigationBound>(value.from);
+    const [to, setTo] = useState<IrrigationBound>(value.to);
 
     const valid = isValidPeriod(from, to);
 

@@ -1,6 +1,7 @@
 // src/pages/FarmPage.tsx
 import clsx from "clsx";
 import {useState} from "react";
+import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {useFarm} from "../hooks/useFarm";
 import type {Field} from "../types/farm";
@@ -62,7 +63,15 @@ export const FarmPage = () => {
                             </small>
                             <br />
                             <ClimateClassBadge field={field} />
-                            <div style={{display: "flex", gap: 8, marginTop: 8}}>
+                            {field.climateDataStatus === "done" && field.climateData && (
+                                <ClimateBarChart
+                                    precipitation={field.climateData.precipitation}
+                                    et0={field.climateData.et0}
+                                />
+                            )}
+                            {field.climateDataStatus === "loading" && (
+                                <small style={{color: "#888"}}>⏳ Klimadaten werden geladen…</small>
+                            )}                            <div style={{display: "flex", gap: 8, marginTop: 8}}>
                                 <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
                                 <button onClick={() => removeField(field.id)}>
                                     🗑 <span className={clsx("red")}>Entfernen</span>

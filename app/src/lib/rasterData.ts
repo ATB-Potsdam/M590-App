@@ -1,6 +1,6 @@
 import proj4 from "proj4";
 import type {MonthValueType} from "../types/dataTypes";
-import type {RasterLookup, RasterMeta} from "../types/precipitationTypes";
+import type {RasterLookup, RasterMeta} from "../types/raster";
 
 const basename = import.meta.env.BASE_URL;
 

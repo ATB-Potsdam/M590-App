@@ -2,11 +2,10 @@
 import type {PlantCategory} from "../types/project";
 import {
     agriculturalPlantNames,
-    cropNames,
     fodderPlantNames,
     fruitNames,
     medicalPlantNames,
-    vegetableNames,
+    vegetableNames
 } from "./plantNames";
 
 export interface PlantCategoryDefinition {
@@ -17,7 +16,7 @@ export interface PlantCategoryDefinition {
 }
 
 export const PLANT_CATEGORIES: PlantCategoryDefinition[] = [
-    {type: "hauptkulturen", icon: "🌾", label: "Hauptkulturen", names: cropNames},
+    // {type: "hauptkulturen", icon: "🌾", label: "Hauptkulturen", names: cropNames},
     {type: "gemuese", icon: "🥦", label: "Gemüse", names: vegetableNames},
     {type: "obst", icon: "🍎", label: "Obst", names: fruitNames},
     {type: "medizinal", icon: "🌿", label: "Medizinalpflanzen", names: medicalPlantNames},

@@ -33,14 +33,13 @@ export interface IrrigationPeriod {
     to: IrrigationBound;
 }
 
-// In FieldAssignment ergänzen:
 export interface FieldAssignment {
     id: string;
     fieldId: string;
     module?: ModuleType;
     plantCategory?: PlantCategory;
     plantKey?: string;
-    irrigationPeriod?: IrrigationPeriod;   // ← neu
+    irrigationPeriod?: IrrigationPeriod;
     surchargeIntermediate: boolean;
     surchargeEmergence: number;
     surchargeHeavySoil: number;

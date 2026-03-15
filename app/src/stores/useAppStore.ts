@@ -1,7 +1,7 @@
 import {create} from "zustand";
 import {subscribeWithSelector} from "zustand/middleware";
 import type {WasmLayer} from "../pkg/polylookup";
-import type {RasterLookup} from "../types/precipitationTypes";
+import type {RasterLookup} from "../types/raster";
 
 export interface MessageType {
     type: "error" | "info" | "warning";

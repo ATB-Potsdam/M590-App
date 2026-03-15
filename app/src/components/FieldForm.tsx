@@ -1,14 +1,15 @@
 // src/components/FieldForm.tsx
 import {useRef, useState, type SubmitEvent} from "react";
 import {getCurrentLatLon} from "../lib/location";
-import type {Field, GeoPoint} from "../types/farm";
+import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
+import type {FieldInput, GeoPoint} from "../types/farm";
 import "./FieldForm.scss";
 import {LocationPicker, type LocationPickerHandle} from "./LocationPicker";
 
 interface Props {
-    initialValues?: Omit<Field, "id" | "climateClass" | "climateClassStatus">;
+    initialValues?: FieldInput;
     existingLocations?: Array<GeoPoint & {name: string;}>;
-    onSave: (field: Omit<Field, "id" | "climateClass" | "climateClassStatus">) => void;
+    onSave: (field: FieldInput) => void;
     onCancel: () => void;
 }
 
@@ -18,6 +19,9 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
     const [locating, setLocating] = useState(false);
     const locationPickerRef = useRef<LocationPickerHandle | null>(null);
+    const [nFkweClass, setNFkweClass] = useState<NFkweClassName | undefined>(
+        initialValues?.nFkweClass
+    );
 
     const handleUseCurrentLocation = () => {
         setLocating(true);
@@ -38,7 +42,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
         if (!name || !areaHa || !location) return;
-        onSave({name, areaHa: Number(areaHa), location});
+        onSave({name, areaHa: Number(areaHa), location, nFkweClass});
     };
 
     return (
@@ -84,6 +88,27 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                     Lat: {location.lat.toFixed(5)}, Lon: {location.lon.toFixed(5)}
                 </small>
             )}
+
+            <fieldset style={{border: "1px solid #ddd", borderRadius: 8, padding: "8px 12px"}}>
+                <legend style={{fontWeight: 600, fontSize: 14}}>nFKWe-Klasse (Bodenwasser)</legend>
+                <p style={{margin: "0 0 8px", fontSize: 12, color: "#888"}}>
+                    Böden können lokal variieren – bitte bestätigen oder anpassen.
+                </p>
+                <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+                    {nFkweClassNames.map((cls) => (
+                        <label key={cls} style={{display: "flex", alignItems: "center", gap: 4}}>
+                            <input
+                                type="radio"
+                                name="nFkweClass"
+                                value={cls}
+                                checked={nFkweClass === cls}
+                                onChange={() => setNFkweClass(cls)}
+                            />
+                            {cls}
+                        </label>
+                    ))}
+                </div>
+            </fieldset>
 
             <div style={{display: "flex", gap: 8}}>
                 <button type="submit" disabled={!name || !areaHa || !location}>
