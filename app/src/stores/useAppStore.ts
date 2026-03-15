@@ -1,6 +1,7 @@
 import {create} from "zustand";
 import {subscribeWithSelector} from "zustand/middleware";
 import type {WasmLayer} from "../pkg/polylookup";
+import type {RasterLookup} from "../types/precipitationTypes";
 
 export interface MessageType {
     type: "error" | "info" | "warning";
@@ -13,7 +14,9 @@ const MessageTimeout = 5000; // 5 seconds
 type AppState = {
     // State
     layer?: WasmLayer;
-    setLayer: (layer: WasmLayer) => void;
+
+    precipitationLookup?: RasterLookup;
+    et0Lookup?: RasterLookup;
 
     messages: MessageType[];
     addMessage: (message: MessageType) => MessageType;
@@ -23,7 +26,9 @@ type AppState = {
 export const useAppStore = create<AppState>()(
     subscribeWithSelector((set) => ({
         layer: undefined,
-        setLayer: (layer: WasmLayer) => set({layer}),
+
+        precipitationLookup: undefined,
+        et0Lookup: undefined,
 
         messages: [],
         addMessage: (message: MessageType) => {

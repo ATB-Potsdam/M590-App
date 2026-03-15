@@ -8,7 +8,20 @@ export const kwbvZoneNames = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
 
 export type YearType = "normal" | "dry";
 
-export type KwbType = [number, number, number, number, number, number, number, number, number, number, number, number,];
+export type MonthValueType = [
+    jan: number | null,
+    feb: number | null,
+    mar: number | null,
+    apr: number | null,
+    may: number | null,
+    jun: number | null,
+    jul: number | null,
+    aug: number | null,
+    sep: number | null,
+    oct: number | null,
+    nov: number | null,
+    dec: number | null,
+];
 
 export type NFkweClassName = typeof nFkweClassNames[number];
 export type KwbZone = typeof kwbvZoneNames[number];

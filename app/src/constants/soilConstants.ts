@@ -1,4 +1,4 @@
-import {nFkweClassNames, type AnyPlantName, type CropName, type KwbType, type KwbZone, type NFkweClassName, type Range, type RawData} from "../types/dataTypes";
+import {nFkweClassNames, type AnyPlantName, type CropName, type KwbZone, type MonthValueType, type NFkweClassName, type Range, type RawData} from "../types/dataTypes";
 import {rawAgriculturalPlants, rawCropDataDry, rawCropDataNorm, rawFodderPlants, rawFruitData, rawMedicalPlantData, rawVegetableData} from "./plantDataRaw";
 type KfeClass = [
     nKfeRange: Range,
@@ -28,7 +28,7 @@ export const kwbWater: Record<KwbZone, Range> = {
     "H": [-Infinity, -250],
 } as const;
 
-export const refKwb: KwbType = [0, 0, -1, -48, -52, -58, -48, -49, -15, 13, 0, 0];
+export const refKwb: MonthValueType = [null, null, -1, -48, -52, -58, -48, -49, -15, 13, null, null];
 
 export const rFactor: Record<NFkweClassName, number> = {
     "1-2": 0.7,

@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import {refKwb, rFactor} from "../constants/soilConstants";
 import {useFarm} from "../hooks/useFarm";
-import {getKwb, lookupOtherPlant} from "../lib/tools";
+import {getKwbSum, lookupOtherPlant} from "../lib/tools";
 import type {AnyPlantName, Range} from "../types/dataTypes";
 import type {Field} from "../types/farm";
 import "./HomePage.scss";
@@ -23,8 +23,8 @@ const sample = () => {
     const plant: AnyPlantName = "Spinat|früh";
     const plantData = lookupOtherPlant(plant, "dry", "1-2");
     const time: Range = [4.5, 5];
-    const refKwb2 = getKwb(refKwb, time);
-    const kwb = getKwb([0, 0, 0, -32, -40, -48, -28, -39, -10, 0, 0, 0], time);
+    const refKwb2 = getKwbSum(refKwb, time);
+    const kwb = getKwbSum([0, 0, 0, -32, -40, -48, -28, -39, -10, 0, 0, 0], time);
     const dKwb = refKwb2 - kwb;
     const rDKwb = rFactor["1-2"] * dKwb;
     const newPlantData = plantData ? [plantData[0] + rDKwb, plantData[1] + rDKwb] as Range : null;

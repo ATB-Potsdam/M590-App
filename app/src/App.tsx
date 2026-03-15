@@ -5,6 +5,7 @@ import {BottomNav} from './components/BottomNav';
 import {Messages} from './components/Messages';
 import {useFarm} from './hooks/useFarm';
 import {loadLayerFromPublic} from './lib/polylookup';
+import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
 import {HomePage} from './pages/HomePage';
@@ -14,6 +15,7 @@ import {useAppStore} from './stores/useAppStore';
 
 const App = () => {
     const layer = useAppStore((state) => state.layer);
+    const precipitationData = useAppStore((state) => state.precipitationLookup);
     const addMessage = useAppStore((state) => state.addMessage);
     const delMessage = useAppStore((state) => state.delMessage);
     const {farm} = useFarm();
@@ -21,24 +23,30 @@ const App = () => {
 
     useEffect(() => {
         if (!layer) {
-            console.log("Loading layer...");
+            console.log("Loading data...");
             const message = addMessage({
                 type: 'info',
-                message: ['Loading layer…'],
+                message: ['Loading data…'],
             });
-            loadLayerFromPublic()
+            Promise.all([
+                loadLayerFromPublic(),
+                createRasterLookup(precipRasterUrl),
+                createRasterLookup(et0RasterUrl),
+            ])
                 .finally(() => delMessage(message))
-                .then((layer) => {
-                    useAppStore.setState({layer});
-                    addMessage({type: "info", message: ['Layer loaded ✅']});
+                .then(([layer, precipitationLookup, et0Lookup
+
+                ]) => {
+                    useAppStore.setState({layer, precipitationLookup, et0Lookup});
+                    addMessage({type: "info", message: ['Data loaded ✅']});
                 })
                 .catch((e) => {
-                    addMessage({type: "error", message: ['Layer loaded failed: ' + (e?.message ?? String(e))]});
+                    addMessage({type: "error", message: ['Loading data failed: ' + (e?.message ?? String(e))]});
                 });
         }
     }, [addMessage, delMessage, layer]);
 
-    if (!layer) {
+    if (!layer || !precipitationData) {
         return <Messages />;
     }
 

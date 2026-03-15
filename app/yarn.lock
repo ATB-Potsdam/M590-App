@@ -1188,6 +1188,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/proj4@npm:^2.19.0":
+  version: 2.19.0
+  resolution: "@types/proj4@npm:2.19.0"
+  dependencies:
+    proj4: "npm:*"
+  checksum: 10c0/3df1d7a3613461f3f1c5e0369668e50b02c0149233e235bf4b82af53a1f6c61acea633c9087b0a57ed211c873397c005af31082e202ac642b001d3c866d66871
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^19.2.3":
   version: 19.2.3
   resolution: "@types/react-dom@npm:19.2.3"
@@ -2401,6 +2410,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@types/leaflet": "npm:^1.9.21"
     "@types/node": "npm:^25.3.3"
+    "@types/proj4": "npm:^2.19.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@types/uuid": "npm:^11.0.0"
@@ -2413,6 +2423,7 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.5.2"
     globals: "npm:^17.4.0"
     leaflet: "npm:^1.9.4"
+    proj4: "npm:^2.20.4"
     react: "npm:^19.2.4"
     react-dom: "npm:^19.2.4"
     react-icons: "npm:^5.6.0"
@@ -2443,6 +2454,13 @@ __metadata:
     proc-log: "npm:^6.0.0"
     ssri: "npm:^13.0.0"
   checksum: 10c0/b874bf6879fc0b8ef3a3cafdddadea4d956acf94790f8dede1a9d3c74c7886b6cd3eb992616b8e5935e6fd550016a465f10ba51bf6723a0c6f4d98883ae2926b
+  languageName: node
+  linkType: hard
+
+"mgrs@npm:1.0.0":
+  version: 1.0.0
+  resolution: "mgrs@npm:1.0.0"
+  checksum: 10c0/a360853be5a3b4f4734dbf0a193851c08039ccb6077362ab0f890cccd170ef88b59585129757da9fea4d7a313d7dc3ee88f37f594fc1ae3e4e8efc5353144d77
   languageName: node
   linkType: hard
 
@@ -2764,6 +2782,16 @@ __metadata:
   version: 6.1.0
   resolution: "proc-log@npm:6.1.0"
   checksum: 10c0/4f178d4062733ead9d71a9b1ab24ebcecdfe2250916a5b1555f04fe2eda972a0ec76fbaa8df1ad9c02707add6749219d118a4fc46dc56bdfe4dde4b47d80bb82
+  languageName: node
+  linkType: hard
+
+"proj4@npm:*, proj4@npm:^2.20.4":
+  version: 2.20.4
+  resolution: "proj4@npm:2.20.4"
+  dependencies:
+    mgrs: "npm:1.0.0"
+    wkt-parser: "npm:^1.5.3"
+  checksum: 10c0/bb83915ae7973068f02ca440099faca7efd6b1add3cd2903fe8ce816f4d589bd72ac77c9a882d3d60c7beff2cb9d9fb38924590978a87a7165156cb120c8328c
   languageName: node
   linkType: hard
 
@@ -3425,6 +3453,13 @@ __metadata:
   bin:
     node-which: bin/which.js
   checksum: 10c0/7e710e54ea36d2d6183bee2f9caa27a3b47b9baf8dee55a199b736fcf85eab3b9df7556fca3d02b50af7f3dfba5ea3a45644189836df06267df457e354da66d5
+  languageName: node
+  linkType: hard
+
+"wkt-parser@npm:^1.5.3":
+  version: 1.5.4
+  resolution: "wkt-parser@npm:1.5.4"
+  checksum: 10c0/70d85e2a4abea83c94021ffc5e11a8d25e9b70b0989d762c470a57600a4ee930d537366b608b26f3fba7f371c4e6d8d814a074831e7cc2914efa4e3cbddc8913
   languageName: node
   linkType: hard
 
