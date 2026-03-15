@@ -7,6 +7,8 @@ import type {IrrigationPeriod, Scenario} from "../../types/project";
 import {getMonthWeights} from "./irrigationWeights";
 import {nFkweToRawIndex} from "./nFkweMapping";
 
+const MONTH_LABELS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
 export interface GemueseObstInput {
     plant: AnyPlantName;
     nFkweClass: NFkweClassName;
@@ -21,17 +23,30 @@ export interface GemueseObstInput {
     surchargeEmergence: number;
 }
 
+export interface MonthlyClimateRow {
+    label: string;         // "Apr"
+    precip: number;
+    et0: number;
+    refKwbVal: number;
+    localKwb: number;
+    deltaKwb: number;
+    weight: number;
+    weightedDelta: number;
+}
+
 export interface GemueseObstResult {
-    baseRangeMm: Range;           // Potsdam-Basiswert
-    deltaKwb: number;             // Standortkorrektur (mm)
-    correctionMm: number;         // ΔKWB × rFactor
-    ajSuggestedMm: number | null; // Vorschlag aus Konstante
+    baseRangeMm: Range;
+    deltaKwb: number;
+    correctionMm: number;
+    ajSuggestedMm: number | null;
     optionalSurchargeMm: number;
     totalSurchargeMm: number;
     totalRangeMm: Range;
     totalRangeM3: Range;
     scenario: Scenario;
+    monthlyRows: MonthlyClimateRow[];
 }
+
 
 const addRange = (r: Range, mm: number): Range => [r[0] + mm, r[1] + mm];
 const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10];
@@ -49,17 +64,30 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
 
     // Monatliche Gewichtungen für den Bewässerungszeitraum
     const weights = getMonthWeights(irrigationPeriod);
-
-    // ΔKWB = Σ ( (ET₀ - Niederschlag) - refKwb ) × Gewicht  über Bewässerungsmonate
+    const monthlyRows: MonthlyClimateRow[] = [];
     let deltaKwb = 0;
+
     for (const [monthStr, weight] of Object.entries(weights)) {
-        const m = Number(monthStr); // Kalendermonat 1–12
-        const idx = m - 1;          // Array-Index 0–11
+        const m = Number(monthStr);
+        const idx = m - 1;
         const localEt0 = et0[idx] ?? 0;
         const localPrecip = precipitation[idx] ?? 0;
         const ref = refKwb[idx] ?? 0;
-        const localKwb = localEt0 - localPrecip;
-        deltaKwb += (localKwb - ref) * (weight ?? 1);
+        const localKwb = localPrecip - localEt0;
+        const delta = ref - localKwb;
+        const weighted = delta * (weight ?? 1);
+        deltaKwb += weighted;
+
+        monthlyRows.push({
+            label: MONTH_LABELS[idx],
+            precip: Math.round(localPrecip),
+            et0: Math.round(localEt0),
+            refKwbVal: Math.round(ref),
+            localKwb: Math.round(localKwb),
+            deltaKwb: Math.round(delta),
+            weight: weight ?? 1,
+            weightedDelta: Math.round(weighted),
+        });
     }
 
     // Korrektur = ΔKWB × rFactor
@@ -89,6 +117,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         totalRangeMm,
         totalRangeM3,
         scenario,
+        monthlyRows,
     };
 };
 

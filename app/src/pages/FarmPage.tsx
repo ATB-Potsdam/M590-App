@@ -46,7 +46,7 @@ export const FarmPage = () => {
                 <div key={field.id} style={{border: "1px solid #ccc", borderRadius: 8, padding: 12, marginBottom: 8}}>
                     {editingField?.id === field.id ? (
                         <FieldForm
-                            initialValues={{name: field.name, areaHa: field.areaHa, location: field.location}}
+                            initialValues={{...field}}
                             existingLocations={farm.fields.map((f) => ({...f.location, name: f.name}))}
                             onSave={(data) => {
                                 editField(field.id, data);

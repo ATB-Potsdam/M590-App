@@ -78,3 +78,49 @@
         }
     }
 }
+
+.result-card__climate-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 8px;
+
+    th,
+    td {
+        padding: 3px 6px;
+        text-align: right;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    th:first-child,
+    td:first-child {
+        text-align: left;
+    }
+
+    th {
+        color: #888;
+        font-weight: 500;
+    }
+
+    &-sum td {
+        font-weight: 600;
+        border-top: 2px solid #e0e0e0;
+        border-bottom: none;
+    }
+}
+
+.result-card__weight {
+    font-size: 10px;
+    color: #aaa;
+}
+
+.cell--positive {
+    color: #c62828;
+}
+
+// KWB positiv = Defizit = rot
+.cell--negative {
+    color: #2e7d32;
+}
+
+// KWB negativ = Überschuss = grün

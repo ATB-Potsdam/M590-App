@@ -13,6 +13,7 @@ RASTER_CONFIGS = {
         "url_path": "grids_germany/multi_annual/precipitation/",
         "filename_tpl": "grids_germany_multi_annual_precipitation_{period}_{month:02d}.asc",
         "out_stem_tpl": "precip_{period}_mar_oct",
+        "scale": 1.0,
         "unit": "mm",
         "description": "Niederschlagshöhe (30-jähriges Mittel)",
     },
@@ -20,6 +21,7 @@ RASTER_CONFIGS = {
         "url_path": "grids_germany/multi_annual/evapo_p/",
         "filename_tpl": "grids_germany_multi_annual_evapo_p_{period}_{month:02d}.asc",
         "out_stem_tpl": "et0_{period}_mar_oct",
+        "scale": 0.1,
         "unit": "mm",
         "description": "Potentielle Evapotranspiration Gras Penman-Monteith (ET₀)",
     },
@@ -80,6 +82,7 @@ def build_meta(raw: dict, period: str, months: list[int], cfg: dict) -> dict:
         "type":        cfg["out_stem_tpl"].split("_")[0],   # "precip" | "et0"
         "description": cfg["description"],
         "unit":        cfg["unit"],
+        "scale":       cfg.get("scale", 1.0),
         "period":      period,
         "months":      months,
         "nrows":       nrows,
@@ -126,6 +129,8 @@ def main() -> None:
     grids: list[np.ndarray] = []
     meta: dict | None = None
 
+    scale = cfg.get("scale", 1.0)
+
     for m in month_list:
         print(f"Month {m:02d}:")
         filename = cfg["filename_tpl"].format(period=args.period, month=m)
@@ -141,6 +146,9 @@ def main() -> None:
         valid = grid[grid > 0]
         if valid.size:
             print(f"           min={valid.min():.1f}  max={valid.max():.1f}  {cfg['unit']}")
+
+        if scale != 1.0:
+            grid = np.where(grid > 0, grid * scale, grid)
         grids.append(grid.astype(np.uint16))
 
     stacked = np.stack(grids, axis=0)   # (n_months, nrows, ncols)
