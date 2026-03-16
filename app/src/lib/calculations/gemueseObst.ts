@@ -49,6 +49,7 @@ export interface GemueseObstResult {
 
 
 const addRange = (r: Range, mm: number): Range => [r[0] + mm, r[1] + mm];
+const cropRange = (r: Range, min?: Range): Range => [Math.max(r[0], min?.[0] ?? 0), Math.max(r[1], min?.[1] ?? 0)];
 const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10];
 
 export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult => {
@@ -104,7 +105,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     const totalSurchargeMm = optionalSurchargeMm;
 
     const correctedBase = addRange(baseRangeMm, correctionMm);
-    const totalRangeMm = addRange(correctedBase, totalSurchargeMm);
+    const totalRangeMm = cropRange(addRange(correctedBase, totalSurchargeMm));
     const totalRangeM3 = mmToM3(totalRangeMm, areaHa);
 
     return {

@@ -151,7 +151,6 @@ export const useFarm = () => {
     return {farm, updateFarmName, addField, editField, removeField};
 };
 
-// src/hooks/useFarm.ts – zusätzlich exportieren:
 export const refreshClimateData = (
     precipitationLookup: RasterLookup,
     et0Lookup: RasterLookup,
@@ -159,7 +158,7 @@ export const refreshClimateData = (
     fields: Field[]
 ) => {
     fields
-        .filter((f) => f.climateDataStatus === "idle" || f.climateDataStatus === "error" || !("climateDataStatus" in f))
+        .filter((f) => f.climateDataStatus !== "done")
         .forEach((f) => {
             try {
                 const precipitation = precipitationLookup.getValues(f.location.lon, f.location.lat);
