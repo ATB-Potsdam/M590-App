@@ -1,6 +1,7 @@
 // src/utils/irrigationPeriod.ts
 
-import type {IrrigationBound, IrrigationMonth, MonthPosition} from "../types/project";
+import type {Range} from "../types/dataTypes";
+import type {IrrigationBound, IrrigationMonth, IrrigationPeriod, MonthPosition} from "../types/project";
 
 export const MONTHS: {value: IrrigationMonth; label: string;}[] = [
     {value: 3, label: "März"},
@@ -33,3 +34,21 @@ export const boundIndex = (b: IrrigationBound): number =>
 
 export const isValidPeriod = (from: IrrigationBound, to: IrrigationBound): boolean =>
     boundIndex(from) <= boundIndex(to);
+
+const getPosition = (month: number): MonthPosition => {
+    const frac = month % 1;
+    if (frac > .7) return "late";
+    if (frac > .4) return "mid";
+    if (frac > .2) return "early";
+    return "full";
+};
+
+export const timeRangeToPeriod = (time: Range): IrrigationPeriod => {
+    const from: IrrigationBound = {month: Math.floor(time[0]) as IrrigationMonth, position: getPosition(time[0])};
+    const to: IrrigationBound = {month: Math.floor(time[1] + .9) as IrrigationMonth, position: getPosition(time[1])};
+    return {from, to};
+};
+
+export const periodToKey = (period: IrrigationPeriod): string => {
+    return `${period.from.month}-${period.from.position}-${period.to.month}-${period.to.position}`;
+};

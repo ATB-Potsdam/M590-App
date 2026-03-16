@@ -1,19 +1,20 @@
 // src/pages/AssignmentPage.tsx
 import {useState} from 'react';
 import {useNavigate, useParams} from 'react-router';
-import {IrrigationPeriodPicker} from '../components/IrrigationPeriodPicker';
 import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
 import {cropNames} from '../constants/plantNames';
+import {allOtherPlants} from '../constants/soilConstants';
 import {useFarm} from '../hooks/useFarm';
 import {useProjects} from '../hooks/useProjects';
 import {calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
 import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
-import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from '../types/dataTypes';
+import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
+import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
 import './AssignmentPage.scss';
 
@@ -74,9 +75,10 @@ export const AssignmentPage = () => {
             ? ((rawVegetableDataAj as Record<string, number | null>)[plantKey] ?? null)
             : null;
 
-    const needsPlantSelection = module === 'hauptkulturen' || module === 'gemuese_obst';
+    const needsPlantSelection = module === 'gemuese_obst';
+    const needsIrrigationSelection = module === 'gemuese_obst';
     const showCategoryPicker = module === 'gemuese_obst' && !plantCategory;
-    const showLevel0Picker = needsPlantSelection && (module === 'hauptkulturen' || plantCategory) && !selectedLevel0;
+    const showLevel0Picker = needsPlantSelection && plantCategory && !selectedLevel0;
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
     const showSurcharges = !!plantKey || (!!selectedLevel0 && !hasVariants(currentNames, selectedLevel0));
     const showSurchargesNonPlant = module && !needsPlantSelection;
@@ -183,7 +185,7 @@ export const AssignmentPage = () => {
             {/* Schritt 2b/3: Kultur wählen (level0) */}
             {showLevel0Picker && (
                 <section className="assignment-section">
-                    <h2>{module === 'hauptkulturen' ? '2.' : '3.'} Kultur wählen</h2>
+                    <h2>3. Kultur wählen</h2>
                     <div className="option-list">
                         {level0Groups.map((name) => (
                             <button
@@ -247,12 +249,34 @@ export const AssignmentPage = () => {
             {/* Bewässerungszeitraum + Zuschläge */}
             {(showSurcharges || showSurchargesNonPlant) && (
                 <>
-                    {needsPlantSelection && (
+                    {needsIrrigationSelection && plantKey && (
+                        <section className="assignment-section">
+                            <h2>Bewässerungszeitraum</h2>
+                            {allOtherPlants[plantKey as VegetableName]?.[2]
+                                .map(timeRangeToPeriod)
+                                .map((timeRange) => {
+                                    const key = periodToKey(timeRange);
+                                    return <label key={key} style={{display: "flex", alignItems: "center", gap: 4}}>
+                                        <input
+                                            type="radio"
+                                            name="irrigationPeriod"
+                                            value={key}
+                                            checked={periodToKey(irrigationPeriod) === key}
+                                            onChange={() => setIrrigationPeriod(timeRange)}
+                                        />
+                                        {boundToLabel(timeRange.from)} bis {boundToLabel(timeRange.to)}
+                                    </label>;
+                                })}
+                        </section>
+                    )}
+                    {/*
+                    needsIrrigationSelection && (
                         <section className="assignment-section">
                             <h2>Bewässerungszeitraum</h2>
                             <IrrigationPeriodPicker value={irrigationPeriod} onChange={setIrrigationPeriod} />
                         </section>
-                    )}
+                    )
+                    */}
 
                     <section className="assignment-section">
                         <h2>Zuschläge</h2>
