@@ -273,11 +273,11 @@ export const AssignmentPage = () => {
                     <section className="assignment-section">
                         <h2>Zuschläge</h2>
 
-                        {module === 'gemuese_obst' && (
+                        {module === 'gemuese_obst' && ajSuggested !== null && (
                             <label className="surcharge-row">
                                 <span>
                                     Auflaufbewässerung
-                                    {ajSuggested !== null && ajSuggested !== surchargeEmergence && (
+                                    {ajSuggested !== surchargeEmergence && (
                                         <button
                                             type="button"
                                             className="link-btn"
@@ -309,7 +309,8 @@ export const AssignmentPage = () => {
                             Zwischenfrucht <span className="surcharge-hint">+10 mm</span>
                         </label>
 
-                        {module === 'hauptkulturen' && (
+                        {/*
+                        module === 'hauptkulturen' && (
                             <label className="surcharge-row">
                                 Auflaufbewässerung
                                 <span className="surcharge-hint">0–20 mm</span>
@@ -320,7 +321,8 @@ export const AssignmentPage = () => {
                                 />
                                 <span className="surcharge-value">{surchargeEmergence} mm</span>
                             </label>
-                        )}
+                        )
+                        */}
 
                         {(plantKey?.startsWith('Kartoffel') || selectedLevel0?.startsWith('Kartoffel')) && (
                             <label className="surcharge-row">
