@@ -1,7 +1,6 @@
 // src/lib/calculations/hauptkulturen.ts
 import {additionWaterDryYear, additionWaterNormYear, type CropAdditionalWater} from "../../constants/soilConstants";
-import type {CropName, KwbZone, NFkweClassName, Range} from "../../types/dataTypes";
-import type {Scenario} from "../../types/project";
+import type {CropName, KwbZone, NFkweClassName, Range, Scenario} from "../../types/dataTypes";
 
 export interface HauptkulturenInput {
     crop: CropName;

@@ -1,10 +1,10 @@
 // src/lib/calculations/getAssignmentResult.ts
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from "../../types/dataTypes";
 import type {Field} from "../../types/farm";
-import type {FieldAssignment, Scenario} from "../../types/project";
-import {calculateGemueseObst, calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
+import type {FieldAssignment} from "../../types/project";
+import {calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
 import type {HauptkulturenResult} from "./hauptkulturen";
-import {calculateHauptkulturen, calculateHauptkulturenBoth} from "./hauptkulturen";
+import {calculateHauptkulturenBoth} from "./hauptkulturen";
 
 export interface AssignmentResult {
     normal?: HauptkulturenResult | GemueseObstResult;
@@ -14,7 +14,6 @@ export interface AssignmentResult {
 export const getAssignmentResult = (
     fa: FieldAssignment,
     field: Field,
-    scenario: Scenario
 ): AssignmentResult | null => {
     if (
         fa.module === "hauptkulturen" &&
@@ -33,14 +32,8 @@ export const getAssignmentResult = (
             surchargeHeavySoil: fa.surchargeHeavySoil,
         };
 
-        if (scenario === "both") {
-            const {normal, dry} = calculateHauptkulturenBoth(input);
-            return {normal, dry};
-        }
-        if (scenario === "dry") {
-            return {dry: calculateHauptkulturen({...input, scenario: "dry"})};
-        }
-        return {normal: calculateHauptkulturen({...input, scenario: "normal"})};
+        const {normal, dry} = calculateHauptkulturenBoth(input);
+        return {normal, dry};
     }
     if (
         fa.module === "gemuese_obst" &&
@@ -61,12 +54,8 @@ export const getAssignmentResult = (
             surchargeEmergence: fa.surchargeEmergence,
         };
 
-        if (scenario === "both") {
-            const {normal, dry} = calculateGemueseObstBoth(input);
-            return {normal, dry};
-        }
-        if (scenario === "dry") return {dry: calculateGemueseObst({...input, scenario: "dry"})};
-        return {normal: calculateGemueseObst({...input, scenario: "normal"})};
+        const {normal, dry} = calculateGemueseObstBoth(input);
+        return {normal, dry};
     }
 
     return null;

@@ -1,18 +1,16 @@
 // src/components/ProjectForm.tsx
 import {useState, type SubmitEvent} from "react";
-import {SCENARIOS} from "../constants/scenarios";
-import type {Project, Scenario} from "../types/project";
+import type {Project} from "../types/project";
 
 interface Props {
     existingProjects: Project[];
-    onSave: (name: string, year: number | undefined, scenario: Scenario, copyFromId?: string) => void;
+    onSave: (name: string, year: number | undefined, copyFromId?: string) => void;
     onCancel: () => void;
 }
 
 export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
     const [name, setName] = useState("");
     const [year, setYear] = useState<number | "">(new Date().getFullYear());
-    const [scenario, setScenario] = useState<Scenario>("normal");
     const [copyFromId, setCopyFromId] = useState<string>("");
 
     const handleSubmit = (e: SubmitEvent) => {
@@ -21,7 +19,6 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
         onSave(
             name.trim(),
             year === "" ? undefined : Number(year),
-            scenario,
             copyFromId || undefined
         );
     };
@@ -49,22 +46,6 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
                     placeholder="z. B. 2026"
                 />
             </label>
-
-            <fieldset style={{border: "1px solid #ddd", borderRadius: 8, padding: "8px 12px"}}>
-                <legend style={{fontWeight: 600, fontSize: 14}}>Szenario</legend>
-                {SCENARIOS.map(({type, icon, label, description}) => (
-                    <label key={type} style={{display: "flex", alignItems: "center", gap: 8, marginBottom: 4}}>
-                        <input
-                            type="radio"
-                            name="scenario"
-                            value={type}
-                            checked={scenario === type}
-                            onChange={() => setScenario(type)}
-                        />
-                        {icon} {label} – <small>{description}</small>
-                    </label>
-                ))}
-            </fieldset>
 
             {existingProjects.length > 0 && (
                 <label>

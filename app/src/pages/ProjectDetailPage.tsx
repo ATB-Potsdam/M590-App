@@ -2,7 +2,6 @@
 import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {getModuleLabel} from "../constants/modules";
-import {getScenarioIcon, getScenarioLabel} from "../constants/scenarios";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
@@ -38,7 +37,7 @@ export const ProjectDetailPage = () => {
     const assignmentResults: (AssignmentResult | null)[] = project.fieldAssignments.map((fa) => {
         const field = farm.fields.find((f) => f.id === fa.fieldId);
         if (!field) return null;
-        return getAssignmentResult(fa, field, project.scenario);
+        return getAssignmentResult(fa, field);
     });
 
     const {normalM3, dryM3} = sumResults(
@@ -57,8 +56,7 @@ export const ProjectDetailPage = () => {
                 <div>
                     <h1>{project.name}</h1>
                     <span className="project-detail__meta">
-                        {project.year && <span>{project.year} · </span>}
-                        {`${getScenarioIcon(project.scenario)} ${getScenarioLabel(project.scenario)}`}
+                        {project.year && <span>{project.year}</span>}
                     </span>
                 </div>
             </div>

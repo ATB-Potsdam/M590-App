@@ -1,9 +1,9 @@
 // src/lib/calculations/gemueseObst.ts
 import {rawVegetableDataAj} from "../../constants/plantDataRaw";
 import {allOtherPlants, refKwb, rFactor} from "../../constants/soilConstants";
-import type {AnyPlantName, MonthValueType, NFkweClassName} from "../../types/dataTypes";
+import type {AnyPlantName, MonthValueType, NFkweClassName, Scenario} from "../../types/dataTypes";
 import {type Range} from "../../types/dataTypes";
-import type {IrrigationPeriod, Scenario} from "../../types/project";
+import type {IrrigationPeriod} from "../../types/project";
 import {getMonthWeights} from "./irrigationWeights";
 import {nFkweToRawIndex} from "./nFkweMapping";
 

@@ -1,6 +1,7 @@
 import type {agriculturalPlantNames, cropNames, fodderPlantNames, fruitNames, medicalPlantNames, vegetableNames} from "../constants/plantNames";
 
 export type Range = [min: number, max: number];
+export type Scenario = "normal" | "dry";
 
 
 export const nFkweClassNames = ["1-2", "3a", "3b", "4", "5"] as const;

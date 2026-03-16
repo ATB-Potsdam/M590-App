@@ -1,17 +1,16 @@
 // src/hooks/useProjects.ts
 import {v4 as uuidv4} from "uuid";
 import {useLocalStore} from "../stores/useLocalStore";
-import type {FieldAssignment, Project, Scenario} from "../types/project";
+import type {FieldAssignment, Project} from "../types/project";
 
 export const useProjects = () => {
     const [projects, setProjects] = useLocalStore((state) => state.dwa_projects);
 
-    const addProject = (name: string, year?: number, scenario: Scenario = "normal") => {
+    const addProject = (name: string, year?: number) => {
         const project: Project = {
             id: uuidv4(),
             name,
             year,
-            scenario,
             fieldAssignments: [],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),

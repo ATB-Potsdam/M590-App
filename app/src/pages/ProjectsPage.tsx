@@ -2,12 +2,8 @@
 import {useState} from "react";
 import {useNavigate} from "react-router";
 import {ProjectForm} from "../components/ProjectForm";
-import {getScenarioIcon, getScenarioLabel} from "../constants/scenarios";
 import {useProjects} from "../hooks/useProjects";
-import type {Scenario} from "../types/project";
 import "./ProjectsPage.scss";
-
-const ScenarioBadge = ({scenario}: {scenario: Scenario;}) => `${getScenarioIcon(scenario)} ${getScenarioLabel(scenario)}`;
 
 export const ProjectsPage = () => {
     const {projects, addProject, copyProject, removeProject} = useProjects();
@@ -17,12 +13,11 @@ export const ProjectsPage = () => {
     const handleSave = (
         name: string,
         year: number | undefined,
-        scenario: Scenario,
         copyFromId?: string
     ) => {
         const id = copyFromId
             ? copyProject(copyFromId, name, year)
-            : addProject(name, year, scenario);
+            : addProject(name, year);
         setShowForm(false);
         if (id) navigate(`/projects/${id}`);
     };
@@ -44,7 +39,6 @@ export const ProjectsPage = () => {
                         >
                             <strong>{project.name}</strong>
                             {project.year && <span className="project-list__year">{project.year}</span>}
-                            <ScenarioBadge scenario={project.scenario} />
                             <small>{project.fieldAssignments.length} Feldzuweisung(en)</small>
                         </div>
                         <button

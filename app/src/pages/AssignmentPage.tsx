@@ -10,8 +10,8 @@ import {rawVegetableDataAj} from '../constants/plantDataRaw';
 import {cropNames} from '../constants/plantNames';
 import {useFarm} from '../hooks/useFarm';
 import {useProjects} from '../hooks/useProjects';
-import {calculateGemueseObst, calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
-import {calculateHauptkulturen, calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
+import {calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
+import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
@@ -93,16 +93,8 @@ export const AssignmentPage = () => {
                 surchargeEmergence,
                 surchargeHeavySoil,
             };
-            if (project.scenario === 'both') {
-                const {normal, dry} = calculateHauptkulturenBoth(input);
-                return {type: 'hauptkulturen' as const, normal, dry};
-            }
-            const res = calculateHauptkulturen({...input, scenario: project.scenario});
-            return {
-                type: 'hauptkulturen' as const,
-                normal: project.scenario === 'normal' ? res : undefined,
-                dry: project.scenario === 'dry' ? res : undefined,
-            };
+            const {normal, dry} = calculateHauptkulturenBoth(input);
+            return {type: 'hauptkulturen' as const, normal, dry};
         }
 
         if (module === 'gemuese_obst' && plantKey && field.climateDataStatus === 'done' && field.climateData && field.nFkweClass) {
@@ -116,16 +108,8 @@ export const AssignmentPage = () => {
                 surchargeIntermediate,
                 surchargeEmergence,
             };
-            if (project.scenario === 'both') {
-                const {normal, dry} = calculateGemueseObstBoth(input);
-                return {type: 'gemuese_obst' as const, normal, dry};
-            }
-            const res = calculateGemueseObst({...input, scenario: project.scenario});
-            return {
-                type: 'gemuese_obst' as const,
-                normal: project.scenario === 'normal' ? res : undefined,
-                dry: project.scenario === 'dry' ? res : undefined,
-            };
+            const {normal, dry} = calculateGemueseObstBoth(input);
+            return {type: 'gemuese_obst' as const, normal, dry};
         }
 
         return null;

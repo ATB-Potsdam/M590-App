@@ -1,6 +1,4 @@
 // src/types/project.ts
-export type Scenario = "normal" | "dry" | "both";
-
 export type ModuleType =
     | "hauptkulturen"
     | "gemuese_obst"
@@ -49,7 +47,6 @@ export interface Project {
     id: string;
     name: string;
     year?: number;
-    scenario: Scenario;
     fieldAssignments: FieldAssignment[];
     createdAt: string;
     updatedAt: string;
