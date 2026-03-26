@@ -4,6 +4,7 @@ import {useNavigate, useParams} from 'react-router';
 import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
 import {WeinbauResultCard} from '../components/results/WeinbauResult';
+import {GruenflaechenResultCard} from '../components/results/GruenflaechenResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -13,6 +14,8 @@ import {useFarm} from '../hooks/useFarm';
 import {useProjects} from '../hooks/useProjects';
 import {calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
 import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
+import {calculateGruenflaechen, VEGETATION_OPTIONS, MOISTURE_OPTIONS, SOIL_OPTIONS, SUN_OPTIONS} from '../lib/calculations/gruenflaechen';
+import type {FllVegetation, FllMoisture, FllSoil, FllSun} from '../lib/calculations/gruenflaechen';
 import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
@@ -46,6 +49,13 @@ export const AssignmentPage = () => {
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
     const [surchargeHeavySoil, setSurchargeHeavySoil] = useState(assignment?.surchargeHeavySoil ?? 0);
     const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
+    // Grünflächen FLL factors
+    const [fllVegetation, setFllVegetation] = useState<FllVegetation | undefined>(assignment?.fllVegetation);
+    const [fllMoisture, setFllMoisture] = useState<FllMoisture | undefined>(assignment?.fllMoisture);
+    const [fllSoil, setFllSoil] = useState<FllSoil | undefined>(assignment?.fllSoil);
+    const [fllSun, setFllSun] = useState<FllSun | undefined>(assignment?.fllSun);
+    const [fllPeriodStart, setFllPeriodStart] = useState(assignment?.fllPeriodStart ?? 4);
+    const [fllPeriodEnd, setFllPeriodEnd] = useState(assignment?.fllPeriodEnd ?? 9);
 
     if (!project || !assignment || !field) {
         return (
@@ -130,6 +140,21 @@ export const AssignmentPage = () => {
             return {type: 'weinbau' as const, normal, dry};
         }
 
+        if (module === 'gruenflaechen' && fllVegetation && fllMoisture && fllSoil && fllSun
+            && field.climateDataStatus === 'done' && field.climateData) {
+            const result = calculateGruenflaechen({
+                vegetation: fllVegetation,
+                moisture: fllMoisture,
+                soil: fllSoil,
+                sun: fllSun,
+                areaHa: field.areaHa,
+                et0: field.climateData.et0,
+                periodStart: fllPeriodStart,
+                periodEnd: fllPeriodEnd,
+            });
+            return {type: 'gruenflaechen' as const, normal: result, dry: undefined};
+        }
+
         return null;
     })();
 
@@ -143,6 +168,12 @@ export const AssignmentPage = () => {
             surchargeEmergence,
             surchargeHeavySoil,
             isJunganlage,
+            fllVegetation,
+            fllMoisture,
+            fllSoil,
+            fllSun,
+            fllPeriodStart,
+            fllPeriodEnd,
         });
         navigate(`/projects/${id}`);
     };
@@ -284,8 +315,85 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
+            {/* Grünflächen: FLL-Faktoren */}
+            {module === 'gruenflaechen' && (
+                <>
+                    <section className="assignment-section">
+                        <h2>2. Vegetation (Faktor G)</h2>
+                        <div className="option-list">
+                            {VEGETATION_OPTIONS.map((o) => (
+                                <button key={o.value}
+                                    className={`option-btn ${fllVegetation === o.value ? 'option-btn--active' : ''}`}
+                                    onClick={() => setFllVegetation(o.value)}
+                                >{o.label}</button>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="assignment-section">
+                        <h2>3. Standortfeuchte (Faktor L)</h2>
+                        <div className="option-list">
+                            {MOISTURE_OPTIONS.map((o) => (
+                                <button key={o.value}
+                                    className={`option-btn ${fllMoisture === o.value ? 'option-btn--active' : ''}`}
+                                    onClick={() => setFllMoisture(o.value)}
+                                >{o.label}</button>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="assignment-section">
+                        <h2>4. Bodenart (Faktor B)</h2>
+                        <div className="option-list">
+                            {SOIL_OPTIONS.map((o) => (
+                                <button key={o.value}
+                                    className={`option-btn ${fllSoil === o.value ? 'option-btn--active' : ''}`}
+                                    onClick={() => setFllSoil(o.value)}
+                                >{o.label}</button>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="assignment-section">
+                        <h2>5. Sonnenexposition (Faktor S)</h2>
+                        <div className="option-list">
+                            {SUN_OPTIONS.map((o) => (
+                                <button key={o.value}
+                                    className={`option-btn ${fllSun === o.value ? 'option-btn--active' : ''}`}
+                                    onClick={() => setFllSun(o.value)}
+                                >{o.label}</button>
+                            ))}
+                        </div>
+                    </section>
+
+                    <section className="assignment-section">
+                        <h2>6. Vegetationsperiode</h2>
+                        <div style={{display: 'flex', gap: 12, alignItems: 'center', fontSize: 14}}>
+                            <label>
+                                Von:
+                                <select value={fllPeriodStart} onChange={(e) => setFllPeriodStart(Number(e.target.value))}
+                                    style={{marginLeft: 4}}>
+                                    {[3,4,5,6,7,8,9,10].map((m) => (
+                                        <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label>
+                                Bis:
+                                <select value={fllPeriodEnd} onChange={(e) => setFllPeriodEnd(Number(e.target.value))}
+                                    style={{marginLeft: 4}}>
+                                    {[3,4,5,6,7,8,9,10].map((m) => (
+                                        <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
+                                    ))}
+                                </select>
+                            </label>
+                        </div>
+                    </section>
+                </>
+            )}
+
             {/* Bewässerungszeitraum + Zuschläge */}
-            {(showSurcharges || showSurchargesNonPlant) && (
+            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && (
                 <>
                     {needsIrrigationSelection && plantKey && (
                         <section className="assignment-section">
@@ -412,6 +520,13 @@ export const AssignmentPage = () => {
                         <WeinbauResultCard
                             result={result.normal ?? result.dry!}
                             dryResult={result.normal && result.dry ? result.dry : undefined}
+                            fieldName={field.name}
+                            areaHa={field.areaHa}
+                        />
+                    )}
+                    {result.type === 'gruenflaechen' && result.normal && (
+                        <GruenflaechenResultCard
+                            result={result.normal}
                             fieldName={field.name}
                             areaHa={field.areaHa}
                         />

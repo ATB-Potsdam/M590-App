@@ -2,7 +2,7 @@
 
 ## Modules
 
-- [ ] **1. Weinbau (viticulture)**
+- [x] **1. Weinbau (viticulture)**
   Create calculation module per Funktionsweise3.0.md (Kap. 4.3.5, Tables 26/27):
   - `src/lib/calculations/weinbau.ts`: lookup by nFKWe group + annual precipitation class (<500 / 500–700 / 700–900 mm)
   - Table 26: standard lookup (single value mm/a)

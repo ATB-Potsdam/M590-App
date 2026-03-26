@@ -42,6 +42,13 @@ export interface FieldAssignment {
     surchargeEmergence: number;
     surchargeHeavySoil: number;
     isJunganlage?: boolean;
+    // Grünflächen FLL factors
+    fllVegetation?: "rasen" | "stauden" | "baeume";
+    fllMoisture?: "trocken" | "frisch" | "feucht";
+    fllSoil?: "sand" | "sandiger_lehm" | "lehm";
+    fllSun?: "schatten" | "halbschatten" | "sonne";
+    fllPeriodStart?: number; // month 1-12
+    fllPeriodEnd?: number;   // month 1-12
 }
 
 export interface Project {

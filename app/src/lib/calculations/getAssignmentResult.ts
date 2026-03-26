@@ -5,11 +5,13 @@ import type {FieldAssignment} from "../../types/project";
 import {calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
 import type {HauptkulturenResult} from "./hauptkulturen";
 import {calculateHauptkulturenBoth} from "./hauptkulturen";
+import {calculateGruenflaechen, type GruenflaechenResult} from "./gruenflaechen";
+import type {FllMoisture, FllSoil, FllSun, FllVegetation} from "./gruenflaechen";
 import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult;
-    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult;
 }
 
 export const getAssignmentResult = (
@@ -79,6 +81,29 @@ export const getAssignmentResult = (
         return {normal, dry};
     }
 
+    if (
+        fa.module === "gruenflaechen" &&
+        fa.fllVegetation &&
+        fa.fllMoisture &&
+        fa.fllSoil &&
+        fa.fllSun &&
+        field.climateDataStatus === "done" &&
+        field.climateData
+    ) {
+        const result = calculateGruenflaechen({
+            vegetation: fa.fllVegetation as FllVegetation,
+            moisture: fa.fllMoisture as FllMoisture,
+            soil: fa.fllSoil as FllSoil,
+            sun: fa.fllSun as FllSun,
+            areaHa: field.areaHa,
+            et0: field.climateData.et0,
+            periodStart: fa.fllPeriodStart ?? 4,
+            periodEnd: fa.fllPeriodEnd ?? 9,
+        });
+        // Grünflächen has no scenario differentiation — store as normal only
+        return {normal: result};
+    }
+
     return null;
 };
 
@@ -139,6 +164,13 @@ export const getMissingData = (
     if (!field.nFkweClass &&
         (fa.module === "hauptkulturen" || fa.module === "gemuese_obst" || fa.module === "weinbau")) {
         missing.push("nFKWe-Klasse");
+    }
+
+    if (fa.module === "gruenflaechen") {
+        if (!fa.fllVegetation) missing.push("Vegetation (Faktor G)");
+        if (!fa.fllMoisture) missing.push("Standortfeuchte (Faktor L)");
+        if (!fa.fllSoil) missing.push("Bodenart (Faktor B)");
+        if (!fa.fllSun) missing.push("Sonnenexposition (Faktor S)");
     }
 
     return missing;
