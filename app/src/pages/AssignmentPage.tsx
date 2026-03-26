@@ -3,6 +3,7 @@ import {useState} from 'react';
 import {useNavigate, useParams} from 'react-router';
 import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
+import {WeinbauResultCard} from '../components/results/WeinbauResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -12,6 +13,7 @@ import {useFarm} from '../hooks/useFarm';
 import {useProjects} from '../hooks/useProjects';
 import {calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
 import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
+import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -43,6 +45,7 @@ export const AssignmentPage = () => {
     const [surchargeIntermediate, setSurchargeIntermediate] = useState(assignment?.surchargeIntermediate ?? false);
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
     const [surchargeHeavySoil, setSurchargeHeavySoil] = useState(assignment?.surchargeHeavySoil ?? 0);
+    const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
 
     if (!project || !assignment || !field) {
         return (
@@ -114,6 +117,19 @@ export const AssignmentPage = () => {
             return {type: 'gemuese_obst' as const, normal, dry};
         }
 
+        if (module === 'weinbau' && field.climateDataStatus === 'done' && field.climateData && field.nFkweClass) {
+            const annualPrecipMm = field.climateData.precipitation
+                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const input = {
+                nFkweClass: field.nFkweClass as NFkweClassName,
+                annualPrecipMm,
+                areaHa: field.areaHa,
+                isJunganlage,
+            };
+            const {normal, dry} = calculateWeinbauBoth(input);
+            return {type: 'weinbau' as const, normal, dry};
+        }
+
         return null;
     })();
 
@@ -126,6 +142,7 @@ export const AssignmentPage = () => {
             surchargeIntermediate,
             surchargeEmergence,
             surchargeHeavySoil,
+            isJunganlage,
         });
         navigate(`/projects/${id}`);
     };
@@ -246,6 +263,27 @@ export const AssignmentPage = () => {
                 </div>
             )}
 
+            {/* Weinbau: Junganlage */}
+            {module === 'weinbau' && (
+                <section className="assignment-section">
+                    <h2>Weinbau-Optionen</h2>
+                    <label className="surcharge-row">
+                        <input
+                            type="checkbox"
+                            checked={isJunganlage}
+                            onChange={(e) => setIsJunganlage(e.target.checked)}
+                        />
+                        Junganlage / Neupflanzung
+                    </label>
+                    {isJunganlage && (
+                        <p className="assignment-page__hint">
+                            Für Jungfelder sind keine Untersuchungen bekannt.
+                            Zur ersten Einschätzung werden die Werte für nFKWe 1–2 angesetzt.
+                        </p>
+                    )}
+                </section>
+            )}
+
             {/* Bewässerungszeitraum + Zuschläge */}
             {(showSurcharges || showSurchargesNonPlant) && (
                 <>
@@ -352,7 +390,7 @@ export const AssignmentPage = () => {
             {result && (
                 <section className="assignment-section">
                     <h2>Ergebnis</h2>
-                    {result.type === 'hauptkulturen' ? (
+                    {result.type === 'hauptkulturen' && (
                         <HauptkulturenResultCard
                             result={result.normal ?? result.dry!}
                             dryResult={result.normal && result.dry ? result.dry : undefined}
@@ -360,12 +398,21 @@ export const AssignmentPage = () => {
                             cropName={plantKey!}
                             areaHa={field.areaHa}
                         />
-                    ) : (
+                    )}
+                    {result.type === 'gemuese_obst' && (
                         <GemueseObstResultCard
                             result={result.normal ?? result.dry!}
                             dryResult={result.normal && result.dry ? result.dry : undefined}
                             fieldName={field.name}
                             plantName={plantKey!.split('|').join(' · ')}
+                            areaHa={field.areaHa}
+                        />
+                    )}
+                    {result.type === 'weinbau' && (
+                        <WeinbauResultCard
+                            result={result.normal ?? result.dry!}
+                            dryResult={result.normal && result.dry ? result.dry : undefined}
+                            fieldName={field.name}
                             areaHa={field.areaHa}
                         />
                     )}
@@ -377,7 +424,7 @@ export const AssignmentPage = () => {
                 <button
                     className="assignment-page__save"
                     onClick={handleSave}
-                    disabled={needsPlantSelection && !plantKey}
+                    disabled={(needsPlantSelection && !plantKey) || (module === 'hauptkulturen' && !plantKey)}
                 >
                     Zuweisung speichern
                 </button>

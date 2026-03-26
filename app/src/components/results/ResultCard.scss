@@ -56,6 +56,13 @@
         }
     }
 
+    &__hint {
+        font-size: 12px;
+        color: #795548;
+        background: #fff8e1;
+        border-radius: 6px;
+    }
+
     &__details {
         summary {
             cursor: pointer;

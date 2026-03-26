@@ -5,10 +5,11 @@ import type {FieldAssignment} from "../../types/project";
 import {calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
 import type {HauptkulturenResult} from "./hauptkulturen";
 import {calculateHauptkulturenBoth} from "./hauptkulturen";
+import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult;
-    dry?: HauptkulturenResult | GemueseObstResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult;
 }
 
 export const getAssignmentResult = (
@@ -55,6 +56,26 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateGemueseObstBoth(input);
+        return {normal, dry};
+    }
+
+    if (
+        fa.module === "weinbau" &&
+        field.climateDataStatus === "done" &&
+        field.climateData &&
+        field.nFkweClass
+    ) {
+        const annualPrecipMm = field.climateData.precipitation
+            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+
+        const input = {
+            nFkweClass: field.nFkweClass as NFkweClassName,
+            annualPrecipMm,
+            areaHa: field.areaHa,
+            isJunganlage: fa.isJunganlage ?? false,
+        };
+
+        const {normal, dry} = calculateWeinbauBoth(input);
         return {normal, dry};
     }
 
@@ -116,7 +137,7 @@ export const getMissingData = (
     }
 
     if (!field.nFkweClass &&
-        (fa.module === "hauptkulturen" || fa.module === "gemuese_obst")) {
+        (fa.module === "hauptkulturen" || fa.module === "gemuese_obst" || fa.module === "weinbau")) {
         missing.push("nFKWe-Klasse");
     }
 

@@ -41,6 +41,7 @@ export interface FieldAssignment {
     surchargeIntermediate: boolean;
     surchargeEmergence: number;
     surchargeHeavySoil: number;
+    isJunganlage?: boolean;
 }
 
 export interface Project {
