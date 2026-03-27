@@ -1,6 +1,8 @@
 // src/components/FieldForm.tsx
-import {useRef, useState, type SubmitEvent} from "react";
+import clsx from "clsx";
+import {useEffect, useRef, useState, type SubmitEvent} from "react";
 import {getCurrentLatLon} from "../lib/location";
+import {latLonToNfkweClass} from "../lib/tools";
 import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
 import type {FieldInput, GeoPoint} from "../types/farm";
 import "./FieldForm.scss";
@@ -19,8 +21,12 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
     const [locating, setLocating] = useState(false);
     const locationPickerRef = useRef<LocationPickerHandle | null>(null);
-    const [nFkweClass, setNFkweClass] = useState<NFkweClassName | undefined>(
-        initialValues?.nFkweClass
+    const [geoNFkweClass, setGeoNFkweClass] = useState<NFkweClassName | null>(null);
+    const [nFkweClass, setNFkweClass] = useState<NFkweClassName | null>(
+        initialValues?.nFkweClass || null
+    );
+    const [nFkweSource, setNFkweSource] = useState<'geo' | 'manual'>(
+        initialValues?.nFkweClassSource ?? 'geo'
     );
 
     const handleUseCurrentLocation = () => {
@@ -39,10 +45,34 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             });
     };
 
+    useEffect(() => {
+        if (!location) return;
+
+        latLonToNfkweClass(location)
+            .then(nfkwe => {
+                setGeoNFkweClass(nfkwe);
+                if (nfkwe && nFkweClass !== nfkwe && nFkweSource === "geo") {
+                    setNFkweClass(nfkwe);
+                }
+            })
+            .catch(console.error);
+    }, [location, nFkweClass, nFkweSource]);
+
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
         if (!name || !areaHa || !location) return;
-        onSave({name, areaHa: Number(areaHa), location, nFkweClass});
+        onSave({
+            name,
+            areaHa: Number(areaHa),
+            location,
+            nFkweClass: nFkweClass ?? "3a",
+            nFkweClassSource: nFkweSource,
+        });
+    };
+
+    const handleNfkweChange = (cls: NFkweClassName) => {
+        setNFkweClass(cls);
+        setNFkweSource('manual');
     };
 
     return (
@@ -70,7 +100,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                 />
             </label>
 
-            <p style={{margin: 0, fontWeight: 600}}>
+            <p className={clsx("map")}>
                 Standort wählen – auf die Karte klicken:
             </p>
 
@@ -89,20 +119,21 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                 </small>
             )}
 
-            <fieldset style={{border: "1px solid #ddd", borderRadius: 8, padding: "8px 12px"}}>
-                <legend style={{fontWeight: 600, fontSize: 14}}>nFKWe-Klasse (Bodenwasser)</legend>
-                <p style={{margin: "0 0 8px", fontSize: 12, color: "#888"}}>
+            <fieldset>
+                <legend>nFKWe-Klasse (Bodenwasser)</legend>
+                <p>
                     Böden können lokal variieren – bitte bestätigen oder anpassen.
                 </p>
-                <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+                {geoNFkweClass && <p>Die ermittelte Bodenklasse an diesem Ort ist <b>{geoNFkweClass}</b>.</p>}
+                <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
-                        <label key={cls} style={{display: "flex", alignItems: "center", gap: 4}}>
+                        <label key={cls}>
                             <input
                                 type="radio"
                                 name="nFkweClass"
                                 value={cls}
                                 checked={nFkweClass === cls}
-                                onChange={() => setNFkweClass(cls)}
+                                onChange={() => handleNfkweChange(cls)}
                             />
                             {cls}
                         </label>

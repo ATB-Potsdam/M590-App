@@ -33,11 +33,11 @@ do
 
     # Test the polygon lookup with a sample file
     echo -n "Running Python test..."
-    python3 test_polylookup.py ../../data/Klimaräume.fgb ${params[0]} ${params[1]} | grep 'raw json: ' | grep -qe ",\"kwb\":${params[2]}\\b" && echo "SUCCESS!" || echo "FAILED!"
+    python3 test_polylookup.py ../../data/Klimaräume.fgb ${params[0]} ${params[1]} "KWB" | grep 'raw json: ' | grep -qe ",\"value\":${params[2]}\\b" && echo "SUCCESS!" || echo "FAILED!"
 
     # Run the C test program
     echo -n "Running C test..."
-    ./test_polylookup ../../data/Klimaräume.fgb ${params[0]} ${params[1]} | grep 'matches: ' | grep -qe ",\"kwb\":${params[2]}\\b" && echo "SUCCESS!" || echo "FAILED!"
+    ./test_polylookup ../../data/Klimaräume.fgb ${params[0]} ${params[1]} "KWB" | grep 'matches: ' | grep -qe ",\"value\":${params[2]}\\b" && echo "SUCCESS!" || echo "FAILED!"
 
     echo "-------------------------------------------"
 done

@@ -4,7 +4,7 @@ import "./App.scss";
 import {BottomNav} from './components/BottomNav';
 import {Messages} from './components/Messages';
 import {refreshClimateData, useFarm} from './hooks/useFarm';
-import {loadLayerFromPublic} from './lib/polylookup';
+import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
@@ -15,7 +15,7 @@ import {useAppStore} from './stores/useAppStore';
 import {useLocalStore} from './stores/useLocalStore';
 
 const App = () => {
-    const layer = useAppStore((state) => state.layer);
+    const layer = useAppStore((state) => state.climateLayer);
     const precipitationLookup = useAppStore((state) => state.precipitationLookup);
     const et0Lookup = useAppStore((state) => state.et0Lookup);
     const addMessage = useAppStore((state) => state.addMessage);
@@ -31,15 +31,16 @@ const App = () => {
                 message: ['Loading data…'],
             });
             Promise.all([
-                loadLayerFromPublic(),
+                loadClimateLayerFromPublic(),
+                loadNfkweLayerFromPublic(),
                 createRasterLookup(precipRasterUrl),
                 createRasterLookup(et0RasterUrl),
             ])
                 .finally(() => delMessage(message))
-                .then(([layer, precipitationLookup, et0Lookup
+                .then(([climateLayer, nfkweLayer, precipitationLookup, et0Lookup
 
                 ]) => {
-                    useAppStore.setState({layer, precipitationLookup, et0Lookup});
+                    useAppStore.setState({climateLayer, nfkweLayer, precipitationLookup, et0Lookup});
                     addMessage({type: "info", message: ['Data loaded ✅']});
                 })
                 .catch((e) => {
@@ -76,4 +77,4 @@ const App = () => {
     );
 };
 
-export default App;;;
+export default App;

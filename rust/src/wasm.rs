@@ -9,7 +9,7 @@ use wasm_bindgen::prelude::*;
 #[derive(Serialize)]
 struct Match {
     id: u64,
-    kwb: Option<i64>,
+    value: Option<serde_json::Value>,
 }
 
 #[wasm_bindgen]
@@ -26,8 +26,9 @@ impl WasmLayer {
         })
     }
 
+    /// `property` – Name der FlatGeobuf-Property, z. B. "KWB" oder "NAME"
     #[wasm_bindgen(js_name = queryPointJSON)]
-    pub fn query_point_json(&self, lon: f64, lat: f64) -> Result<String, JsValue> {
+    pub fn query_point_json(&self, lon: f64, lat: f64, property: &str) -> Result<String, JsValue> {
         let eps = 1e-9;
         let (minx, miny, maxx, maxy) = (lon - eps, lat - eps, lon + eps, lat + eps);
 
@@ -41,16 +42,19 @@ impl WasmLayer {
         let mut idx = 0u64;
 
         while let Some(feat) = iter.next().map_err(to_js)? {
-            // numeric first, fallback to string parse
-            let kwb = feat.properties().ok().and_then(|p| {
-                p.get("KWB")
-                    .and_then(|v| v.as_str().to_string().trim().parse::<i64>().ok())
+            let value = feat.properties().ok().and_then(|p| {
+                p.get(property).map(|s| {
+                    s.trim()
+                        .parse::<i64>()
+                        .map(serde_json::Value::from)
+                        .unwrap_or_else(|_| serde_json::Value::String(s.to_string()))
+                })
             });
 
             if let Some(gt) = feat.geometry_trait().map_err(to_js)? {
                 let g: Geometry<f64> = gt.to_geometry();
                 if g.contains(&pt) || g.intersects(&pt) {
-                    out.push(Match { id: idx, kwb });
+                    out.push(Match { id: idx, value });
                 }
             }
             idx += 1;

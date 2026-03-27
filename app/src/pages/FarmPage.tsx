@@ -19,6 +19,18 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
     }
 };
 
+const NfkweBadge = ({field}: {field: Field;}) => {
+    if (!field.nFkweClass) return null;
+    return (
+        <span style={{color: "#555"}}>
+            🪨 nFKWe-Klasse: <strong>{field.nFkweClass}</strong>
+            {field.nFkweClassSource === 'manual' && (
+                <span style={{fontSize: 11, color: "#aaa"}}> (manuell)</span>
+            )}
+        </span>
+    );
+};
+
 export const FarmPage = () => {
     const {farm, updateFarmName, addField, editField, removeField} = useFarm();
     const [showAddField, setShowAddField] = useState(false);
@@ -63,6 +75,8 @@ export const FarmPage = () => {
                             </small>
                             <br />
                             <ClimateClassBadge field={field} />
+                            <br />
+                            <NfkweBadge field={field} />
                             {field.climateDataStatus === "done" && field.climateData && (
                                 <ClimateBarChart
                                     precipitation={field.climateData.precipitation}

@@ -13,7 +13,8 @@ const MessageTimeout = 5000; // 5 seconds
 
 type AppState = {
     // State
-    layer?: WasmLayer;
+    climateLayer?: WasmLayer;
+    nfkweLayer?: WasmLayer;
 
     precipitationLookup?: RasterLookup;
     et0Lookup?: RasterLookup;
@@ -25,7 +26,7 @@ type AppState = {
 
 export const useAppStore = create<AppState>()(
     subscribeWithSelector((set) => ({
-        layer: undefined,
+        climateLayer: undefined,
 
         precipitationLookup: undefined,
         et0Lookup: undefined,

@@ -18,6 +18,7 @@ export interface Field {
     location: GeoPoint;
     areaHa: number;
     nFkweClass?: NFkweClassName;
+    nFkweClassSource?: "geo" | "manual";
     climateClass?: ClimateClassType;
     climateClassStatus: "idle" | "loading" | "error" | "done";
     climateData?: FieldClimateData;

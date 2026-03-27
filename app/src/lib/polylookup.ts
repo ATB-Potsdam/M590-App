@@ -4,21 +4,26 @@ const basename = import.meta.env.BASE_URL;
 
 const WASM_BIN = new URL("../pkg/polylookup_bg.wasm", import.meta.url);
 const FGB_URL = (basename + "/data/Klimaraeume.fgb").replace(/\/+/, "/"); // put file in public/data/
+const NFKWE_URL = (basename + "/data/nfkwe.fgb").replace(/\/+/, "/"); // put file in public/data/
 
-let ready = false;
+let polylookupPromise: Promise<typeof poly> | undefined = undefined;
 
-export const initPolylookup = async () => {
-    if (!ready) {
-        await initWasm(WASM_BIN);
-        ready = true;
+export const initPolylookup = () => {
+    if (!polylookupPromise) {
+        polylookupPromise = initWasm(WASM_BIN).then(() => poly);
     }
-    return poly; // exports include WasmLayer
+    return polylookupPromise;
 };
 
-export const loadLayerFromPublic = async () => {
-    const mod = await initPolylookup();
-    const res = await fetch(FGB_URL);
-    if (!res.ok) throw new Error(`Failed to fetch ${FGB_URL}: ${res.status}`);
-    const bytes = new Uint8Array(await res.arrayBuffer());
-    return mod.WasmLayer.loadLayerFromBytes(bytes);
-};
+const loadLayer = (url: string) =>
+    initPolylookup().then(mod =>
+        fetch(url).then(res => {
+            if (!res.ok) return Promise.reject(new Error(`Failed to fetch ${url}: ${res.status}`));
+            return res.arrayBuffer().then(buffer =>
+                mod.WasmLayer.loadLayerFromBytes(new Uint8Array(buffer))
+            );
+        })
+    );
+
+export const loadClimateLayerFromPublic = () => loadLayer(FGB_URL);
+export const loadNfkweLayerFromPublic = () => loadLayer(NFKWE_URL);

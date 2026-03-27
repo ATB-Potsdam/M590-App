@@ -4,7 +4,6 @@ mod wasm;
 #[cfg(target_arch = "wasm32")]
 pub use wasm::*;
 
-// Everything below is the native (non-wasm) implementation
 #[cfg(not(target_arch = "wasm32"))]
 mod native {
     use flatgeobuf::{FallibleStreamingIterator, FeatureProperties, FgbReader};
@@ -24,7 +23,7 @@ mod native {
     #[derive(Serialize)]
     struct Match {
         id: u64,
-        kwb: Option<i64>,
+        value: Option<serde_json::Value>,
     }
 
     struct Layer {
@@ -38,7 +37,7 @@ mod native {
             Ok(Self { mmap })
         }
 
-        fn query(&self, lon: f64, lat: f64) -> Result<Vec<Match>, String> {
+        fn query(&self, lon: f64, lat: f64, property: &str) -> Result<Vec<Match>, String> {
             let eps = 1e-9;
             let (minx, miny, maxx, maxy) = (lon - eps, lat - eps, lon + eps, lat + eps);
 
@@ -54,16 +53,19 @@ mod native {
             let mut idx = 0u64;
 
             while let Some(feat) = iter.next().map_err(|e| e.to_string())? {
-                // Try numeric KWB first; fall back to parsing string
-                let kwb = feat.properties().ok().and_then(|p| {
-                    p.get("KWB")
-                        .and_then(|v| v.as_str().to_string().trim().parse::<i64>().ok())
+                let value = feat.properties().ok().and_then(|p| {
+                    p.get(property).map(|s| {
+                        s.trim()
+                            .parse::<i64>()
+                            .map(serde_json::Value::from)
+                            .unwrap_or_else(|_| serde_json::Value::String(s.to_string()))
+                    })
                 });
 
                 if let Some(gt) = feat.geometry_trait().map_err(|e| e.to_string())? {
                     let g: Geometry<f64> = gt.to_geometry();
                     if g.contains(&pt) {
-                        out.push(Match { id: idx, kwb });
+                        out.push(Match { id: idx, value });
                     }
                 }
                 idx += 1;
@@ -72,34 +74,36 @@ mod native {
         }
     }
 
-    // thread-safe global
     static LAYER: Lazy<RwLock<Option<Layer>>> = Lazy::new(|| RwLock::new(None));
 
     #[no_mangle]
     pub extern "C" fn load_layer(path_ptr: *const c_char) -> i32 {
-        if path_ptr.is_null() {
-            return 1;
-        }
+        if path_ptr.is_null() { return 1; }
         let cstr = unsafe { CStr::from_ptr(path_ptr) };
         let path = match cstr.to_str() {
             Ok(p) => p,
             Err(_) => return 1,
         };
         match Layer::open(path) {
-            Ok(layer) => {
-                *LAYER.write().unwrap() = Some(layer);
-                0
-            }
+            Ok(layer) => { *LAYER.write().unwrap() = Some(layer); 0 }
             Err(_) => 1,
         }
     }
 
+    /// `property_ptr` – C-String mit dem Property-Namen, z. B. "KWB\0"
     #[no_mangle]
-    pub extern "C" fn query_point_json(lon: f64, lat: f64) -> *mut c_char {
+    pub extern "C" fn query_point_json(
+        lon: f64,
+        lat: f64,
+        property_ptr: *const c_char,
+    ) -> *mut c_char {
         let json = (|| -> Result<String, ()> {
+            let prop = unsafe { CStr::from_ptr(property_ptr) }
+                .to_str()
+                .map_err(|_| ())?;
             let guard = LAYER.read().map_err(|_| ())?;
             let layer = guard.as_ref().ok_or(())?;
-            let m = layer.query(lon, lat).map_err(|_| ())?;
+            let m = layer.query(lon, lat, prop).map_err(|_| ())?;
             Ok(serde_json::to_string(&m).unwrap_or_else(|_| "[]".into()))
         })()
         .unwrap_or_else(|_| "[]".into());
@@ -108,11 +112,7 @@ mod native {
 
     #[no_mangle]
     pub extern "C" fn free_cstring(ptr: *mut c_char) {
-        if ptr.is_null() {
-            return;
-        }
-        unsafe {
-            let _ = CString::from_raw(ptr);
-        }
+        if ptr.is_null() { return; }
+        unsafe { let _ = CString::from_raw(ptr); }
     }
 }

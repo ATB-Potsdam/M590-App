@@ -3,7 +3,7 @@ import {useAppStore} from "../stores/useAppStore";
 import type {ClimateClassType} from "../types";
 import type {AnyPlantName, MonthValueType, NFkweClassName, Range, YearType} from "../types/dataTypes";
 
-type Match = {id: number; kwb: number | null;};
+type Match = {id: number; value: number | null;};
 
 export const latLonToClimateClass = ({
     lat,
@@ -12,13 +12,13 @@ export const latLonToClimateClass = ({
     lat: number;
     lon: number;
 }): Promise<ClimateClassType> => {
-    const layer = useAppStore.getState().layer;
+    const layer = useAppStore.getState().climateLayer;
     if (!layer) {
         return Promise.reject("No layer loaded");
     }
-    const json = layer.queryPointJSON(lon, lat); // WASM expects (lon, lat)
+    const json = layer.queryPointJSON(lon, lat, "KWB"); // WASM expects (lon, lat)
     const result: Match[] = JSON.parse(json);
-    const kwb = result[0]?.kwb;
+    const kwb = result[0]?.value;
 
     if (kwb === null || kwb === undefined) {
         return Promise.reject("Unknown location");
@@ -46,6 +46,32 @@ export const latLonToClimateClass = ({
         return Promise.resolve(["G", kwb]);
     }
     return Promise.resolve(["H", kwb]);
+};
+
+
+export const latLonToNfkweClass = ({
+    lat,
+    lon,
+}: {
+    lat: number;
+    lon: number;
+}): Promise<NFkweClassName | null> => {
+    const nfkweLayer = useAppStore.getState().nfkweLayer;
+    if (!nfkweLayer) return Promise.reject("No nfkwe layer loaded");
+
+    const json = nfkweLayer.queryPointJSON(lon, lat, "nfkww_st_DWA");
+    const result: Array<Record<string, unknown>> = JSON.parse(json);
+    const val = result[0]?.value;
+
+    switch (String(val)) {
+        case '1':
+        case '2': return Promise.resolve("1-2");
+        case '3a':
+        case '3b':
+        case '4':
+        case '5': return Promise.resolve(val as NFkweClassName);
+    }
+    return Promise.resolve(null);
 };
 
 

@@ -13,7 +13,7 @@
   - UI inputs in AssignmentPage (Junganlage toggle, nFKWe confirmation)
   - Hint when precipitation outside 500–600mm: no scenario-specific values
 
-- [ ] **2. Gruenflächen (green spaces / FLL factors)**
+- [x] **2. Gruenflächen (green spaces / FLL factors)**
   Create module per Funktionsweise3.0.md (Kap. 4.4.2):
   - `src/lib/calculations/gruenflaechen.ts`: ETt = ET₀ × L × G × B × S
   - Factor G: vegetation (Rasen/Bodendecker, Stauden, Grosssträucher/Bäume)
