@@ -69,7 +69,7 @@ export const latLonToNfkweClass = ({
         case '3a':
         case '3b':
         case '4':
-        case '5': return Promise.resolve(val as NFkweClassName);
+        case '5': return Promise.resolve(String(val) as NFkweClassName);
     }
     return Promise.resolve(null);
 };
