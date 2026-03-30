@@ -4,6 +4,7 @@ import {useFarm} from "../hooks/useFarm";
 import {getKwbSum, lookupOtherPlant} from "../lib/tools";
 import type {AnyPlantName, Range} from "../types/dataTypes";
 import type {Field} from "../types/farm";
+import {formatNum} from "../lib/formatNum";
 import "./HomePage.scss";
 
 const ClimateClassBadge = ({field}: {field: Field;}) => {
@@ -52,7 +53,7 @@ export const HomePage = () => {
             <header className="home-page__header">
                 <h1>{farm.name || "Mein Betrieb"}</h1>
                 <p className="home-page__meta">
-                    {farm.fields.length} Feld{farm.fields.length !== 1 ? "er" : ""} · {totalArea.toFixed(1)} ha gesamt
+                    {farm.fields.length} Feld{farm.fields.length !== 1 ? "er" : ""} · {formatNum(totalArea, 1)} ha gesamt
                 </p>
             </header>
 
@@ -84,7 +85,7 @@ export const HomePage = () => {
                                 </div>
                                 <div className="field-list__meta">
                                     <small>
-                                        {field.location.lat.toFixed(4)}, {field.location.lon.toFixed(4)}
+                                        {formatNum(field.location.lat, 4)}, {formatNum(field.location.lon, 4)}
                                     </small>
                                     <ClimateClassBadge field={field} />
                                 </div>

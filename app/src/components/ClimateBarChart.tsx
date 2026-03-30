@@ -1,4 +1,5 @@
 // src/components/ClimateBarChart.tsx
+import {formatNum} from "../lib/formatNum";
 import type {MonthValueType} from "../types/dataTypes";
 import "./ClimateBarChart.scss";
 
@@ -53,12 +54,12 @@ export const ClimateBarChart = ({precipitation, et0}: Props) => {
                             <div
                                 className="climate-chart__bar climate-chart__bar--precip"
                                 style={{height: toHeightPrecip(precip)}}
-                                title={`Niederschlag ${label}: ${precip.toFixed(0)} mm`}
+                                title={`Niederschlag ${label}: ${formatNum(precip, 0)} mm`}
                             />
                             <div
                                 className="climate-chart__bar climate-chart__bar--et0"
                                 style={{height: toHeightEt0(et0Val)}}
-                                title={`ET₀ ${label}: ${et0Val.toFixed(0)} mm`}
+                                title={`ET₀ ${label}: ${formatNum(et0Val, 0)} mm`}
                             />
                         </div>
                         <span className="climate-chart__label">{label}</span>

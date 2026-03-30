@@ -4,6 +4,7 @@ import {useEffect, useRef, useState, type SubmitEvent} from "react";
 import {getCurrentLatLon} from "../lib/location";
 import {latLonToNfkweClass} from "../lib/tools";
 import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
+import {formatNum} from "../lib/formatNum";
 import type {FieldInput, GeoPoint} from "../types/farm";
 import "./FieldForm.scss";
 import {LocationPicker, type LocationPickerHandle} from "./LocationPicker";
@@ -115,7 +116,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
 
             {location && (
                 <small>
-                    Lat: {location.lat.toFixed(5)}, Lon: {location.lon.toFixed(5)}
+                    Lat: {formatNum(location.lat, 5)}, Lon: {formatNum(location.lon, 5)}
                 </small>
             )}
 

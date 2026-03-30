@@ -1,4 +1,5 @@
 // src/components/results/GemueseObstResult.tsx
+import {formatRange} from "../../lib/formatNum";
 import type {GemueseObstResult} from "../../lib/calculations/gemueseObst";
 import "./ResultCard.scss";
 
@@ -9,8 +10,6 @@ interface Props {
     plantName: string;
     areaHa: number;
 }
-const formatRange = ([min, max]: [number, number], unit: string): string =>
-    min === max ? `${min.toFixed(0)} ${unit}` : `${min.toFixed(0)}–${max.toFixed(0)} ${unit}`;
 
 export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, areaHa}: Props) => (
     <div className="result-card">

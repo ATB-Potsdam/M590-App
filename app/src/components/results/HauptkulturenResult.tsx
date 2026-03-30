@@ -1,3 +1,4 @@
+import {formatRange} from "../../lib/formatNum";
 import type {HauptkulturenResult} from "../../lib/calculations/hauptkulturen";
 import "./ResultCard.scss";
 
@@ -8,9 +9,6 @@ interface Props {
     cropName: string;
     areaHa: number;
 }
-
-const formatRange = ([min, max]: [number, number], unit: string): string =>
-    min === max ? `${min.toFixed(0)} ${unit}` : `${min.toFixed(0)}–${max.toFixed(0)} ${unit}`;
 
 export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName, areaHa}: Props) => (
     <div className="result-card">

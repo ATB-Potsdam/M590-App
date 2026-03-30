@@ -6,10 +6,8 @@ import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
 import {boundToLabel} from "../utils/irrigationPeriod";
+import {formatNum, formatRange} from "../lib/formatNum";
 import "./ProjectDetailPage.scss";
-
-const formatRange = ([min, max]: [number, number], unit: string): string =>
-    min === max ? `${min.toFixed(0)} ${unit}` : `${min.toFixed(0)}–${max.toFixed(0)} ${unit}`;
 
 export const ProjectDetailPage = () => {
     const {id} = useParams<{id: string;}>();
@@ -208,9 +206,8 @@ export const ProjectDetailPage = () => {
                     <div className="project-summary__row">
                         <span>Gesamtfläche</span>
                         <span>
-                            {project.fieldAssignments
-                                .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0)
-                                .toFixed(1)} ha
+                            {formatNum(project.fieldAssignments
+                                .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0), 1)} ha
                         </span>
                     </div>
 

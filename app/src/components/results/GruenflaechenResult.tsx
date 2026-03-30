@@ -1,3 +1,4 @@
+import {formatNum} from "../../lib/formatNum";
 import type {GruenflaechenResult} from "../../lib/calculations/gruenflaechen";
 import "./ResultCard.scss";
 
@@ -22,15 +23,15 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
             <div className="result-card__values">
                 <div className="result-card__value-row">
                     <span>ETt (täglich)</span>
-                    <strong>{result.ettMmPerDay.toFixed(2)} mm/d</strong>
+                    <strong>{formatNum(result.ettMmPerDay, 2)} mm/d</strong>
                 </div>
                 <div className="result-card__value-row">
                     <span>Zeitraum ({MONTH_NAMES[result.periodStart - 1]}–{MONTH_NAMES[result.periodEnd - 1]}, {result.periodDays} Tage)</span>
-                    <strong>{result.totalRangeMm[0].toFixed(0)} mm</strong>
+                    <strong>{formatNum(result.totalRangeMm[0], 0)} mm</strong>
                 </div>
                 <div className="result-card__value-row">
                     <span>Wasserbedarf</span>
-                    <strong>{result.totalRangeM3[0].toFixed(0)} m³</strong>
+                    <strong>{formatNum(result.totalRangeM3[0], 0)} m³</strong>
                 </div>
             </div>
         </div>
@@ -40,7 +41,7 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
                 <span>Ø ET₀ im Zeitraum</span>
-                <span>{result.avgDailyEt0.toFixed(2)} mm/d</span>
+                <span>{formatNum(result.avgDailyEt0, 2)} mm/d</span>
             </div>
             <div className="result-card__value-row">
                 <span>Faktor L (Lebensbereich)</span>
@@ -60,11 +61,11 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
             </div>
             <div className="result-card__value-row">
                 <span>Faktorprodukt (L×G×B×S)</span>
-                <strong>{result.factorProduct.toFixed(3)}</strong>
+                <strong>{formatNum(result.factorProduct, 3)}</strong>
             </div>
             <div className="result-card__value-row">
-                <span>ETt = ET₀ × {result.factorProduct.toFixed(3)}</span>
-                <strong>{result.ettMmPerDay.toFixed(2)} mm/d</strong>
+                <span>ETt = ET₀ × {formatNum(result.factorProduct, 3)}</span>
+                <strong>{formatNum(result.ettMmPerDay, 2)} mm/d</strong>
             </div>
         </details>
     </div>

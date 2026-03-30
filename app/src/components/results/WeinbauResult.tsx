@@ -1,3 +1,4 @@
+import {formatNum, formatRange} from "../../lib/formatNum";
 import type {WeinbauResult} from "../../lib/calculations/weinbau";
 import "./ResultCard.scss";
 
@@ -7,9 +8,6 @@ interface Props {
     fieldName: string;
     areaHa: number;
 }
-
-const formatRange = ([min, max]: [number, number], unit: string): string =>
-    min === max ? `${min.toFixed(0)} ${unit}` : `${min.toFixed(0)}–${max.toFixed(0)} ${unit}`;
 
 const precipClassLabel = (pc: string): string => {
     if (pc === "<500") return "< 500 mm";
@@ -55,7 +53,7 @@ export const WeinbauResultCard = ({result, dryResult, fieldName, areaHa}: Props)
                 </div>
                 <div className="result-card__value-row">
                     <span>Jahresniederschlag</span>
-                    <span>{result.annualPrecipMm.toFixed(0)} mm</span>
+                    <span>{formatNum(result.annualPrecipMm, 0)} mm</span>
                 </div>
                 <div className="result-card__value-row">
                     <span>Niederschlagsklasse</span>

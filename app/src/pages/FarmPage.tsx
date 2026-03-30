@@ -4,6 +4,7 @@ import {useState} from "react";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {useFarm} from "../hooks/useFarm";
+import {formatNum} from "../lib/formatNum";
 import type {Field} from "../types/farm";
 
 const ClimateClassBadge = ({field}: {field: Field;}) => {
@@ -71,7 +72,7 @@ export const FarmPage = () => {
                             <strong>{field.name}</strong> — {field.areaHa} ha
                             <br />
                             <small>
-                                Lat: {field.location.lat.toFixed(5)}, Lon: {field.location.lon.toFixed(5)}
+                                Lat: {formatNum(field.location.lat, 5)}, Lon: {formatNum(field.location.lon, 5)}
                             </small>
                             <br />
                             <ClimateClassBadge field={field} />
