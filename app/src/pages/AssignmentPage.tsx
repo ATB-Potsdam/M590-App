@@ -7,6 +7,7 @@ import {WeinbauResultCard} from '../components/results/WeinbauResult';
 import {GruenflaechenResultCard} from '../components/results/GruenflaechenResult';
 import {NaturrasenResultCard} from '../components/results/NaturrasenResult';
 import {GolfResultCard} from '../components/results/GolfResult';
+import {KunstrasenResultCard} from '../components/results/KunstrasenResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -21,6 +22,7 @@ import type {FllVegetation, FllMoisture, FllSoil, FllSun} from '../lib/calculati
 import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
 import {calculateNaturrasen} from '../lib/calculations/naturrasen';
 import {calculateGolf, TABLE_35, type GolfAreaMode} from '../lib/calculations/golf';
+import {calculateKunstrasen} from '../lib/calculations/kunstrasen';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -65,6 +67,9 @@ export const AssignmentPage = () => {
     const [golfGreensM2, setGolfGreensM2] = useState<number | "">(assignment?.golfGreensM2 ?? "");
     const [golfTeeM2, setGolfTeeM2] = useState<number | "">(assignment?.golfTeeM2 ?? "");
     const [golfFairwayM2, setGolfFairwayM2] = useState<number | "">(assignment?.golfFairwayM2 ?? "");
+    // Kunstrasen
+    const [kunstrasenWeeks, setKunstrasenWeeks] = useState(assignment?.kunstrasenWeeks ?? 20);
+    const [kunstrasenMmPerWeek, setKunstrasenMmPerWeek] = useState(assignment?.kunstrasenMmPerWeek ?? 30);
 
     if (!project || !assignment || !field) {
         return (
@@ -172,6 +177,11 @@ export const AssignmentPage = () => {
             return {type: 'golf' as const, normal: result, dry: undefined};
         }
 
+        if (module === 'kunstrasen') {
+            const result = calculateKunstrasen({areaHa: field.areaHa, weeks: kunstrasenWeeks, mmPerWeek: kunstrasenMmPerWeek});
+            return {type: 'kunstrasen' as const, normal: result, dry: undefined};
+        }
+
         if (module === 'naturrasen' && field.climateDataStatus === 'done' && field.climateData) {
             const annualPrecipMm = field.climateData.precipitation
                 .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
@@ -202,6 +212,8 @@ export const AssignmentPage = () => {
             golfGreensM2: golfGreensM2 !== "" ? golfGreensM2 : undefined,
             golfTeeM2: golfTeeM2 !== "" ? golfTeeM2 : undefined,
             golfFairwayM2: golfFairwayM2 !== "" ? golfFairwayM2 : undefined,
+            kunstrasenWeeks,
+            kunstrasenMmPerWeek,
         });
         navigate(`/projects/${id}`);
     };
@@ -420,6 +432,49 @@ export const AssignmentPage = () => {
                 </>
             )}
 
+            {/* Kunstrasen */}
+            {module === 'kunstrasen' && (
+                <>
+                    <section className="assignment-section">
+                        <h2>2. Wochen/Saison</h2>
+                        <p className="assignment-page__hint">
+                            Gemäß Merkblatt liegen in März–Oktober typischerweise 15–20 Wochen mit Befeuchtungsbedarf.
+                        </p>
+                        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+                            <input
+                                type="range" min={1} max={30} step={1}
+                                value={kunstrasenWeeks}
+                                onChange={(e) => setKunstrasenWeeks(Number(e.target.value))}
+                            />
+                            <span className="surcharge-value">{kunstrasenWeeks} Wochen</span>
+                        </div>
+                    </section>
+
+                    <section className="assignment-section">
+                        <h2>3. Intensität (mm/Woche)</h2>
+                        <div className="option-list" style={{marginBottom: 8}}>
+                            {([15, 30, 50] as const).map((val) => (
+                                <button
+                                    key={val}
+                                    className={`option-btn ${kunstrasenMmPerWeek === val ? 'option-btn--active' : ''}`}
+                                    onClick={() => setKunstrasenMmPerWeek(val)}
+                                >
+                                    {val === 15 ? 'Niedrig' : val === 30 ? 'Mittel' : 'Hoch'} ({val} mm)
+                                </button>
+                            ))}
+                        </div>
+                        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+                            <input
+                                type="range" min={15} max={50} step={5}
+                                value={kunstrasenMmPerWeek}
+                                onChange={(e) => setKunstrasenMmPerWeek(Number(e.target.value))}
+                            />
+                            <span className="surcharge-value">{kunstrasenMmPerWeek} mm/Woche</span>
+                        </div>
+                    </section>
+                </>
+            )}
+
             {/* Golf: Teilflächen */}
             {module === 'golf' && (
                 <>
@@ -492,7 +547,7 @@ export const AssignmentPage = () => {
             )}
 
             {/* Bewässerungszeitraum + Zuschläge */}
-            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && (
+            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && module !== 'kunstrasen' && module !== 'naturrasen' && (
                 <>
                     {needsIrrigationSelection && plantKey && (
                         <section className="assignment-section">
@@ -639,6 +694,12 @@ export const AssignmentPage = () => {
                     )}
                     {result.type === 'golf' && result.normal && (
                         <GolfResultCard
+                            result={result.normal}
+                            fieldName={field.name}
+                        />
+                    )}
+                    {result.type === 'kunstrasen' && result.normal && (
+                        <KunstrasenResultCard
                             result={result.normal}
                             fieldName={field.name}
                         />

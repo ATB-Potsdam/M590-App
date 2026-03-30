@@ -54,6 +54,9 @@ export interface FieldAssignment {
     golfGreensM2?: number;
     golfTeeM2?: number;
     golfFairwayM2?: number;
+    // Kunstrasen
+    kunstrasenWeeks?: number;
+    kunstrasenMmPerWeek?: number;
 }
 
 export interface Project {

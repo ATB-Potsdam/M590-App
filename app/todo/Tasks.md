@@ -43,7 +43,7 @@
   - Block 4: alternative water sources
   - Result component + dispatcher wiring
 
-- [ ] **5. Kunststoffrasenflächen (synthetic turf)**
+- [x] **5. Kunststoffrasenflächen (synthetic turf)**
   Create module per Funktionsweise3.0.md (Kap. 4.4.5):
   - `src/lib/calculations/kunstrasen.ts`: weekly model
   - Inputs: area (m²), weeks/season (15–20 typical), intensity mm/week (15–50, 5mm steps)

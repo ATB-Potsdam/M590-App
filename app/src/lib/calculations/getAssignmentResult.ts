@@ -10,10 +10,11 @@ import type {FllMoisture, FllSoil, FllSun, FllVegetation} from "./gruenflaechen"
 import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
 import {calculateNaturrasen, type NaturrasenResult} from "./naturrasen";
 import {calculateGolf, type GolfResult} from "./golf";
+import {calculateKunstrasen, type KunstrasenResult} from "./kunstrasen";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult;
-    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult;
 }
 
 export const getAssignmentResult = (
@@ -132,6 +133,19 @@ export const getAssignmentResult = (
             greensM2: fa.golfGreensM2,
             teeM2: fa.golfTeeM2,
             fairwayM2: fa.golfFairwayM2,
+        });
+        return {normal: result};
+    }
+
+    if (
+        fa.module === "kunstrasen" &&
+        fa.kunstrasenWeeks != null &&
+        fa.kunstrasenMmPerWeek != null
+    ) {
+        const result = calculateKunstrasen({
+            areaHa: field.areaHa,
+            weeks: fa.kunstrasenWeeks,
+            mmPerWeek: fa.kunstrasenMmPerWeek,
         });
         return {normal: result};
     }
