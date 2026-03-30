@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Navigate, Route, Routes} from 'react-router';
 import "./App.scss";
 import {BottomNav} from './components/BottomNav';
@@ -14,6 +14,8 @@ import {HomePage} from './pages/HomePage';
 import {ProjectDetailPage} from './pages/ProjectDetailPage';
 import {ProjectsPage} from './pages/ProjectsPage';
 import {useAppStore} from './stores/useAppStore';
+
+const SPLASH_MIN_DURATION_MS = 2000;
 import {useLocalStore} from './stores/useLocalStore';
 
 const App = () => {
@@ -24,12 +26,25 @@ const App = () => {
     const {farm} = useFarm();
     const hasFarm = farm.name.trim().length > 0 || farm.fields.length > 0;
 
-    const [splashState, setSplashState] = useState<"loading" | "done" | "error">("loading");
+    const [splashState, setSplashState] = useState<"loading" | "ready" | "done" | "error">("loading");
     const [splashDismissed, setSplashDismissed] = useState(false);
     const [splashError, setSplashError] = useState<string | undefined>();
+    const splashReadyRef = useRef(false);
+    const timerDoneRef = useRef(false);
+
+    const tryFinishSplash = () => {
+        if (splashReadyRef.current && timerDoneRef.current) {
+            setSplashState("done");
+        }
+    };
 
     useEffect(() => {
         if (!layer) {
+            setTimeout(() => {
+                timerDoneRef.current = true;
+                tryFinishSplash();
+            }, SPLASH_MIN_DURATION_MS);
+
             Promise.all([
                 loadClimateLayerFromPublic(),
                 loadNfkweLayerFromPublic(),
@@ -38,7 +53,9 @@ const App = () => {
             ])
                 .then(([climateLayer, nfkweLayer, precipitationLookup, et0Lookup]) => {
                     useAppStore.setState({climateLayer, nfkweLayer, precipitationLookup, et0Lookup});
-                    setSplashState("done");
+                    splashReadyRef.current = true;
+                    setSplashState((s) => s === "loading" ? "ready" : s);
+                    tryFinishSplash();
                 })
                 .catch((e) => {
                     setSplashError("Laden fehlgeschlagen: " + (e?.message ?? String(e)));
@@ -46,6 +63,7 @@ const App = () => {
                     addMessage({type: "error", message: ["Laden fehlgeschlagen: " + (e?.message ?? String(e))]});
                 });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addMessage, layer]);
 
     useEffect(() => {

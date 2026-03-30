@@ -3,7 +3,7 @@ import "./SplashScreen.scss";
 const base = import.meta.env.BASE_URL;
 
 interface Props {
-    state: "loading" | "done" | "error";
+    state: "loading" | "ready" | "done" | "error";
     errorMessage?: string;
     onDismissed: () => void;
 }
@@ -21,9 +21,9 @@ export const SplashScreen = ({state, errorMessage, onDismissed}: Props) => (
                 <img src={`${base}dwa-logo.svg`} alt="DWA" className="splash__logo" />
             </a>
         </div>
-        {state === "loading" && (
-            <p className="splash__hint">Daten werden geladen…</p>
-        )}
+        <p className={`splash__hint${state !== "loading" ? " splash__hint--hidden" : ""}`}>
+            Daten werden geladen…
+        </p>
         {state === "error" && errorMessage && (
             <p className="splash__error">{errorMessage}</p>
         )}

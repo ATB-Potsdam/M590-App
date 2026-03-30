@@ -26,6 +26,12 @@
         color: #888;
         font-size: 14px;
         margin: 0;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+
+        &--hidden {
+            opacity: 0;
+        }
     }
 
     &__error {
