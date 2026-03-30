@@ -61,6 +61,11 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                 <span>{result.correctionMm > 0 ? '+' : ''}{result.correctionMm} mm</span>
             </div>
 
+            <div className="result-card__value-row">
+                <span>Tabellen</span>
+                <span>Tab. 21–25 (Basiswerte je Kultur), Tab. 19 (KWB-Referenz Potsdam), Tab. 20 (Korrekturfaktor r)</span>
+            </div>
+
             {/* Monatstabelle */}
             <table className="result-card__climate-table">
                 <thead>

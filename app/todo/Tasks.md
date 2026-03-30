@@ -51,7 +51,7 @@
   - Block 4: alternative water sources
   - Result component + dispatcher wiring
 
-- [ ] **6. Tennenflächen (clay courts)**
+- [x] **6. Tennenflächen (clay courts)**
   Create module per Funktionsweise3.0.md (Kap. 4.4.5, Table 36):
   - `src/lib/calculations/tennen.ts`: precipitation class → Table 36 (range or ">=X")
   - No additional user inputs beyond field/location

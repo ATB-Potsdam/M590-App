@@ -67,6 +67,10 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
                 <span>ETt = ET₀ × {formatNum(result.factorProduct, 3)}</span>
                 <strong>{formatNum(result.ettMmPerDay, 2)} mm/d</strong>
             </div>
+            <div className="result-card__value-row">
+                <span>Tabellen</span>
+                <span>Tab. 29 (Faktor L), Tab. 30 (Faktor G), Tab. 31 (Faktor B), Tab. 32 (Faktor S)</span>
+            </div>
         </details>
     </div>
 );

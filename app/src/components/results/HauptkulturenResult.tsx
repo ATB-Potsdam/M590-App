@@ -51,6 +51,10 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
                     {formatRange(dryResult.baseRangeMm, "mm/a")}
                 </span>
             </div>}
+            <div className="result-card__value-row">
+                <span>Tabellen</span>
+                <span>Tab. 3–18 (ZWB je KWBv-Zone), Tab. 19 (KWB-Referenz Potsdam), Tab. 20 (Korrekturfaktor r)</span>
+            </div>
         </details>
 
         {/* Block 3: Zuschläge */}

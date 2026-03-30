@@ -8,6 +8,7 @@ import {GruenflaechenResultCard} from '../components/results/GruenflaechenResult
 import {NaturrasenResultCard} from '../components/results/NaturrasenResult';
 import {GolfResultCard} from '../components/results/GolfResult';
 import {KunstrasenResultCard} from '../components/results/KunstrasenResult';
+import {TennenResultCard} from '../components/results/TennenResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -23,6 +24,7 @@ import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
 import {calculateNaturrasen} from '../lib/calculations/naturrasen';
 import {calculateGolf, TABLE_35, type GolfAreaMode} from '../lib/calculations/golf';
 import {calculateKunstrasen} from '../lib/calculations/kunstrasen';
+import {calculateTennen} from '../lib/calculations/tennen';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -187,6 +189,13 @@ export const AssignmentPage = () => {
                 .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
             const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
             return {type: 'naturrasen' as const, normal: result, dry: undefined};
+        }
+
+        if (module === 'tennen' && field.climateDataStatus === 'done' && field.climateData) {
+            const annualPrecipMm = field.climateData.precipitation
+                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
+            return {type: 'tennen' as const, normal: result, dry: undefined};
         }
 
         return null;
@@ -547,7 +556,7 @@ export const AssignmentPage = () => {
             )}
 
             {/* Bewässerungszeitraum + Zuschläge */}
-            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && module !== 'kunstrasen' && module !== 'naturrasen' && (
+            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && module !== 'kunstrasen' && module !== 'naturrasen' && module !== 'tennen' && (
                 <>
                     {needsIrrigationSelection && plantKey && (
                         <section className="assignment-section">
@@ -702,6 +711,13 @@ export const AssignmentPage = () => {
                         <KunstrasenResultCard
                             result={result.normal}
                             fieldName={field.name}
+                        />
+                    )}
+                    {result.type === 'tennen' && result.normal && (
+                        <TennenResultCard
+                            result={result.normal}
+                            fieldName={field.name}
+                            areaHa={field.areaHa}
                         />
                     )}
                 </section>

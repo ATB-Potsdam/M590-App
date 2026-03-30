@@ -11,10 +11,11 @@ import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
 import {calculateNaturrasen, type NaturrasenResult} from "./naturrasen";
 import {calculateGolf, type GolfResult} from "./golf";
 import {calculateKunstrasen, type KunstrasenResult} from "./kunstrasen";
+import {calculateTennen, type TennenResult} from "./tennen";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult;
-    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
 }
 
 export const getAssignmentResult = (
@@ -150,33 +151,52 @@ export const getAssignmentResult = (
         return {normal: result};
     }
 
+    if (
+        fa.module === "tennen" &&
+        field.climateDataStatus === "done" &&
+        field.climateData
+    ) {
+        const annualPrecipMm = field.climateData.precipitation
+            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
+        return {normal: result};
+    }
+
     return null;
 };
 
-// Summiert m³/a-Ranges über alle Assignments
+// Summiert mm/a- und m³/a-Ranges über alle Assignments
 export const sumResults = (results: AssignmentResult[]): {
+    normalMm: [number, number] | null;
     normalM3: [number, number] | null;
+    dryMm: [number, number] | null;
     dryM3: [number, number] | null;
 } => {
-    let normalMin = 0, normalMax = 0, hasNormal = false;
-    let dryMin = 0, dryMax = 0, hasDry = false;
+    let normalMmMin = 0, normalMmMax = 0, normalM3Min = 0, normalM3Max = 0, hasNormal = false;
+    let dryMmMin = 0, dryMmMax = 0, dryM3Min = 0, dryM3Max = 0, hasDry = false;
 
     results.forEach((r) => {
         if (r.normal) {
-            normalMin += r.normal.totalRangeM3[0];
-            normalMax += r.normal.totalRangeM3[1];
+            normalMmMin += r.normal.totalRangeMm[0];
+            normalMmMax += r.normal.totalRangeMm[1];
+            normalM3Min += r.normal.totalRangeM3[0];
+            normalM3Max += r.normal.totalRangeM3[1];
             hasNormal = true;
         }
         if (r.dry) {
-            dryMin += r.dry.totalRangeM3[0];
-            dryMax += r.dry.totalRangeM3[1];
+            dryMmMin += r.dry.totalRangeMm[0];
+            dryMmMax += r.dry.totalRangeMm[1];
+            dryM3Min += r.dry.totalRangeM3[0];
+            dryM3Max += r.dry.totalRangeM3[1];
             hasDry = true;
         }
     });
 
     return {
-        normalM3: hasNormal ? [normalMin, normalMax] : null,
-        dryM3: hasDry ? [dryMin, dryMax] : null,
+        normalMm: hasNormal ? [normalMmMin, normalMmMax] : null,
+        normalM3: hasNormal ? [normalM3Min, normalM3Max] : null,
+        dryMm: hasDry ? [dryMmMin, dryMmMax] : null,
+        dryM3: hasDry ? [dryM3Min, dryM3Max] : null,
     };
 };
 

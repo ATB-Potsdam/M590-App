@@ -38,7 +38,7 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalM3, dryM3} = sumResults(
+    const {normalMm, normalM3, dryMm, dryM3} = sumResults(
         assignmentResults.filter((r): r is AssignmentResult => r !== null)
     );
 
@@ -119,12 +119,12 @@ export const ProjectDetailPage = () => {
                                         <div className="assignment-list__result">
                                             {result.normal && (
                                                 <span className="result-pill result-pill--normal">
-                                                    🌤 {formatRange(result.normal.totalRangeM3, "m³/a")}
+                                                    🌤 {formatRange(result.normal.totalRangeMm, "mm/a")} · {formatRange(result.normal.totalRangeM3, "m³/a")}
                                                 </span>
                                             )}
                                             {result.dry && (
                                                 <span className="result-pill result-pill--dry">
-                                                    ☀️ {formatRange(result.dry.totalRangeM3, "m³/a")}
+                                                    ☀️ {formatRange(result.dry.totalRangeMm, "mm/a")} · {formatRange(result.dry.totalRangeM3, "m³/a")}
                                                 </span>
                                             )}
                                         </div>
@@ -214,14 +214,14 @@ export const ProjectDetailPage = () => {
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>🌤 Normaljahr gesamt</span>
-                            <strong>{formatRange(normalM3, "m³/a")}</strong>
+                            <strong>{normalMm && `${formatRange(normalMm, "mm/a")} · `}{formatRange(normalM3, "m³/a")}</strong>
                         </div>
                     )}
 
                     {dryM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>☀️ Trockenjahr gesamt</span>
-                            <strong>{formatRange(dryM3, "m³/a")}</strong>
+                            <strong>{dryMm && `${formatRange(dryMm, "mm/a")} · `}{formatRange(dryM3, "m³/a")}</strong>
                         </div>
                     )}
 

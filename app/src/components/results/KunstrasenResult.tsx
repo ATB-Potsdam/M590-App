@@ -48,6 +48,10 @@ export const KunstrasenResultCard = ({result, fieldName}: Props) => (
                 <span>Formel</span>
                 <span>{result.weeks} × {result.mmPerWeek} mm/Woche = {formatNum(result.annualMm, 0)} mm/a</span>
             </div>
+            <div className="result-card__value-row">
+                <span>Quelle</span>
+                <span>DWA-M 590, Kap. 4.4.5 (Kunststoffrasenflächen)</span>
+            </div>
         </details>
     </div>
 );
