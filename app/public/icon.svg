@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#019aa3"/>
+            <stop offset="100%" stop-color="#015a62"/>
+        </linearGradient>
+        <clipPath id="dropClip">
+            <path d="M 148 108 C 108 195, 63 285, 63 325 A 85 85 0 0 0 233 325 C 233 285, 188 195, 148 108 Z"/>
+        </clipPath>
+    </defs>
+
+    <!-- Background -->
+    <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+
+    <!-- ══ DROPLET ══ -->
+    <path d="M 148 108
+           C 108 195, 63 285, 63 325
+           A 85 85 0 0 0 233 325
+           C 233 285, 188 195, 148 108 Z" fill="none" stroke="white" stroke-width="14" stroke-linejoin="round"/>
+
+    <!-- Horizon line (clipped inside droplet) -->
+    <line x1="74" y1="308" x2="222" y2="308" stroke="white" stroke-width="12" stroke-linecap="round" clip-path="url(#dropClip)"/>
+
+    <!-- Wave (clipped inside droplet) -->
+    <path d="M 84 338 Q 101 325, 118 338 Q 135 351, 152 338 Q 169 325, 186 338 Q 203 351, 214 338" fill="none" stroke="white" stroke-width="9" stroke-linecap="round" clip-path="url(#dropClip)"/>
+
+    <!-- ══ WHEAT ══ -->
+
+    <!-- Stalk ends at y=148, well below terminal grain (bottom at y=135) -->
+    <line x1="362" y1="410" x2="362" y2="148" stroke="white" stroke-width="12" stroke-linecap="round"/>
+
+    <!-- Terminal grain -->
+    <ellipse cx="362" cy="113" rx="11" ry="22" fill="white"/>
+
+    <!-- Pair 1 -->
+    <ellipse cx="337" cy="185" rx="9" ry="21" fill="white" transform="rotate(-22 337 185)"/>
+    <ellipse cx="387" cy="185" rx="9" ry="21" fill="white" transform="rotate( 22 387 185)"/>
+
+    <!-- Pair 2 -->
+    <ellipse cx="335" cy="240" rx="9" ry="20" fill="white" transform="rotate(-19 335 240)"/>
+    <ellipse cx="389" cy="240" rx="9" ry="20" fill="white" transform="rotate( 19 389 240)"/>
+
+    <!-- Pair 3 -->
+    <ellipse cx="334" cy="292" rx="8" ry="18" fill="white" transform="rotate(-16 334 292)"/>
+    <ellipse cx="390" cy="292" rx="8" ry="18" fill="white" transform="rotate( 16 390 292)"/>
+
+    <!-- Pair 4 -->
+    <ellipse cx="333" cy="340" rx="8" ry="17" fill="white" transform="rotate(-13 333 340)"/>
+    <ellipse cx="391" cy="340" rx="8" ry="17" fill="white" transform="rotate( 13 391 340)"/>
+
+</svg>
