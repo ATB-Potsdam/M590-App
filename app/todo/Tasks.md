@@ -73,3 +73,7 @@
   - Hide result card when calculation yields null/no values
   - Optionally show info: "Leere Felder bedeuten fehlende Literaturwerte, nicht: 'kein Bedarf'"
   - Apply to all modules (especially Hauptkulturen and Gemüse/Obst)
+
+- [ ] **9. Export project calculations to PDF**
+
+- [ ] **10. Export/import farm and project settings**

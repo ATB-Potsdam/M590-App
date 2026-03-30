@@ -210,3 +210,11 @@ In the assignment list pills: `k. W.` shown instead of values when `hasValue ===
 - The `copyToTesla.sh` and `build.sh` scripts are deployment helpers, not part of the standard dev workflow.
 - Open ranges (e.g. "> 250 mm/a") use `isOpenRange: boolean` + `max === null` in table definitions; display with `>` prefix.
 - Precipitation classes shared across naturrasen/golf/tennen: `NaturrasenPrecipClass` from `naturrasen.ts`, helper `toNaturrasenPrecipClass()`.
+
+---
+
+## Styling
+
+- **Design tokens**: All colors are CSS custom properties defined in `src/variables.scss` (`:root` block), grouped by category: text, backgrounds, borders, primary, accent, warning, error, chart, interactive. Always use `var(--color-*)` in SCSS — never hardcode hex/rgb values.
+- **No inline styles**: All styling lives in `.scss` files. Do not use `style={{}}` in TSX. Only exception: dynamic computed values that depend on runtime data (e.g. bar heights in `ClimateBarChart`).
+- **SCSS structure**: Each component has a co-located `.scss` file imported in the component's `.tsx`. Class naming follows BEM-like conventions (`component__element--modifier`).
