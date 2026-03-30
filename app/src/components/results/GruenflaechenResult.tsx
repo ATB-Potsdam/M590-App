@@ -1,5 +1,5 @@
-import {formatNum} from "../../lib/formatNum";
 import type {GruenflaechenResult} from "../../lib/calculations/gruenflaechen";
+import {formatNum} from "../../lib/formatNum";
 import "./ResultCard.scss";
 
 interface Props {
@@ -22,7 +22,7 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
             <h4>Zusatzwasserbedarf</h4>
             <div className="result-card__values">
                 <div className="result-card__value-row">
-                    <span>ETt (täglich)</span>
+                    <span>ET<sub>t</sub> (täglich)</span>
                     <strong>{formatNum(result.ettMmPerDay, 2)} mm/d</strong>
                 </div>
                 <div className="result-card__value-row">
@@ -64,7 +64,7 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
                 <strong>{formatNum(result.factorProduct, 3)}</strong>
             </div>
             <div className="result-card__value-row">
-                <span>ETt = ET₀ × {formatNum(result.factorProduct, 3)}</span>
+                <span>ET<sub>t</sub> = ET₀ × {formatNum(result.factorProduct, 3)}</span>
                 <strong>{formatNum(result.ettMmPerDay, 2)} mm/d</strong>
             </div>
             <div className="result-card__value-row">
