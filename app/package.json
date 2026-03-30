@@ -15,7 +15,7 @@
     "cap:ios": "cap open ios",
     "build:ios": "yarn build && yarn cap:sync:ios && yarn cap:ios",
     "cap:android": "CAPACITOR_ANDROID_STUDIO_PATH=/usr/bin/android-studio cap open android",
-    "build:android": "yarn build && yarn cap:sync:android && yarn cap:android"
+    "build:android": "yarn build --mode android && yarn cap:sync:android && yarn cap:android"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
