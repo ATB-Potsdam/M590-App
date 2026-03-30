@@ -259,6 +259,7 @@ export const AssignmentPage = () => {
                                 setPlantCategory(undefined);
                                 setSelectedLevel0(undefined);
                                 setPlantKey(undefined);
+                                setSurchargeHeavySoil(0);
                             }}
                         >
                             <span className="module-tile__icon">{m.icon}</span>
@@ -339,6 +340,7 @@ export const AssignmentPage = () => {
                             setPlantKey(undefined);
                             setSelectedLevel0(undefined);
                             setSurchargeEmergence(0);
+                            setSurchargeHeavySoil(0);
                         }}
                     >
                         ändern
@@ -423,8 +425,11 @@ export const AssignmentPage = () => {
                         <div style={{display: 'flex', gap: 12, alignItems: 'center', fontSize: 14}}>
                             <label>
                                 Von:
-                                <select value={fllPeriodStart} onChange={(e) => setFllPeriodStart(Number(e.target.value))}
-                                    style={{marginLeft: 4}}>
+                                <select value={fllPeriodStart} onChange={(e) => {
+                                    const v = Number(e.target.value);
+                                    setFllPeriodStart(v);
+                                    if (v > fllPeriodEnd) setFllPeriodEnd(v);
+                                }} style={{marginLeft: 4}}>
                                     {[3,4,5,6,7,8,9,10].map((m) => (
                                         <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
                                     ))}
@@ -432,8 +437,11 @@ export const AssignmentPage = () => {
                             </label>
                             <label>
                                 Bis:
-                                <select value={fllPeriodEnd} onChange={(e) => setFllPeriodEnd(Number(e.target.value))}
-                                    style={{marginLeft: 4}}>
+                                <select value={fllPeriodEnd} onChange={(e) => {
+                                    const v = Number(e.target.value);
+                                    setFllPeriodEnd(v);
+                                    if (v < fllPeriodStart) setFllPeriodStart(v);
+                                }} style={{marginLeft: 4}}>
                                     {[3,4,5,6,7,8,9,10].map((m) => (
                                         <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
                                     ))}

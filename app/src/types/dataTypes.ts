@@ -36,4 +36,3 @@ export type FordderPlantName = typeof fodderPlantNames[number];
 export type RawData = [norm: [Range | null, Range | null, Range | null, Range | null], dry: [Range | null, Range | null, Range | null, Range | null], time: Range[]];
 
 export type AnyPlantName = VegetableName | FruitName | MedicalPlantName | AgriculturalPlantName | FordderPlantName;
-// export type AnyPlantName = FruitName | MedicalPlantName | AgriculturalPlantName | FordderPlantName;
