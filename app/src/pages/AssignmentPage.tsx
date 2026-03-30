@@ -6,6 +6,7 @@ import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult
 import {WeinbauResultCard} from '../components/results/WeinbauResult';
 import {GruenflaechenResultCard} from '../components/results/GruenflaechenResult';
 import {NaturrasenResultCard} from '../components/results/NaturrasenResult';
+import {GolfResultCard} from '../components/results/GolfResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -19,6 +20,7 @@ import {calculateGruenflaechen, VEGETATION_OPTIONS, MOISTURE_OPTIONS, SOIL_OPTIO
 import type {FllVegetation, FllMoisture, FllSoil, FllSun} from '../lib/calculations/gruenflaechen';
 import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
 import {calculateNaturrasen} from '../lib/calculations/naturrasen';
+import {calculateGolf, TABLE_35, type GolfAreaMode} from '../lib/calculations/golf';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -58,6 +60,11 @@ export const AssignmentPage = () => {
     const [fllSun, setFllSun] = useState<FllSun | undefined>(assignment?.fllSun);
     const [fllPeriodStart, setFllPeriodStart] = useState(assignment?.fllPeriodStart ?? 4);
     const [fllPeriodEnd, setFllPeriodEnd] = useState(assignment?.fllPeriodEnd ?? 9);
+    // Golf sub-areas
+    const [golfAreaMode, setGolfAreaMode] = useState<GolfAreaMode | undefined>(assignment?.golfAreaMode);
+    const [golfGreensM2, setGolfGreensM2] = useState<number | "">(assignment?.golfGreensM2 ?? "");
+    const [golfTeeM2, setGolfTeeM2] = useState<number | "">(assignment?.golfTeeM2 ?? "");
+    const [golfFairwayM2, setGolfFairwayM2] = useState<number | "">(assignment?.golfFairwayM2 ?? "");
 
     if (!project || !assignment || !field) {
         return (
@@ -157,6 +164,14 @@ export const AssignmentPage = () => {
             return {type: 'gruenflaechen' as const, normal: result, dry: undefined};
         }
 
+        if (module === 'golf' && golfGreensM2 !== "" && golfTeeM2 !== "" && golfFairwayM2 !== ""
+            && field.climateDataStatus === 'done' && field.climateData) {
+            const annualPrecipMm = field.climateData.precipitation
+                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const result = calculateGolf({annualPrecipMm, greensM2: golfGreensM2, teeM2: golfTeeM2, fairwayM2: golfFairwayM2});
+            return {type: 'golf' as const, normal: result, dry: undefined};
+        }
+
         if (module === 'naturrasen' && field.climateDataStatus === 'done' && field.climateData) {
             const annualPrecipMm = field.climateData.precipitation
                 .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
@@ -183,6 +198,10 @@ export const AssignmentPage = () => {
             fllSun,
             fllPeriodStart,
             fllPeriodEnd,
+            golfAreaMode,
+            golfGreensM2: golfGreensM2 !== "" ? golfGreensM2 : undefined,
+            golfTeeM2: golfTeeM2 !== "" ? golfTeeM2 : undefined,
+            golfFairwayM2: golfFairwayM2 !== "" ? golfFairwayM2 : undefined,
         });
         navigate(`/projects/${id}`);
     };
@@ -401,8 +420,79 @@ export const AssignmentPage = () => {
                 </>
             )}
 
+            {/* Golf: Teilflächen */}
+            {module === 'golf' && (
+                <>
+                    <section className="assignment-section">
+                        <h2>2. Flächeneingabe</h2>
+                        <p className="assignment-page__hint">
+                            Die Teilflächen sind nötig, weil je Bereich verschiedene Zusatzwasserbedarfe gelten.
+                        </p>
+                        <div className="option-list">
+                            <button
+                                className={`option-btn ${golfAreaMode === 'manual' ? 'option-btn--active' : ''}`}
+                                onClick={() => setGolfAreaMode('manual')}
+                            >Teilflächen sind bekannt</button>
+                            <button
+                                className={`option-btn ${golfAreaMode === '18hole' ? 'option-btn--active' : ''}`}
+                                onClick={() => {
+                                    setGolfAreaMode('18hole');
+                                    setGolfGreensM2(TABLE_35['18hole'].greensM2);
+                                    setGolfTeeM2(TABLE_35['18hole'].teeM2);
+                                    setGolfFairwayM2(TABLE_35['18hole'].fairwayM2);
+                                }}
+                            >Standardflächen 18-Loch-Platz</button>
+                            <button
+                                className={`option-btn ${golfAreaMode === 'spielbahn' ? 'option-btn--active' : ''}`}
+                                onClick={() => {
+                                    setGolfAreaMode('spielbahn');
+                                    setGolfGreensM2(TABLE_35['spielbahn'].greensM2);
+                                    setGolfTeeM2(TABLE_35['spielbahn'].teeM2);
+                                    setGolfFairwayM2(TABLE_35['spielbahn'].fairwayM2);
+                                }}
+                            >Standardflächen je Spielbahn</button>
+                        </div>
+                    </section>
+
+                    {golfAreaMode && (
+                        <section className="assignment-section">
+                            <h2>3. Teilflächen</h2>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
+                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                                    <span style={{flex: 1}}>Grüns / Vorgrüns (m²)</span>
+                                    <input
+                                        type="number" min={0} step={1}
+                                        value={golfGreensM2}
+                                        onChange={(e) => setGolfGreensM2(e.target.value === "" ? "" : Number(e.target.value))}
+                                        style={{width: 100}}
+                                    />
+                                </label>
+                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                                    <span style={{flex: 1}}>Abschläge / Tees (m²)</span>
+                                    <input
+                                        type="number" min={0} step={1}
+                                        value={golfTeeM2}
+                                        onChange={(e) => setGolfTeeM2(e.target.value === "" ? "" : Number(e.target.value))}
+                                        style={{width: 100}}
+                                    />
+                                </label>
+                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                                    <span style={{flex: 1}}>Spielbahnen / Fairways (m²)</span>
+                                    <input
+                                        type="number" min={0} step={1}
+                                        value={golfFairwayM2}
+                                        onChange={(e) => setGolfFairwayM2(e.target.value === "" ? "" : Number(e.target.value))}
+                                        style={{width: 100}}
+                                    />
+                                </label>
+                            </div>
+                        </section>
+                    )}
+                </>
+            )}
+
             {/* Bewässerungszeitraum + Zuschläge */}
-            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && (
+            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && (
                 <>
                     {needsIrrigationSelection && plantKey && (
                         <section className="assignment-section">
@@ -545,6 +635,12 @@ export const AssignmentPage = () => {
                             result={result.normal}
                             fieldName={field.name}
                             areaHa={field.areaHa}
+                        />
+                    )}
+                    {result.type === 'golf' && result.normal && (
+                        <GolfResultCard
+                            result={result.normal}
+                            fieldName={field.name}
                         />
                     )}
                 </section>

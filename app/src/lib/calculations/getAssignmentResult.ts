@@ -9,10 +9,11 @@ import {calculateGruenflaechen, type GruenflaechenResult} from "./gruenflaechen"
 import type {FllMoisture, FllSoil, FllSun, FllVegetation} from "./gruenflaechen";
 import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
 import {calculateNaturrasen, type NaturrasenResult} from "./naturrasen";
+import {calculateGolf, type GolfResult} from "./golf";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult;
-    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult;
 }
 
 export const getAssignmentResult = (
@@ -113,6 +114,25 @@ export const getAssignmentResult = (
         const annualPrecipMm = field.climateData.precipitation
             .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
         const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
+        return {normal: result};
+    }
+
+    if (
+        fa.module === "golf" &&
+        fa.golfGreensM2 != null &&
+        fa.golfTeeM2 != null &&
+        fa.golfFairwayM2 != null &&
+        field.climateDataStatus === "done" &&
+        field.climateData
+    ) {
+        const annualPrecipMm = field.climateData.precipitation
+            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const result = calculateGolf({
+            annualPrecipMm,
+            greensM2: fa.golfGreensM2,
+            teeM2: fa.golfTeeM2,
+            fairwayM2: fa.golfFairwayM2,
+        });
         return {normal: result};
     }
 

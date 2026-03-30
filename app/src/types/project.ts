@@ -49,6 +49,11 @@ export interface FieldAssignment {
     fllSun?: "schatten" | "halbschatten" | "sonne";
     fllPeriodStart?: number; // month 1-12
     fllPeriodEnd?: number;   // month 1-12
+    // Golf sub-areas
+    golfAreaMode?: "manual" | "18hole" | "spielbahn";
+    golfGreensM2?: number;
+    golfTeeM2?: number;
+    golfFairwayM2?: number;
 }
 
 export interface Project {

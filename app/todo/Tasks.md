@@ -26,14 +26,14 @@
   - No surcharges, no scenarios
   - Result component + dispatcher wiring
 
-- [ ] **3. Naturrasensportplätze (natural turf sports)**
+- [x] **3. Naturrasensportplätze (natural turf sports)**
   Create module per Funktionsweise3.0.md (Kap. 4.4.3, Table 33):
   - `src/lib/calculations/naturrasen.ts`: precipitation class → Table 33 (range min–max)
   - No additional user inputs beyond field/location
   - Block 4: alternative water sources (type + m³/a deducted)
   - Result component + dispatcher wiring
 
-- [ ] **4. Golfplätze (golf courses)**
+- [x] **4. Golfplätze (golf courses)**
   Create module per Funktionsweise3.0.md (Kap. 4.4.4, Tables 34/35):
   - `src/lib/calculations/golf.ts`
   - Sub-areas: Grüns/Vorgrüns, Abschläge/Tees, Spielbahnen/Fairways
