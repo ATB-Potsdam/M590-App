@@ -72,6 +72,8 @@ export const AssignmentPage = () => {
     // Kunstrasen
     const [kunstrasenWeeks, setKunstrasenWeeks] = useState(assignment?.kunstrasenWeeks ?? 20);
     const [kunstrasenMmPerWeek, setKunstrasenMmPerWeek] = useState(assignment?.kunstrasenMmPerWeek ?? 30);
+    // Alternative Wasserquellen
+    const [altWasserM3, setAltWasserM3] = useState<number | "">(assignment?.altWasserM3 ?? "");
 
     if (!project || !assignment || !field) {
         return (
@@ -223,6 +225,7 @@ export const AssignmentPage = () => {
             golfFairwayM2: golfFairwayM2 !== "" ? golfFairwayM2 : undefined,
             kunstrasenWeeks,
             kunstrasenMmPerWeek,
+            altWasserM3: altWasserM3 !== "" ? altWasserM3 : undefined,
         });
         navigate(`/projects/${id}`);
     };
@@ -720,6 +723,27 @@ export const AssignmentPage = () => {
                             areaHa={field.areaHa}
                         />
                     )}
+                </section>
+            )}
+
+            {/* Alternative Wasserquellen */}
+            {result && (module === 'gruenflaechen' || module === 'naturrasen' || module === 'golf' || module === 'kunstrasen' || module === 'tennen') && (
+                <section className="assignment-section">
+                    <h2>Alternative Wasserquellen</h2>
+                    <p className="assignment-section__hint">
+                        Gesammeltes Niederschlagswasser, Dränagewasser o. ä. kann vom Bruttobedarf abgezogen werden (Netto-Antragsmenge).
+                    </p>
+                    <label className="assignment-section__label">
+                        Verfügbare alternative Wasserquellen (m³/a)
+                        <input
+                            type="number"
+                            min={0}
+                            step={1}
+                            placeholder="0"
+                            value={altWasserM3}
+                            onChange={(e) => setAltWasserM3(e.target.value === "" ? "" : Number(e.target.value))}
+                        />
+                    </label>
                 </section>
             )}
 

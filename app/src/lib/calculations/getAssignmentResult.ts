@@ -16,6 +16,8 @@ import {calculateTennen, type TennenResult} from "./tennen";
 export interface AssignmentResult {
     normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
     dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
+    /** Alternative Wasserquellen in m³/a (nur Grünflächen- und Sportflächenmodule) */
+    altWasserM3?: number;
 }
 
 export const getAssignmentResult = (
@@ -105,7 +107,7 @@ export const getAssignmentResult = (
             periodEnd: fa.fllPeriodEnd ?? 9,
         });
         // Grünflächen has no scenario differentiation — store as normal only
-        return {normal: result};
+        return {normal: result, altWasserM3: fa.altWasserM3};
     }
 
     if (
@@ -116,7 +118,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = field.climateData.precipitation
             .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
         const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result};
+        return {normal: result, altWasserM3: fa.altWasserM3};
     }
 
     if (
@@ -135,7 +137,7 @@ export const getAssignmentResult = (
             teeM2: fa.golfTeeM2,
             fairwayM2: fa.golfFairwayM2,
         });
-        return {normal: result};
+        return {normal: result, altWasserM3: fa.altWasserM3};
     }
 
     if (
@@ -148,7 +150,7 @@ export const getAssignmentResult = (
             weeks: fa.kunstrasenWeeks,
             mmPerWeek: fa.kunstrasenMmPerWeek,
         });
-        return {normal: result};
+        return {normal: result, altWasserM3: fa.altWasserM3};
     }
 
     if (
@@ -159,7 +161,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = field.climateData.precipitation
             .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
         const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result};
+        return {normal: result, altWasserM3: fa.altWasserM3};
     }
 
     return null;
@@ -171,9 +173,12 @@ export const sumResults = (results: AssignmentResult[]): {
     normalM3: [number, number] | null;
     dryMm: [number, number] | null;
     dryM3: [number, number] | null;
+    totalAltWasserM3: number;
+    nettoM3: [number, number] | null;
 } => {
     let normalMmMin = 0, normalMmMax = 0, normalM3Min = 0, normalM3Max = 0, hasNormal = false;
     let dryMmMin = 0, dryMmMax = 0, dryM3Min = 0, dryM3Max = 0, hasDry = false;
+    let totalAltWasserM3 = 0;
 
     results.forEach((r) => {
         if (r.normal) {
@@ -190,13 +195,23 @@ export const sumResults = (results: AssignmentResult[]): {
             dryM3Max += r.dry.totalRangeM3[1];
             hasDry = true;
         }
+        if (r.altWasserM3) {
+            totalAltWasserM3 += r.altWasserM3;
+        }
     });
+
+    // Netto = Brutto-Normal minus alternative Wasserquellen (nie negativ)
+    const nettoM3: [number, number] | null = hasNormal
+        ? [Math.max(0, normalM3Min - totalAltWasserM3), Math.max(0, normalM3Max - totalAltWasserM3)]
+        : null;
 
     return {
         normalMm: hasNormal ? [normalMmMin, normalMmMax] : null,
         normalM3: hasNormal ? [normalM3Min, normalM3Max] : null,
         dryMm: hasDry ? [dryMmMin, dryMmMax] : null,
         dryM3: hasDry ? [dryM3Min, dryM3Max] : null,
+        totalAltWasserM3,
+        nettoM3,
     };
 };
 

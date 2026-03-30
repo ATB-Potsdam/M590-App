@@ -38,11 +38,13 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalMm, normalM3, dryMm, dryM3} = sumResults(
+    const {normalMm, normalM3, dryMm, dryM3, totalAltWasserM3, nettoM3} = sumResults(
         assignmentResults.filter((r): r is AssignmentResult => r !== null)
     );
 
     const pendingCount = project.fieldAssignments.filter((fa) => !fa.module).length;
+    const totalAreaHa = project.fieldAssignments
+        .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0);
 
     return (
         <div className="page">
@@ -193,38 +195,120 @@ export const ProjectDetailPage = () => {
                 </button>
             )}
 
-            {/* Projektzusammenfassung – Platzhalter bis Berechnungen implementiert */}
+            {/* Projektzusammenfassung */}
             {project.fieldAssignments.length > 0 && (
                 <section className="project-summary">
                     <h2>Zusammenfassung</h2>
 
-                    <div className="project-summary__row">
-                        <span>Schläge</span>
-                        <span>{project.fieldAssignments.length}</span>
+                    {/* Detailtabelle je Schlag */}
+                    <details className="project-summary__details">
+                        <summary>Details je Schlag</summary>
+                    <div className="project-summary__table-wrap">
+                        <table className="project-summary__table">
+                            <thead>
+                                <tr>
+                                    <th>Schlag</th>
+                                    <th>Nutzung</th>
+                                    <th>Fläche</th>
+                                    <th>🌤 Normal</th>
+                                    <th>☀️ Trocken</th>
+                                    <th>Alt. Wasser</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {project.fieldAssignments.map((fa, i) => {
+                                    const field = farm.fields.find((f) => f.id === fa.fieldId);
+                                    if (!field) return null;
+                                    const result = assignmentResults[i];
+                                    return (
+                                        <tr key={fa.id}>
+                                            <td>
+                                                <strong>{field.name}</strong>
+                                                {fa.plantKey && (
+                                                    <span className="project-summary__plant">
+                                                        {fa.plantKey.split("|").slice(0, 2).join(" · ")}
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
+                                            <td>{field.areaHa} ha</td>
+                                            <td>
+                                                {result?.normal ? (
+                                                    <div className="project-summary__two-line">
+                                                        <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
+                                                        <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
+                                                    </div>
+                                                ) : "–"}
+                                            </td>
+                                            <td>
+                                                {result?.dry ? (
+                                                    <div className="project-summary__two-line">
+                                                        <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
+                                                        <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
+                                                    </div>
+                                                ) : "–"}
+                                            </td>
+                                            <td>
+                                                {result?.altWasserM3
+                                                    ? `${formatNum(result.altWasserM3, 0)} m³`
+                                                    : "–"}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                            <tfoot>
+                                <tr className="project-summary__total-row">
+                                    <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} Schläge)</strong></td>
+                                    <td>{formatNum(totalAreaHa, 1)} ha</td>
+                                    <td>
+                                        {normalM3 ? (
+                                            <div className="project-summary__two-line">
+                                                {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
+                                                <span>{formatRange(normalM3, "m³/a")}</span>
+                                            </div>
+                                        ) : "–"}
+                                    </td>
+                                    <td>
+                                        {dryM3 ? (
+                                            <div className="project-summary__two-line">
+                                                {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
+                                                <span>{formatRange(dryM3, "m³/a")}</span>
+                                            </div>
+                                        ) : "–"}
+                                    </td>
+                                    <td>{totalAltWasserM3 > 0 ? `${formatNum(totalAltWasserM3, 0)} m³` : "–"}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
+                    </details>
 
-                    <div className="project-summary__row">
-                        <span>Gesamtfläche</span>
-                        <span>
-                            {formatNum(project.fieldAssignments
-                                .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0), 1)} ha
-                        </span>
-                    </div>
-
+                    {/* Brutto / Alt. Wasser / Netto */}
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
-                            <span>🌤 Normaljahr gesamt</span>
+                            <span>🌤 Brutto Normaljahr</span>
                             <strong>{normalMm && `${formatRange(normalMm, "mm/a")} · `}{formatRange(normalM3, "m³/a")}</strong>
                         </div>
                     )}
-
                     {dryM3 && (
                         <div className="project-summary__row project-summary__row--result">
-                            <span>☀️ Trockenjahr gesamt</span>
+                            <span>☀️ Brutto Trockenjahr</span>
                             <strong>{dryMm && `${formatRange(dryMm, "mm/a")} · `}{formatRange(dryM3, "m³/a")}</strong>
                         </div>
                     )}
-
+                    {totalAltWasserM3 > 0 && (
+                        <div className="project-summary__row project-summary__row--alt">
+                            <span>− Alternative Wasserquellen</span>
+                            <strong>{formatNum(totalAltWasserM3, 0)} m³/a</strong>
+                        </div>
+                    )}
+                    {nettoM3 && totalAltWasserM3 > 0 && (
+                        <div className="project-summary__row project-summary__row--netto">
+                            <span>Netto-Antragsmenge</span>
+                            <strong>{formatRange(nettoM3, "m³/a")}</strong>
+                        </div>
+                    )}
                     {pendingCount > 0 && (
                         <div className="project-summary__row project-summary__row--pending">
                             <span>⚠️ Ohne Nutzung</span>

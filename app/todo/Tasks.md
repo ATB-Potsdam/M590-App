@@ -60,7 +60,7 @@
 
 ## Features
 
-- [ ] **7. Projektzusammenfassung (project summary) with details**
+- [x] **7. Projektzusammenfassung (project summary) with details**
   Enhance ProjectDetailPage.tsx:
   - Detailed summary per field assignment: field name, crop/module, area → mm/a + m³/a
   - Both scenarios side by side where applicable

@@ -57,6 +57,8 @@ export interface FieldAssignment {
     // Kunstrasen
     kunstrasenWeeks?: number;
     kunstrasenMmPerWeek?: number;
+    // Alternative Wasserquellen (Grünflächen + Sportflächen)
+    altWasserM3?: number;
 }
 
 export interface Project {

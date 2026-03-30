@@ -242,6 +242,100 @@
             font-size: 15px;
         }
     }
+
+    &__row--alt {
+        background: #fff8e1;
+        font-size: 14px;
+
+        strong {
+            color: #e65100;
+        }
+    }
+
+    &__row--netto {
+        background: #e8f5e9;
+        font-size: 15px;
+        font-weight: 600;
+        border-top: 2px solid #a5d6a7;
+
+        strong {
+            color: #1b5e20;
+            font-size: 16px;
+        }
+    }
+
+    &__details {
+        summary {
+            padding: 8px 14px;
+            font-size: 13px;
+            color: #1565c0;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 1px solid #f0f0f0;
+
+            &:hover {
+                background: #f5f5f5;
+            }
+        }
+    }
+
+    &__table-wrap {
+        overflow-x: auto;
+        margin-bottom: 4px;
+    }
+
+    &__table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+
+        th, td {
+            padding: 6px 10px;
+            text-align: right;
+            border-bottom: 1px solid #f0f0f0;
+            white-space: nowrap;
+
+            &:first-child {
+                text-align: left;
+            }
+            &:nth-child(2) {
+                text-align: left;
+            }
+        }
+
+        th {
+            background: #f5f5f5;
+            color: #555;
+            font-weight: 600;
+            font-size: 12px;
+        }
+    }
+
+    &__total-row {
+        background: #f0f4ff;
+        font-size: 13px;
+        border-top: 2px solid #c5cae9;
+    }
+
+    &__plant {
+        display: block;
+        font-size: 11px;
+        color: #888;
+        font-weight: normal;
+    }
+
+    &__two-line {
+        span {
+            display: block;
+        }
+        span:first-child {
+            font-size: 11px;
+            color: #666;
+        }
+        span:last-child {
+            font-weight: 600;
+        }
+    }
 }
 
 .link-btn {
