@@ -181,14 +181,16 @@ export const sumResults = (results: AssignmentResult[]): {
     let totalAltWasserM3 = 0;
 
     results.forEach((r) => {
-        if (r.normal) {
+        const normalHasValue = r.normal && (!('hasValue' in r.normal) || r.normal.hasValue);
+        const dryHasValue = r.dry && (!('hasValue' in r.dry) || r.dry.hasValue);
+        if (normalHasValue && r.normal) {
             normalMmMin += r.normal.totalRangeMm[0];
             normalMmMax += r.normal.totalRangeMm[1];
             normalM3Min += r.normal.totalRangeM3[0];
             normalM3Max += r.normal.totalRangeM3[1];
             hasNormal = true;
         }
-        if (r.dry) {
+        if (dryHasValue && r.dry) {
             dryMmMin += r.dry.totalRangeMm[0];
             dryMmMax += r.dry.totalRangeMm[1];
             dryM3Min += r.dry.totalRangeM3[0];

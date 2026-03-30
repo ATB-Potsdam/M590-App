@@ -45,6 +45,8 @@ export interface GemueseObstResult {
     totalRangeM3: Range;
     scenario: Scenario;
     monthlyRows: MonthlyClimateRow[];
+    // false wenn kein Literaturwert vorhanden (Tabellenwert null)
+    hasValue: boolean;
 }
 
 
@@ -61,7 +63,9 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     const rawData = allOtherPlants[plant];
     const rawIndex = nFkweToRawIndex(nFkweClass);
     const scenarioData = scenario === "dry" ? rawData[1] : rawData[0];
-    const baseRangeMm = scenarioData[rawIndex] ?? [0, 0];
+    const rawBaseRange = scenarioData[rawIndex];
+    const hasValue = rawBaseRange !== null && rawBaseRange !== undefined;
+    const baseRangeMm: Range = rawBaseRange ?? [0, 0];
 
     // Monatliche Gewichtungen für den Bewässerungszeitraum
     const weights = getMonthWeights(irrigationPeriod);
@@ -119,6 +123,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         totalRangeM3,
         scenario,
         monthlyRows,
+        hasValue,
     };
 };
 

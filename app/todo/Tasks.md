@@ -68,7 +68,7 @@
   - Alternative water source deductions (sport/green modules)
   - Net application amount (Netto-Antragsmenge)
 
-- [ ] **8. Handle missing table values: hide or show alternative display**
+- [x] **8. Handle missing table values: hide or show alternative display**
   From Todo.md:
   - Hide result card when calculation yields null/no values
   - Optionally show info: "Leere Felder bedeuten fehlende Literaturwerte, nicht: 'kein Bedarf'"

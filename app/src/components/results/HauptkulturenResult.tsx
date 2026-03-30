@@ -20,20 +20,31 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         {/* Block 1: Ergebnis */}
         <div className="result-card__block">
             <h4>Zusatzwasserbedarf</h4>
-            <div className="result-card__values">
-                <div className="result-card__value-row">
-                    <span>{dryResult ? "🌤 Normaljahr" : "Gesamt"}</span>
-                    <strong>{formatRange(result.totalRangeMm, "mm/a")}</strong>
-                    <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
-                </div>
-                {dryResult && (
+            {!result.hasValue ? (
+                <p className="result-card__no-value">
+                    Kein Literaturwert vorhanden. Leere Felder bedeuten fehlende Literaturwerte, nicht „kein Bedarf".
+                </p>
+            ) : (
+                <div className="result-card__values">
                     <div className="result-card__value-row">
-                        <span>☀️ Trockenjahr</span>
-                        <strong>{formatRange(dryResult.totalRangeMm, "mm/a")}</strong>
-                        <strong>{formatRange(dryResult.totalRangeM3, "m³/a")}</strong>
+                        <span>{dryResult ? "🌤 Normaljahr" : "Gesamt"}</span>
+                        <strong>{formatRange(result.totalRangeMm, "mm/a")}</strong>
+                        <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
                     </div>
-                )}
-            </div>
+                    {dryResult && dryResult.hasValue && (
+                        <div className="result-card__value-row">
+                            <span>☀️ Trockenjahr</span>
+                            <strong>{formatRange(dryResult.totalRangeMm, "mm/a")}</strong>
+                            <strong>{formatRange(dryResult.totalRangeM3, "m³/a")}</strong>
+                        </div>
+                    )}
+                    {dryResult && !dryResult.hasValue && (
+                        <p className="result-card__no-value">
+                            ☀️ Trockenjahr: kein Literaturwert vorhanden.
+                        </p>
+                    )}
+                </div>
+            )}
         </div>
 
         {/* Block 2: Berechnungsgrundlagen */}

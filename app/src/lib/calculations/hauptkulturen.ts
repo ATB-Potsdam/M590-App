@@ -29,6 +29,8 @@ export interface HauptkulturenResult {
     totalRangeM3: Range;
     // Verwendetes Szenario
     scenario: Scenario;
+    // false wenn kein Literaturwert vorhanden (Tabellenwert = 0)
+    hasValue: boolean;
 }
 
 // Automatischer Zuschlag je Kultur
@@ -84,6 +86,7 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         totalRangeMm,
         totalRangeM3,
         scenario,
+        hasValue: baseRangeMm[0] !== 0 || baseRangeMm[1] !== 0,
     };
 };
 

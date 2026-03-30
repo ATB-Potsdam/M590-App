@@ -117,16 +117,24 @@ export const ProjectDetailPage = () => {
                                         ? getMissingData(fa, field)
                                         : [];
 
+                                    const normalHasValue = result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue);
+                                    const dryHasValue = result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue);
+
                                     if (result) return (
                                         <div className="assignment-list__result">
-                                            {result.normal && (
+                                            {normalHasValue && result.normal && (
                                                 <span className="result-pill result-pill--normal">
                                                     🌤 {formatRange(result.normal.totalRangeMm, "mm/a")} · {formatRange(result.normal.totalRangeM3, "m³/a")}
                                                 </span>
                                             )}
-                                            {result.dry && (
+                                            {dryHasValue && result.dry && (
                                                 <span className="result-pill result-pill--dry">
                                                     ☀️ {formatRange(result.dry.totalRangeMm, "mm/a")} · {formatRange(result.dry.totalRangeM3, "m³/a")}
+                                                </span>
+                                            )}
+                                            {!normalHasValue && result.normal && (
+                                                <span className="result-pill result-pill--pending">
+                                                    Kein Literaturwert
                                                 </span>
                                             )}
                                         </div>
@@ -233,20 +241,20 @@ export const ProjectDetailPage = () => {
                                             <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
                                             <td>{field.areaHa} ha</td>
                                             <td>
-                                                {result?.normal ? (
+                                                {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
                                                     <div className="project-summary__two-line">
                                                         <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
                                                         <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
                                                     </div>
-                                                ) : "–"}
+                                                ) : result?.normal ? "k. W." : "–"}
                                             </td>
                                             <td>
-                                                {result?.dry ? (
+                                                {result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue) ? (
                                                     <div className="project-summary__two-line">
                                                         <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
                                                         <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
                                                     </div>
-                                                ) : "–"}
+                                                ) : result?.dry ? "k. W." : "–"}
                                             </td>
                                             <td>
                                                 {result?.altWasserM3
