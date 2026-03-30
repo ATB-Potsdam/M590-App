@@ -1,7 +1,7 @@
 .home-page {
     max-width: 720px;
     margin: 0 auto;
-    padding: 16px 16px 80px; // 80px = Platz für BottomNav
+    padding: 16px 16px 108px; // 108px = BottomNav (64) + LogoBar (28) + Abstand (16)
 
     &__header {
         margin-bottom: 24px;

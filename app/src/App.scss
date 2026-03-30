@@ -47,7 +47,7 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 16px 16px calc(64px + env(safe-area-inset-bottom) + 16px);
+  padding: 16px 16px calc(64px + 28px + env(safe-area-inset-bottom) + 16px);
 }
 
 .red {

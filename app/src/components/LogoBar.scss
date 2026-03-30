@@ -1,0 +1,21 @@
+.logo-bar {
+    position: fixed;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    height: 28px;
+    background: #fff;
+    border-top: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 0 12px;
+    z-index: 999;
+
+    &__logo {
+        height: 18px;
+        width: auto;
+        opacity: 0.75;
+    }
+}
