@@ -8,10 +8,11 @@ import {calculateHauptkulturenBoth} from "./hauptkulturen";
 import {calculateGruenflaechen, type GruenflaechenResult} from "./gruenflaechen";
 import type {FllMoisture, FllSoil, FllSun, FllVegetation} from "./gruenflaechen";
 import {calculateWeinbauBoth, type WeinbauResult} from "./weinbau";
+import {calculateNaturrasen, type NaturrasenResult} from "./naturrasen";
 
 export interface AssignmentResult {
-    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult;
-    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult;
+    normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult;
+    dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult;
 }
 
 export const getAssignmentResult = (
@@ -101,6 +102,17 @@ export const getAssignmentResult = (
             periodEnd: fa.fllPeriodEnd ?? 9,
         });
         // Grünflächen has no scenario differentiation — store as normal only
+        return {normal: result};
+    }
+
+    if (
+        fa.module === "naturrasen" &&
+        field.climateDataStatus === "done" &&
+        field.climateData
+    ) {
+        const annualPrecipMm = field.climateData.precipitation
+            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
         return {normal: result};
     }
 

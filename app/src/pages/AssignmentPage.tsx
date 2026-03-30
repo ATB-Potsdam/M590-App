@@ -5,6 +5,7 @@ import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
 import {WeinbauResultCard} from '../components/results/WeinbauResult';
 import {GruenflaechenResultCard} from '../components/results/GruenflaechenResult';
+import {NaturrasenResultCard} from '../components/results/NaturrasenResult';
 import {MODULES} from '../constants/modules';
 import {PLANT_CATEGORIES} from '../constants/plantCategories';
 import {rawVegetableDataAj} from '../constants/plantDataRaw';
@@ -17,6 +18,7 @@ import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
 import {calculateGruenflaechen, VEGETATION_OPTIONS, MOISTURE_OPTIONS, SOIL_OPTIONS, SUN_OPTIONS} from '../lib/calculations/gruenflaechen';
 import type {FllVegetation, FllMoisture, FllSoil, FllSun} from '../lib/calculations/gruenflaechen';
 import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
+import {calculateNaturrasen} from '../lib/calculations/naturrasen';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -153,6 +155,13 @@ export const AssignmentPage = () => {
                 periodEnd: fllPeriodEnd,
             });
             return {type: 'gruenflaechen' as const, normal: result, dry: undefined};
+        }
+
+        if (module === 'naturrasen' && field.climateDataStatus === 'done' && field.climateData) {
+            const annualPrecipMm = field.climateData.precipitation
+                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
+            return {type: 'naturrasen' as const, normal: result, dry: undefined};
         }
 
         return null;
@@ -526,6 +535,13 @@ export const AssignmentPage = () => {
                     )}
                     {result.type === 'gruenflaechen' && result.normal && (
                         <GruenflaechenResultCard
+                            result={result.normal}
+                            fieldName={field.name}
+                            areaHa={field.areaHa}
+                        />
+                    )}
+                    {result.type === 'naturrasen' && result.normal && (
+                        <NaturrasenResultCard
                             result={result.normal}
                             fieldName={field.name}
                             areaHa={field.areaHa}
