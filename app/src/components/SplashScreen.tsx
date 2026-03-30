@@ -1,5 +1,7 @@
 import "./SplashScreen.scss";
 
+const base = import.meta.env.BASE_URL;
+
 interface Props {
     state: "loading" | "done" | "error";
     errorMessage?: string;
@@ -13,10 +15,10 @@ export const SplashScreen = ({state, errorMessage, onDismissed}: Props) => (
             onAnimationEnd={state === "done" ? onDismissed : undefined}
         >
             <a href="https://www.atb-potsdam.de" target="_blank" rel="noopener noreferrer">
-                <img src="/atb_logo.svg" alt="ATB" className="splash__logo" />
+                <img src={`${base}atb_logo.svg`} alt="ATB" className="splash__logo" />
             </a>
             <a href="https://www.dwa.de" target="_blank" rel="noopener noreferrer">
-                <img src="/dwa-logo.svg" alt="DWA" className="splash__logo" />
+                <img src={`${base}dwa-logo.svg`} alt="DWA" className="splash__logo" />
             </a>
         </div>
         {state === "loading" && (
