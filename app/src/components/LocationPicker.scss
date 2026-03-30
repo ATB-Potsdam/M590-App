@@ -5,6 +5,12 @@
     flex-direction: column;
     gap: 8px;
 
+    &__map {
+        height: 300px;
+        width: 100%;
+        border-radius: 8px;
+    }
+
     &__locate-btn {
         position: absolute;
         top: 10px;
@@ -14,7 +20,7 @@
         height: 34px;
         border-radius: 4px;
         border: 2px solid rgba(0, 0, 0, 0.2);
-        background: #fff;
+        background: var(--color-bg);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -24,7 +30,7 @@
         transition: background 0.15s;
 
         &:hover {
-            background: #f4f4f4;
+            background: var(--color-bg-hover);
         }
 
         &:disabled {

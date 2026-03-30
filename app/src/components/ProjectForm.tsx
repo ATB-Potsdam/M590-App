@@ -61,7 +61,7 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
                 </label>
             )}
 
-            <div style={{display: "flex", gap: 8}}>
+            <div className="field-form__actions">
                 <button type="submit" disabled={!name.trim()}>
                     Projekt erstellen
                 </button>

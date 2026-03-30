@@ -50,7 +50,7 @@ export const ClimateBarChart = ({precipitation, et0}: Props) => {
             <div className="climate-chart__bars">
                 {values.map(({label, precip, et0: et0Val}) => (
                     <div key={label} className="climate-chart__group">
-                        <div className="climate-chart__bar-pair" style={{height: chartHeight}}>
+                        <div className="climate-chart__bar-pair">
                             <div
                                 className="climate-chart__bar climate-chart__bar--precip"
                                 style={{height: toHeightPrecip(precip)}}

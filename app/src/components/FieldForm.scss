@@ -10,31 +10,36 @@
     }
 
     fieldset {
-        border: "1px solid #ddd";
-        border-radius: 8;
+        border: 1px solid var(--color-border-subtle);
+        border-radius: 8px;
         padding: 8px 12px;
 
         legend {
             font-weight: 600;
-            font-size: 14;
+            font-size: 14px;
         }
 
         p {
             margin: 0 0 8px;
             font-size: 12px;
-            color: #888;
+            color: var(--color-text-muted);
         }
 
         .field-set {
-            display: "flex";
-            gap: 8;
-            flex-wrap: "wrap";
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
 
             label {
-                display: "flex";
-                align-items: "center";
-                gap: 4;
+                display: flex;
+                align-items: center;
+                gap: 4px;
             }
         }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
     }
 }

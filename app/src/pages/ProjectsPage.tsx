@@ -84,7 +84,7 @@ export const ProjectsPage = () => {
                     onCancel={() => setShowForm(false)}
                 />
             ) : (
-                <button onClick={() => setShowForm(true)} style={{marginTop: 12}}>
+                <button onClick={() => setShowForm(true)} className="projects-page__add-btn">
                     + Neues Projekt
                 </button>
             )}

@@ -1,0 +1,37 @@
+// src/components/ErrorBoundary.scss
+.error-boundary {
+    padding: 24px 16px;
+    max-width: 480px;
+    margin: 0 auto;
+
+    &__message {
+        color: var(--color-text-subtle);
+        font-size: 14px;
+    }
+
+    &__details {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--color-text-muted);
+    }
+
+    &__stack {
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    &__reset-btn {
+        background: var(--color-error);
+        color: var(--color-bg);
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        cursor: pointer;
+    }
+}

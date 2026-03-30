@@ -165,7 +165,7 @@ export const ProjectDetailPage = () => {
             {/* Schlag hinzufügen */}
             {showAddField ? (
                 <div className="project-detail__add-field">
-                    <p style={{fontWeight: 600, margin: "0 0 8px"}}>Schlag auswählen:</p>
+                    <p className="project-detail__add-field-label">Schlag auswählen:</p>
                     {availableFields.length === 0 ? (
                         <p className="project-detail__empty">
                             Alle Felder bereits zugewiesen.{" "}
@@ -193,12 +193,12 @@ export const ProjectDetailPage = () => {
                             ))}
                         </ul>
                     )}
-                    <button onClick={() => setShowAddField(false)} style={{marginTop: 8}}>
+                    <button onClick={() => setShowAddField(false)} className="project-detail__cancel-btn">
                         Abbrechen
                     </button>
                 </div>
             ) : (
-                <button onClick={() => setShowAddField(true)} style={{marginTop: 4}}>
+                <button onClick={() => setShowAddField(true)} className="project-detail__add-btn">
                     + Schlag hinzufügen
                 </button>
             )}

@@ -60,7 +60,7 @@ export const GolfResultCard = ({result, fieldName}: Props) => (
                 <span>Tabelle 34 (DWA-M 590)</span>
             </div>
 
-            <table className="result-card__climate-table" style={{marginTop: 8}}>
+            <table className="result-card__climate-table">
                 <thead>
                     <tr>
                         <th>Bereich</th>

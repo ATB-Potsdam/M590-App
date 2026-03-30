@@ -11,14 +11,14 @@
     &__back {
         background: none;
         border: none;
-        color: #1565c0;
+        color: var(--color-accent);
         cursor: pointer;
         padding: 0 0 8px;
         display: block;
     }
 
     &__meta {
-        color: #666;
+        color: var(--color-text-secondary);
         font-size: 13px;
         margin: 0;
     }
@@ -28,7 +28,7 @@
         align-items: center;
         gap: 10px;
         padding: 8px 12px;
-        background: #e8f5e9;
+        background: var(--color-primary-bg);
         border-radius: 8px;
         font-size: 14px;
         margin-bottom: 8px;
@@ -36,11 +36,65 @@
 
     &__hint {
         font-size: 13px;
-        color: #666;
-        background: #fff8e1;
+        color: var(--color-text-secondary);
+        background: var(--color-warning-bg-light);
         padding: 8px 12px;
         border-radius: 6px;
         margin-top: 8px;
+    }
+
+    &__period-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-size: 14px;
+    }
+
+    &__period-select {
+        margin-left: 4px;
+    }
+
+    &__slider-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    &__golf-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    &__golf-label {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        span {
+            flex: 1;
+        }
+    }
+
+    &__golf-input {
+        width: 100px;
+    }
+
+    &__radio-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__suggestion-btn {
+        margin-left: 6px;
+        font-size: 11px;
+    }
+
+    &__suggestion-ok {
+        margin-left: 6px;
+        font-size: 11px;
+        color: var(--color-primary);
     }
 
     &__save {
@@ -49,14 +103,14 @@
         padding: 14px;
         font-size: 16px;
         font-weight: 600;
-        background: #2e7d32;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-bg);
         border: none;
         border-radius: 8px;
         cursor: pointer;
 
         &:disabled {
-            background: #ccc;
+            background: var(--color-border-medium);
             cursor: not-allowed;
         }
     }
@@ -67,13 +121,13 @@
 
     h2 {
         font-size: 15px;
-        color: #444;
+        color: var(--color-text-heading);
         margin: 0 0 10px;
     }
 
     &__hint {
         font-size: 12px;
-        color: #666;
+        color: var(--color-text-secondary);
         margin: 0 0 10px;
         line-height: 1.4;
     }
@@ -83,12 +137,12 @@
         flex-direction: column;
         gap: 4px;
         font-size: 13px;
-        color: #444;
+        color: var(--color-text-heading);
 
         input[type="number"] {
             width: 140px;
             padding: 6px 8px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--color-border-medium);
             border-radius: 6px;
             font-size: 14px;
         }
@@ -107,15 +161,15 @@
     align-items: center;
     gap: 4px;
     padding: 12px 8px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--color-border);
     border-radius: 10px;
-    background: #fff;
+    background: var(--color-bg);
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
 
     &--active {
-        border-color: #2e7d32;
-        background: #e8f5e9;
+        border-color: var(--color-primary);
+        background: var(--color-primary-bg);
     }
 
     &__icon {
@@ -125,7 +179,7 @@
     &__label {
         font-size: 12px;
         text-align: center;
-        color: #333;
+        color: var(--color-text-dark);
     }
 }
 
@@ -135,24 +189,28 @@
     gap: 6px;
     max-height: 320px;
     overflow-y: auto;
+
+    &--spaced {
+        margin-bottom: 8px;
+    }
 }
 
 .option-btn {
     text-align: left;
     padding: 10px 14px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border);
     border-radius: 8px;
-    background: #fff;
+    background: var(--color-bg);
     cursor: pointer;
     font-size: 14px;
 
     &:active {
-        background: #f5f5f5;
+        background: var(--color-bg-surface);
     }
 
     &--active {
-        border-color: #2e7d32;
-        background: #e8f5e9;
+        border-color: var(--color-primary);
+        background: var(--color-primary-bg);
     }
 }
 
@@ -161,7 +219,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-border-light);
     font-size: 14px;
     flex-wrap: wrap;
 
@@ -173,7 +231,7 @@
 
 .surcharge-hint {
     font-size: 12px;
-    color: #888;
+    color: var(--color-text-muted);
     margin-left: auto;
 }
 
@@ -186,7 +244,7 @@
 .link-btn {
     background: none;
     border: none;
-    color: #1565c0;
+    color: var(--color-accent);
     cursor: pointer;
     padding: 0;
     font-size: inherit;

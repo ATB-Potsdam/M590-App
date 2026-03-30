@@ -1,4 +1,5 @@
 import {Component, type ErrorInfo, type ReactNode} from "react";
+import "./ErrorBoundary.scss";
 
 interface Props {
     children: ReactNode;
@@ -22,24 +23,24 @@ export class ErrorBoundary extends Component<Props, State> {
     render() {
         if (this.state.error) {
             return (
-                <div style={{padding: "24px 16px", maxWidth: 480, margin: "0 auto"}}>
+                <div className="error-boundary">
                     <h2>Etwas ist schiefgelaufen</h2>
-                    <p style={{color: "#555", fontSize: 14}}>
+                    <p className="error-boundary__message">
                         Ein unerwarteter Fehler ist aufgetreten. Die gespeicherten Daten könnten
                         beschädigt sein.
                     </p>
-                    <details style={{marginTop: 12, fontSize: 12, color: "#888"}}>
+                    <details className="error-boundary__details">
                         <summary>Details</summary>
-                        <pre style={{whiteSpace: "pre-wrap", wordBreak: "break-all"}}>
+                        <pre className="error-boundary__stack">
                             {this.state.error.message}
                         </pre>
                     </details>
-                    <div style={{display: "flex", gap: 8, marginTop: 20}}>
+                    <div className="error-boundary__actions">
                         <button onClick={() => this.setState({error: null})}>
                             Erneut versuchen
                         </button>
                         <button
-                            style={{background: "#c62828", color: "#fff", border: "none", borderRadius: 4, padding: "6px 12px", cursor: "pointer"}}
+                            className="error-boundary__reset-btn"
                             onClick={() => {
                                 localStorage.clear();
                                 location.reload();

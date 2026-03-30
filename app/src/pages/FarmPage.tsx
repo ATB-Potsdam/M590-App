@@ -6,15 +6,16 @@ import {FieldForm} from "../components/FieldForm";
 import {useFarm} from "../hooks/useFarm";
 import {formatNum} from "../lib/formatNum";
 import type {Field} from "../types/farm";
+import "./FarmPage.scss";
 
 const ClimateClassBadge = ({field}: {field: Field;}) => {
     switch (field.climateClassStatus) {
         case "loading":
-            return <span style={{color: "#888"}}>⏳ Klimazone wird ermittelt…</span>;
+            return <span className="farm-badge farm-badge--loading">⏳ Klimazone wird ermittelt…</span>;
         case "error":
-            return <span style={{color: "red"}}>⚠️ Klimazone nicht verfügbar</span>;
+            return <span className="farm-badge farm-badge--error">⚠️ Klimazone nicht verfügbar</span>;
         case "done":
-            return <span style={{color: "green"}}>🌿 Klimazone: <strong>{field.climateClass![0]} (KWB: {field.climateClass![1]})</strong></span>;
+            return <span className="farm-badge farm-badge--done">🌿 Klimazone: <strong>{field.climateClass![0]} (KWB: {field.climateClass![1]})</strong></span>;
         default:
             return null;
     }
@@ -23,10 +24,10 @@ const ClimateClassBadge = ({field}: {field: Field;}) => {
 const NfkweBadge = ({field}: {field: Field;}) => {
     if (!field.nFkweClass) return null;
     return (
-        <span style={{color: "#555"}}>
+        <span className="farm-badge farm-badge--nfkwe">
             🪨 nFKWe-Klasse: <strong>{field.nFkweClass}</strong>
             {field.nFkweClassSource === 'manual' && (
-                <span style={{fontSize: 11, color: "#aaa"}}> (manuell)</span>
+                <span className="farm-badge__manual"> (manuell)</span>
             )}
         </span>
     );
@@ -47,16 +48,16 @@ export const FarmPage = () => {
                     value={farm.name}
                     onChange={(e) => updateFarmName(e.target.value)}
                     placeholder="Name des Betriebs"
-                    style={{display: "block", marginTop: 4, width: "100%"}}
+                    className="farm-page__name-input"
                 />
             </label>
 
-            <h2 style={{marginTop: 24}}>Felder</h2>
+            <h2 className="farm-page__fields-heading">Felder</h2>
 
             {farm.fields.length === 0 && <p>Noch keine Felder angelegt.</p>}
 
             {farm.fields.map((field) => (
-                <div key={field.id} style={{border: "1px solid #ccc", borderRadius: 8, padding: 12, marginBottom: 8}}>
+                <div key={field.id} className="farm-page__field-card">
                     {editingField?.id === field.id ? (
                         <FieldForm
                             initialValues={{...field}}
@@ -85,8 +86,8 @@ export const FarmPage = () => {
                                 />
                             )}
                             {field.climateDataStatus === "loading" && (
-                                <small style={{color: "#888"}}>⏳ Klimadaten werden geladen…</small>
-                            )}                            <div style={{display: "flex", gap: 8, marginTop: 8}}>
+                                <small className="farm-badge farm-badge--loading">⏳ Klimadaten werden geladen…</small>
+                            )}                            <div className="farm-page__field-actions">
                                 <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
                                 <button onClick={() => removeField(field.id)}>
                                     🗑 <span className={clsx("red")}>Entfernen</span>
@@ -105,7 +106,7 @@ export const FarmPage = () => {
                         onCancel={() => setShowAddField(false)}
                     />
                 ) : (
-                    <button onClick={() => setShowAddField(true)} style={{marginTop: 12}}>
+                    <button onClick={() => setShowAddField(true)} className="farm-page__add-btn">
                         + Feld hinzufügen
                     </button>
                 )

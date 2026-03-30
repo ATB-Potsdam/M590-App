@@ -422,14 +422,14 @@ export const AssignmentPage = () => {
 
                     <section className="assignment-section">
                         <h2>6. Vegetationsperiode</h2>
-                        <div style={{display: 'flex', gap: 12, alignItems: 'center', fontSize: 14}}>
+                        <div className="assignment-page__period-row">
                             <label>
                                 Von:
                                 <select value={fllPeriodStart} onChange={(e) => {
                                     const v = Number(e.target.value);
                                     setFllPeriodStart(v);
                                     if (v > fllPeriodEnd) setFllPeriodEnd(v);
-                                }} style={{marginLeft: 4}}>
+                                }} className="assignment-page__period-select">
                                     {[3,4,5,6,7,8,9,10].map((m) => (
                                         <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
                                     ))}
@@ -441,7 +441,7 @@ export const AssignmentPage = () => {
                                     const v = Number(e.target.value);
                                     setFllPeriodEnd(v);
                                     if (v < fllPeriodStart) setFllPeriodStart(v);
-                                }} style={{marginLeft: 4}}>
+                                }} className="assignment-page__period-select">
                                     {[3,4,5,6,7,8,9,10].map((m) => (
                                         <option key={m} value={m}>{['','Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'][m]}</option>
                                     ))}
@@ -460,7 +460,7 @@ export const AssignmentPage = () => {
                         <p className="assignment-page__hint">
                             Gemäß Merkblatt liegen in März–Oktober typischerweise 15–20 Wochen mit Befeuchtungsbedarf.
                         </p>
-                        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+                        <div className="assignment-page__slider-row">
                             <input
                                 type="range" min={1} max={30} step={1}
                                 value={kunstrasenWeeks}
@@ -472,7 +472,7 @@ export const AssignmentPage = () => {
 
                     <section className="assignment-section">
                         <h2>3. Intensität (mm/Woche)</h2>
-                        <div className="option-list" style={{marginBottom: 8}}>
+                        <div className="option-list option-list--spaced">
                             {([15, 30, 50] as const).map((val) => (
                                 <button
                                     key={val}
@@ -483,7 +483,7 @@ export const AssignmentPage = () => {
                                 </button>
                             ))}
                         </div>
-                        <div style={{display: 'flex', gap: 12, alignItems: 'center'}}>
+                        <div className="assignment-page__slider-row">
                             <input
                                 type="range" min={15} max={50} step={5}
                                 value={kunstrasenMmPerWeek}
@@ -532,32 +532,32 @@ export const AssignmentPage = () => {
                     {golfAreaMode && (
                         <section className="assignment-section">
                             <h2>3. Teilflächen</h2>
-                            <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
-                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-                                    <span style={{flex: 1}}>Grüns / Vorgrüns (m²)</span>
+                            <div className="assignment-page__golf-inputs">
+                                <label className="assignment-page__golf-label">
+                                    <span>Grüns / Vorgrüns (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfGreensM2}
                                         onChange={(e) => setGolfGreensM2(e.target.value === "" ? "" : Number(e.target.value))}
-                                        style={{width: 100}}
+                                        className="assignment-page__golf-input"
                                     />
                                 </label>
-                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-                                    <span style={{flex: 1}}>Abschläge / Tees (m²)</span>
+                                <label className="assignment-page__golf-label">
+                                    <span>Abschläge / Tees (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfTeeM2}
                                         onChange={(e) => setGolfTeeM2(e.target.value === "" ? "" : Number(e.target.value))}
-                                        style={{width: 100}}
+                                        className="assignment-page__golf-input"
                                     />
                                 </label>
-                                <label style={{display: 'flex', gap: 8, alignItems: 'center'}}>
-                                    <span style={{flex: 1}}>Spielbahnen / Fairways (m²)</span>
+                                <label className="assignment-page__golf-label">
+                                    <span>Spielbahnen / Fairways (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfFairwayM2}
                                         onChange={(e) => setGolfFairwayM2(e.target.value === "" ? "" : Number(e.target.value))}
-                                        style={{width: 100}}
+                                        className="assignment-page__golf-input"
                                     />
                                 </label>
                             </div>
@@ -576,7 +576,7 @@ export const AssignmentPage = () => {
                                 .map(timeRangeToPeriod)
                                 .map((timeRange) => {
                                     const key = periodToKey(timeRange);
-                                    return <label key={key} style={{display: "flex", alignItems: "center", gap: 4}}>
+                                    return <label key={key} className="assignment-page__radio-label">
                                         <input
                                             type="radio"
                                             name="irrigationPeriod"
@@ -608,15 +608,14 @@ export const AssignmentPage = () => {
                                     {ajSuggested !== surchargeEmergence && (
                                         <button
                                             type="button"
-                                            className="link-btn"
-                                            style={{marginLeft: 6, fontSize: 11}}
+                                            className="link-btn assignment-page__suggestion-btn"
                                             onClick={() => setSurchargeEmergence(ajSuggested)}
                                         >
                                             Vorschlag: {ajSuggested} mm
                                         </button>
                                     )}
                                     {ajSuggested !== null && ajSuggested === surchargeEmergence && (
-                                        <span style={{marginLeft: 6, fontSize: 11, color: '#2e7d32'}}>✓ Vorschlagswert</span>
+                                        <span className="assignment-page__suggestion-ok">✓ Vorschlagswert</span>
                                     )}
                                 </span>
                                 <input

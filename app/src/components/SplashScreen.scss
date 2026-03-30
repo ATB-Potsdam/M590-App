@@ -2,7 +2,7 @@
     position: fixed;
     inset: 0;
     z-index: 2000;
-    background: #fff;
+    background: var(--color-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -23,7 +23,7 @@
     }
 
     &__hint {
-        color: #888;
+        color: var(--color-text-muted);
         font-size: 14px;
         margin: 0;
         opacity: 1;
@@ -35,14 +35,14 @@
     }
 
     &__error {
-        color: #c62828;
+        color: var(--color-error);
         font-size: 14px;
         margin: 0;
         max-width: 320px;
         text-align: center;
         padding: 12px 16px;
-        background: #fdecea;
-        border: 1px solid #e57373;
+        background: var(--color-error-bg);
+        border: 1px solid var(--color-error-border);
         border-radius: 8px;
     }
 

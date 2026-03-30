@@ -1,5 +1,56 @@
+// src/pages/FarmPage.scss
 .farm-page {
     max-width: 720px;
     margin: 0 auto;
     padding: 16px 16px 80px;
+
+    &__name-input {
+        display: block;
+        margin-top: 4px;
+        width: 100%;
+    }
+
+    &__fields-heading {
+        margin-top: 24px;
+    }
+
+    &__field-card {
+        border: 1px solid var(--color-border-medium);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+
+    &__field-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    &__add-btn {
+        margin-top: 12px;
+    }
+}
+
+.farm-badge {
+    &--loading {
+        color: var(--color-text-muted);
+    }
+
+    &--error {
+        color: var(--color-error);
+    }
+
+    &--done {
+        color: var(--color-primary);
+    }
+
+    &--nfkwe {
+        color: var(--color-text-subtle);
+    }
+
+    &__manual {
+        font-size: 11px;
+        color: var(--color-text-faint);
+    }
 }

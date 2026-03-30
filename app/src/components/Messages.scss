@@ -26,18 +26,18 @@
     animation: message-in 0.25s ease-out;
 
     &.info {
-        background: #1b5e20;
-        color: #fff;
+        background: var(--color-primary-dark);
+        color: var(--color-bg);
     }
 
     &.warning {
-        background: #e65100;
-        color: #fff;
+        background: var(--color-warning);
+        color: var(--color-bg);
     }
 
     &.error {
-        background: #b71c1c;
-        color: #fff;
+        background: var(--color-error-dark);
+        color: var(--color-bg);
     }
 
     &__icon {

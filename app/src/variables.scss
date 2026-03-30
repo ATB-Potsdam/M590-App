@@ -1,3 +1,67 @@
-$error-color: rgb(87, 6, 6);
-$info-color: rgb(36, 73, 36);
-$warning-color: rgb(161, 77, 20);
+// src/variables.scss — Design tokens as CSS custom properties
+// Usage: var(--color-name)
+
+:root {
+    // ── Text ──
+    --color-text: #213547;
+    --color-text-secondary: #666;
+    --color-text-muted: #888;
+    --color-text-faint: #aaa;
+    --color-text-heading: #444;
+    --color-text-dark: #333;
+    --color-text-subtle: #555;
+    --color-text-value: #1a1a1a;
+    --color-text-hint: #999;
+
+    // ── Backgrounds ──
+    --color-bg: #ffffff;
+    --color-bg-button: #f9f9f9;
+    --color-bg-surface: #f5f5f5;
+    --color-bg-hover: #f4f4f4;
+
+    // ── Borders ──
+    --color-border: #e0e0e0;
+    --color-border-light: #f0f0f0;
+    --color-border-medium: #ccc;
+    --color-border-dashed: #bbb;
+    --color-border-subtle: #ddd;
+    --color-border-faint: #e8e8e8;
+
+    // ── Primary (green) ──
+    --color-primary: #2e7d32;
+    --color-primary-dark: #1b5e20;
+    --color-primary-bg: #e8f5e9;
+    --color-primary-bg-light: #f1f8e9;
+    --color-primary-bg-accent: #f9fbe7;
+    --color-primary-border: #c5e1a5;
+    --color-primary-border-strong: #a5d6a7;
+
+    // ── Accent (blue) ──
+    --color-accent: #1565c0;
+    --color-accent-bg: #e3f2fd;
+    --color-accent-bg-light: #f0f4ff;
+    --color-accent-border: #c5cae9;
+
+    // ── Warning (orange/amber) ──
+    --color-warning: #e65100;
+    --color-warning-dark: #f57f17;
+    --color-warning-bg: #fff3e0;
+    --color-warning-bg-light: #fff8e1;
+    --color-warning-hint: #795548;
+    --color-warning-border: #ffb300;
+
+    // ── Error (red) ──
+    --color-error: #c62828;
+    --color-error-dark: #b71c1c;
+    --color-error-bg: #fdecea;
+    --color-error-border: #e57373;
+
+    // ── Chart ──
+    --color-chart-precip: #1565c0;
+    --color-chart-et0: #e53935;
+
+    // ── Interactive ──
+    --color-link: #646cff;
+    --color-link-hover: #535bf2;
+    --color-disabled: #ccc;
+}

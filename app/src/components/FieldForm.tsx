@@ -142,7 +142,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                 </div>
             </fieldset>
 
-            <div style={{display: "flex", gap: 8}}>
+            <div className="field-form__actions">
                 <button type="submit" disabled={!name || !areaHa || !location}>
                     Speichern
                 </button>

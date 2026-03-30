@@ -90,7 +90,7 @@ export const LocationPicker = forwardRef<LocationPickerHandle, Props>(
                 <MapContainer
                     center={center}
                     zoom={existingLocations.length > 0 || value ? 13 : 6}
-                    style={{height: 300, width: "100%", borderRadius: 8}}
+                    className="location-picker__map"
                 >
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
