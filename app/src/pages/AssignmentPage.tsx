@@ -106,10 +106,10 @@ export const AssignmentPage = () => {
             ? ((rawVegetableDataAj as Record<string, number | null>)[plantKey] ?? null)
             : null;
 
-    const needsPlantSelection = module === 'gemuese_obst';
+    const needsPlantSelection = module === 'gemuese_obst' || module === 'hauptkulturen';
     const needsIrrigationSelection = module === 'gemuese_obst';
     const showCategoryPicker = module === 'gemuese_obst' && !plantCategory;
-    const showLevel0Picker = needsPlantSelection && plantCategory && !selectedLevel0;
+    const showLevel0Picker = needsPlantSelection && (module === 'hauptkulturen' || plantCategory) && !selectedLevel0;
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
     const showSurcharges = !!plantKey || (!!selectedLevel0 && !hasVariants(currentNames, selectedLevel0));
     const showSurchargesNonPlant = module && !needsPlantSelection;
