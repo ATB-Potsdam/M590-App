@@ -44,17 +44,18 @@ const getTableValue = (
     crop: CropName,
     nFkweClass: NFkweClassName,
     scenario: Scenario
-): Range => {
+): Range | null => {
     const table: CropAdditionalWater =
         scenario === "dry" ? additionWaterDryYear : additionWaterNormYear;
-    return table[kwbZone][crop][nFkweClass];
+    return table[kwbZone]?.[crop]?.[nFkweClass] ?? null;
 };
 
 export const calculateHauptkulturen = (input: HauptkulturenInput): HauptkulturenResult => {
     const {crop, nFkweClass, kwbZone, areaHa, scenario,
         surchargeIntermediate, surchargeEmergence, surchargeHeavySoil} = input;
 
-    const baseRangeMm = getTableValue(kwbZone, crop, nFkweClass, scenario);
+    const baseRangeMmRaw = getTableValue(kwbZone, crop, nFkweClass, scenario);
+    const baseRangeMm: Range = baseRangeMmRaw ?? [0, 0];
 
     // Automatischer Zuschlag
     const autoSurchargeMm = AUTO_SURCHARGE_MM[crop] ?? 0;
@@ -86,7 +87,7 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         totalRangeMm,
         totalRangeM3,
         scenario,
-        hasValue: baseRangeMm[0] !== 0 || baseRangeMm[1] !== 0,
+        hasValue: baseRangeMmRaw !== null,
     };
 };
 

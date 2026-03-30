@@ -28,6 +28,27 @@ const defaultValues: {[K in keyof LocalStorageTypes]: LocalStorageTypes[K]} = {
     dwa_projects: []
 } as const;
 
+const VALID_NFKWE: string[] = ["1-2", "3a", "3b", "4", "5"];
+const VALID_KWB_ZONES: string[] = ["A", "B", "C", "D", "E", "F", "G", "H"];
+const VALID_MODULES: string[] = [
+    "hauptkulturen", "gemuese_obst", "weinbau", "gruenflaechen",
+    "naturrasen", "golf", "kunstrasen", "tennen",
+];
+
+/** Validate that climateClass is a proper [zone, kwb] tuple */
+const isValidClimateClass = (v: unknown): boolean =>
+    Array.isArray(v) && v.length === 2
+    && typeof v[0] === "string" && VALID_KWB_ZONES.includes(v[0])
+    && typeof v[1] === "number" && isFinite(v[1]);
+
+/** Validate that climateData has proper 12-element arrays */
+const isValidClimateData = (v: unknown): boolean => {
+    if (!v || typeof v !== "object") return false;
+    const d = v as Record<string, unknown>;
+    return Array.isArray(d.precipitation) && d.precipitation.length === 12
+        && Array.isArray(d.et0) && d.et0.length === 12;
+};
+
 // Sanitize loaded data against schema changes to prevent crashes on stale localStorage.
 const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): LocalStorageTypes[K] => {
     if (key === "dwa_farm") {
@@ -36,17 +57,33 @@ const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): Loc
             ...defaultValues.dwa_farm,
             ...d,
             fields: Array.isArray(d?.fields)
-                ? d.fields.map((f) => ({
-                    ...f,
-                    // If status says "done" but the data is actually missing, reset to "idle"
-                    // so the app re-fetches it rather than crashing on undefined access.
-                    climateClassStatus: (f.climateClassStatus === "done" && !f.climateClass
-                        ? "idle"
-                        : (f.climateClassStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
-                    climateDataStatus: (f.climateDataStatus === "done" && !f.climateData
-                        ? "idle"
-                        : (f.climateDataStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
-                }))
+                ? d.fields.map((f) => {
+                    // Validate nFkweClass
+                    const nFkweClass = f.nFkweClass && VALID_NFKWE.includes(f.nFkweClass)
+                        ? f.nFkweClass : undefined;
+                    // Validate climateClass tuple structure
+                    const climateClass = isValidClimateClass(f.climateClass)
+                        ? f.climateClass : undefined;
+                    // Validate climateData structure
+                    const climateData = isValidClimateData(f.climateData)
+                        ? f.climateData : undefined;
+
+                    return {
+                        ...f,
+                        nFkweClass,
+                        climateClass,
+                        climateData,
+                        areaHa: typeof f.areaHa === "number" && isFinite(f.areaHa) ? f.areaHa : 0,
+                        // If status says "done" but the data is actually missing, reset to "idle"
+                        // so the app re-fetches it rather than crashing on undefined access.
+                        climateClassStatus: (f.climateClassStatus === "done" && !climateClass
+                            ? "idle"
+                            : (f.climateClassStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
+                        climateDataStatus: (f.climateDataStatus === "done" && !climateData
+                            ? "idle"
+                            : (f.climateDataStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
+                    };
+                })
                 : [],
         } as LocalStorageTypes[K];
     }
@@ -60,6 +97,8 @@ const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): Loc
                     surchargeEmergence: 0,
                     surchargeHeavySoil: 0,
                     ...fa,
+                    // Reset invalid module types from older versions
+                    module: fa.module && VALID_MODULES.includes(fa.module) ? fa.module : undefined,
                 }))
                 : [],
         })) as LocalStorageTypes[K];

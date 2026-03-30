@@ -61,9 +61,18 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     } = input;
 
     const rawData = allOtherPlants[plant];
+    if (!rawData) {
+        // Plant not found in data tables (may have been renamed/removed between versions)
+        const zero: Range = [0, 0];
+        return {
+            baseRangeMm: zero, deltaKwb: 0, correctionMm: 0, ajSuggestedMm: null,
+            optionalSurchargeMm: 0, totalSurchargeMm: 0, totalRangeMm: zero,
+            totalRangeM3: zero, scenario, monthlyRows: [], hasValue: false,
+        };
+    }
     const rawIndex = nFkweToRawIndex(nFkweClass);
     const scenarioData = scenario === "dry" ? rawData[1] : rawData[0];
-    const rawBaseRange = scenarioData[rawIndex];
+    const rawBaseRange = scenarioData?.[rawIndex];
     const hasValue = rawBaseRange !== null && rawBaseRange !== undefined;
     const baseRangeMm: Range = rawBaseRange ?? [0, 0];
 

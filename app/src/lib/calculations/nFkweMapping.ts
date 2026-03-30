@@ -7,6 +7,8 @@ export const nFkweToRawIndex = (cls: NFkweClassName): 0 | 1 | 2 | 3 => {
         case "3a": case "3b": return 1;
         case "4": return 2;
         case "5": return 3;
-        default: throw new Error(`Unknown nFKWe class: ${cls}`);
+        default:
+            console.warn(`Unknown nFKWe class: ${cls}, falling back to index 0`);
+            return 0;
     }
 };
