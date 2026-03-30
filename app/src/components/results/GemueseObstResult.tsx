@@ -55,13 +55,14 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             <div className="result-card__value-row">
                 <span>Basiswert Potsdam</span>
                 <span>
-                    {formatRange(result.baseRangeMm, 'mm')}
+                    {result.hasValue ? formatRange(result.baseRangeMm, 'mm') : "kein Literaturwert"}
                     {dryResult && (
                         <>
                             {" 🌤 / "}
-                            {formatRange(dryResult.baseRangeMm, 'mm')} ☀️
+                            {dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"} ☀️
                         </>
-                    )}                </span>
+                    )}
+                </span>
             </div>
             <div className="result-card__value-row">
                 <span>ΔKWB Standort</span>

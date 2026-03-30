@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import {Navigate, Route, Routes} from 'react-router';
 import "./App.scss";
 import {BottomNav} from './components/BottomNav';
+import {ErrorBoundary} from './components/ErrorBoundary';
 import {LogoBar} from './components/LogoBar';
 import {Messages} from './components/Messages';
 import {SplashScreen} from './components/SplashScreen';
@@ -85,17 +86,19 @@ const App = () => {
             )}
             {isLoaded && (
                 <>
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={hasFarm ? <HomePage /> : <Navigate to="/farm" replace />}
-                        />
-                        <Route path="/farm" element={<FarmPage />} />
-                        <Route path="/projects" element={<ProjectsPage />} />
-                        <Route path="/projects/:id" element={<ProjectDetailPage />} />
-                        <Route path="/projects/:id/assignment/:assignmentId" element={<AssignmentPage />} />
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
+                    <ErrorBoundary>
+                        <Routes>
+                            <Route
+                                path="/"
+                                element={hasFarm ? <HomePage /> : <Navigate to="/farm" replace />}
+                            />
+                            <Route path="/farm" element={<FarmPage />} />
+                            <Route path="/projects" element={<ProjectsPage />} />
+                            <Route path="/projects/:id" element={<ProjectDetailPage />} />
+                            <Route path="/projects/:id/assignment/:assignmentId" element={<AssignmentPage />} />
+                            <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                    </ErrorBoundary>
                     <LogoBar />
                     <BottomNav />
                 </>

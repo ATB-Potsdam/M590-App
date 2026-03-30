@@ -53,13 +53,13 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             <div className="result-card__value-row">
                 <span>{dryResult && "🌤 "}Tabellenwert (Basis)</span>
                 <span>
-                    {formatRange(result.baseRangeMm, "mm/a")}
+                    {result.hasValue ? formatRange(result.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>
             {dryResult && <div className="result-card__value-row">
                 <span>☀️ Tabellenwert (Basis)</span>
                 <span>
-                    {formatRange(dryResult.baseRangeMm, "mm/a")}
+                    {dryResult.hasValue ? formatRange(dryResult.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>}
             <div className="result-card__value-row">

@@ -28,12 +28,52 @@ const defaultValues: {[K in keyof LocalStorageTypes]: LocalStorageTypes[K]} = {
     dwa_projects: []
 } as const;
 
+// Sanitize loaded data against schema changes to prevent crashes on stale localStorage.
+const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): LocalStorageTypes[K] => {
+    if (key === "dwa_farm") {
+        const d = data as Partial<Farm>;
+        return {
+            ...defaultValues.dwa_farm,
+            ...d,
+            fields: Array.isArray(d?.fields)
+                ? d.fields.map((f) => ({
+                    ...f,
+                    // If status says "done" but the data is actually missing, reset to "idle"
+                    // so the app re-fetches it rather than crashing on undefined access.
+                    climateClassStatus: (f.climateClassStatus === "done" && !f.climateClass
+                        ? "idle"
+                        : (f.climateClassStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
+                    climateDataStatus: (f.climateDataStatus === "done" && !f.climateData
+                        ? "idle"
+                        : (f.climateDataStatus ?? "idle")) as "idle" | "loading" | "error" | "done",
+                }))
+                : [],
+        } as LocalStorageTypes[K];
+    }
+    if (key === "dwa_projects") {
+        const arr = Array.isArray(data) ? data : [];
+        return arr.map((p) => ({
+            ...p,
+            fieldAssignments: Array.isArray(p?.fieldAssignments)
+                ? p.fieldAssignments.map((fa: Partial<Project["fieldAssignments"][number]>) => ({
+                    surchargeIntermediate: false,
+                    surchargeEmergence: 0,
+                    surchargeHeavySoil: 0,
+                    ...fa,
+                }))
+                : [],
+        })) as LocalStorageTypes[K];
+    }
+    return data as LocalStorageTypes[K];
+};
+
 const loadFromStorage = <K extends keyof LocalStorageTypes>(
     key: K,
 ): LocalStorageTypes[K] => {
     try {
         const item = localStorage.getItem(key);
-        return item ? (JSON.parse(item) as LocalStorageTypes[K]) : defaultValues[key];
+        if (!item) return defaultValues[key];
+        return sanitize(key, JSON.parse(item));
     } catch {
         return defaultValues[key];
     }

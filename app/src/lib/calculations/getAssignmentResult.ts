@@ -24,6 +24,7 @@ export const getAssignmentResult = (
     fa: FieldAssignment,
     field: Field,
 ): AssignmentResult | null => {
+  try {
     if (
         fa.module === "hauptkulturen" &&
         fa.plantKey &&
@@ -165,6 +166,10 @@ export const getAssignmentResult = (
     }
 
     return null;
+  } catch (e) {
+    console.error("getAssignmentResult failed for field", field?.name, e);
+    return null;
+  }
 };
 
 // Summiert mm/a- und m³/a-Ranges über alle Assignments
