@@ -824,6 +824,12 @@ export const AssignmentPage = () => {
                     >
                         Zuweisung speichern
                     </button>
+                    <button
+                        className="assignment-page__cancel"
+                        onClick={() => navigate(`/projects/${id}`)}
+                    >
+                        Abbrechen
+                    </button>
                 </>;
             })()}
         </div>
