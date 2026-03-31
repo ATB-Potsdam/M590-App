@@ -6,5 +6,17 @@ export default defineConfig(({mode}) => {
   return {
     base: env.VITE_BASE_PATH ?? '/',
     plugins: [react()],
+    build: {
+      chunkSizeWarningLimit: 700,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router', 'zustand'],
+            'vendor-map': ['leaflet', 'react-leaflet', 'proj4'],
+            'vendor-pdf': ['jspdf', 'html2canvas'],
+          },
+        },
+      },
+    },
   };
 });
