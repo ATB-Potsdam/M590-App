@@ -82,3 +82,15 @@
 - [x] **10. Export project calculations to PDF or printer**
 
 - [ ] **11. Export/import farm and project settings**
+
+- [ ] **12. When deleting a field it should be removed from all projects too**
+
+- [ ] **13. Fix PDF export to match description**
+    - [ ] The ATB-Logo in the top left corner is wrongly scaled
+    - [ ] Make the contents match the description in 'todo/PlaystoreText.txt'
+          "Der Datenexport enthält alle für Genehmigungsverfahren relevanten Informationen: Standortkoordinaten, Klimaparameter, Tabellenwerte, Korrekturfaktoren, Zuschläge und Ergebnisse – vollständig nachvollziehbar und dokumentiert."
+    - [ ] Add all the data for every field (location, size, climate zone, nFKWe class, selected crop and optional settings) and list all referenced tables and it's sources. If possible make the sources names (like "Merkblatt M590") constants for later fixups.
+
+- [ ] **Try to split the built packages to optimize loading**
+      There is a warning "Some chunks are larger than 500 kB after minification."
+      Try to not exceed this limit too much!

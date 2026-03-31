@@ -1,0 +1,56 @@
+DWA-M 590 – Zusatzwasserbedarf für Landwirtschaft & Grünflächen
+
+Die offizielle Berechnungs-App zum DWA-Merkblatt M 590 – entwickelt für Landwirte, Bewässerungsplaner, Agrarbehörden und Beratungsbüros.
+
+Ermitteln Sie den standortgenauen Zusatzwasserbedarf für Ihre Betriebe und Flächen – schnell, nachvollziehbar und behördentauglich. Die Berechnungsmethodik basiert auf dem Merkblatt DWA-M 590 der Deutschen Vereinigung für Wasserwirtschaft, Abwasser und Abfall e. V. (DWA). Die Klimazonendaten wurden auf Basis von Klimareferenzdaten des Leibniz-Instituts für Agrartechnik und Bioökonomie (ATB Potsdam) aufbereitet.
+
+
+🌾 FÜR WEN IST DIESE APP?
+
+• Landwirtschaftliche Betriebe mit Bewässerungsvorhaben
+• Wasser- und Agrarbehörden bei der Antragsbearbeitung
+• Landwirtschaftliche Beratungsbüros und Planungsbüros
+• Betreiber von Sport- und Grünflächen
+
+
+📍 STANDORTGENAUE KLIMAZONENERKENNUNG
+
+Setzen Sie einfach einen Pin auf der Karte – die App ermittelt automatisch die Klimawasserbilanz (KWBv-Klasse A–H), den Jahresniederschlag und die Referenzevapotranspiration (ET₀) für diesen Standort. Die Berechnung erfolgt vollständig offline im Gerät, ohne externe Server.
+
+
+🌱 UNTERSTÜTZTE NUTZUNGSMODULE
+
+• Hauptkulturen: Kartoffeln, Mais, Zuckerrübe, Winterweizen, Raps, Braugerste u. v. m.
+• Gemüse, Obst & Sonderkulturen: über 30 Kulturen inkl. Satz- und Reifegruppenauswahl
+• Weinbau: standortabhängig nach Niederschlagsklasse
+• Grünflächen: FLL-Faktoren für Vegetation, Standortfeuchte, Bodenart und Exposition
+• Sportflächen: Naturrasen, Golfplätze, Kunststoffrasen, Tennenflächen
+
+
+📊 SZENARIEN & ERGEBNISSE
+
+Berechnen Sie für das Normaljahr (50%) oder das Trockenjahr (80%) – oder vergleichen Sie beide Szenarien nebeneinander. Die Ergebnisse werden je Schlag und aggregiert für den gesamten Betrieb ausgewiesen:
+
+• Zusatzwasserbedarf in mm/a
+• Wasserbedarf in m³/a
+• Abzug alternativer Wasserquellen (Regenwasser, Grauwasser)
+• Netto-Antragsmenge
+
+
+🗂️ BETRIEBSVERWALTUNG & PROJEKTE
+
+Legen Sie beliebig viele Betriebe mit Feldern (Schlägen) an. Erstellen Sie Projekte je Bewässerungsjahr, kopieren Sie bestehende Projekte und passen Sie Feldzuweisungen flexibel an.
+
+
+💾 OFFLINE & DATENSCHUTZ
+
+Alle Daten werden ausschließlich lokal auf Ihrem Gerät gespeichert. Kein Konto erforderlich. Exportieren und importieren Sie Ihre Betriebsdaten als JSON – ideal zur Sicherung oder Übertragung auf ein anderes Gerät.
+
+
+📄 BEHÖRDENTAUGLICHER EXPORT
+
+Der Datenexport enthält alle für Genehmigungsverfahren relevanten Informationen: Standortkoordinaten, Klimaparameter, Tabellenwerte, Korrekturfaktoren, Zuschläge und Ergebnisse – vollständig nachvollziehbar und dokumentiert.
+
+
+─────────────────────────────────────
+Diese App implementiert die Berechnungsmethodik gemäß DWA-Merkblatt M 590. Die Klimazonierung basiert auf Referenzdaten des ATB Potsdam (Leibniz-Institut für Agrartechnik und Bioökonomie). Die App ersetzt keine fachliche Beratung und erhebt keinen Anspruch auf Vollständigkeit für alle Standorte und Sonderkonstellationen.
