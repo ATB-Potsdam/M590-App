@@ -9,6 +9,7 @@ M590 DWA App — a German agricultural irrigation advisory tool (DWA = Deutsche 
 ## Git
 
 - Do **not** add `Co-Authored-By` lines to commit messages.
+- Always run `yarn lint` (and fix any issues) before committing.
 
 ## Commands
 

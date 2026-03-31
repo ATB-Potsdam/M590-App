@@ -1,5 +1,5 @@
 // src/pages/AssignmentPage.tsx
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router';
 import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
@@ -46,6 +46,8 @@ export const AssignmentPage = () => {
     const assignment = project?.fieldAssignments.find((fa) => fa.id === assignmentId);
     const field = farm.fields.find((f) => f.id === assignment?.fieldId);
 
+    const nextStepRef = useRef<HTMLDivElement>(null);
+
     const [module, setModule] = useState<ModuleType | undefined>(assignment?.module);
     const [plantCategory, setPlantCategory] = useState<PlantCategory | undefined>(assignment?.plantCategory);
     const [selectedLevel0, setSelectedLevel0] = useState<string | undefined>(assignment?.plantKey?.split('|')[0]);
@@ -74,6 +76,15 @@ export const AssignmentPage = () => {
     const [kunstrasenMmPerWeek, setKunstrasenMmPerWeek] = useState(assignment?.kunstrasenMmPerWeek ?? 30);
     // Alternative Wasserquellen
     const [altWasserM3, setAltWasserM3] = useState<number | "">(assignment?.altWasserM3 ?? "");
+
+    const [showSaveHint, setShowSaveHint] = useState(false);
+
+    // Auto-scroll to next step when key selections change
+    useEffect(() => {
+        if (module) {
+            nextStepRef.current?.scrollIntoView({behavior: 'smooth', block: 'start'});
+        }
+    }, [module, plantCategory, selectedLevel0, plantKey]);
 
     if (!project || !assignment || !field) {
         return (
@@ -108,6 +119,11 @@ export const AssignmentPage = () => {
 
     const needsPlantSelection = module === 'gemuese_obst' || module === 'hauptkulturen';
     const needsIrrigationSelection = module === 'gemuese_obst';
+    const irrigationPeriodMissing = needsIrrigationSelection && plantKey
+        ? !(allOtherPlants[plantKey as VegetableName]?.[2] ?? [])
+            .map(timeRangeToPeriod)
+            .some((tr) => periodToKey(tr) === periodToKey(irrigationPeriod))
+        : false;
     const showCategoryPicker = module === 'gemuese_obst' && !plantCategory;
     const showLevel0Picker = needsPlantSelection && (module === 'hauptkulturen' || plantCategory) && !selectedLevel0;
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
@@ -260,6 +276,7 @@ export const AssignmentPage = () => {
                                 setSelectedLevel0(undefined);
                                 setPlantKey(undefined);
                                 setSurchargeHeavySoil(0);
+                                setShowSaveHint(false);
                             }}
                         >
                             <span className="module-tile__icon">{m.icon}</span>
@@ -268,6 +285,8 @@ export const AssignmentPage = () => {
                     ))}
                 </div>
             </section>
+
+            <div ref={nextStepRef} />
 
             {/* Schritt 2a: Kategorie (nur Gemüse/Obst) */}
             {showCategoryPicker && (
@@ -755,15 +774,41 @@ export const AssignmentPage = () => {
             )}
 
             {/* Speichern */}
-            {module && (
-                <button
-                    className="assignment-page__save"
-                    onClick={handleSave}
-                    disabled={(needsPlantSelection && !plantKey) || (module === 'hauptkulturen' && !plantKey)}
-                >
-                    Zuweisung speichern
-                </button>
-            )}
+            {module && (() => {
+                const missingHints: string[] = [];
+                if (needsPlantSelection && !plantKey) missingHints.push('Kultur auswählen');
+                if (irrigationPeriodMissing) missingHints.push('Bewässerungszeitraum auswählen');
+                if (module === 'gruenflaechen') {
+                    if (!fllVegetation) missingHints.push('Vegetation auswählen');
+                    if (!fllMoisture) missingHints.push('Standortfeuchte auswählen');
+                    if (!fllSoil) missingHints.push('Bodenart auswählen');
+                    if (!fllSun) missingHints.push('Sonnenexposition auswählen');
+                }
+                if (module === 'golf') {
+                    if (!golfAreaMode) missingHints.push('Flächeneingabe-Modus wählen');
+                    else if (!golfGreensM2 || !golfTeeM2 || !golfFairwayM2) missingHints.push('Teilflächen eingeben');
+                }
+                const isDisabled = missingHints.length > 0;
+                return <>
+                    {showSaveHint && isDisabled && (
+                        <p className="assignment-page__save-hint">
+                            {missingHints.join(', ')}
+                        </p>
+                    )}
+                    <button
+                        className={`assignment-page__save${isDisabled ? ' assignment-page__save--disabled' : ''}`}
+                        onClick={() => {
+                            if (isDisabled) {
+                                setShowSaveHint(true);
+                            } else {
+                                handleSave();
+                            }
+                        }}
+                    >
+                        Zuweisung speichern
+                    </button>
+                </>;
+            })()}
         </div>
     );
 };

@@ -109,10 +109,21 @@
         border-radius: 8px;
         cursor: pointer;
 
-        &:disabled {
+        &:disabled,
+        &--disabled {
             background: var(--color-border-medium);
             cursor: not-allowed;
         }
+    }
+
+    &__save-hint {
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        background: var(--color-warning-bg-light);
+        padding: 8px 12px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        text-align: center;
     }
 }
 
