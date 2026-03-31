@@ -157,6 +157,10 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
 
     preparePrintHeader(clone, logoMap);
 
+    // Remove scroll shadow hints from table wrapper (not needed in PDF)
+    const tableWrap = clone.querySelector<HTMLElement>(".project-summary__table-wrap");
+    if (tableWrap) tableWrap.style.background = "none";
+
     // Show print-only detail blocks
     const printDetails = clone.querySelector<HTMLElement>(".project-summary__print-details");
     if (printDetails) printDetails.style.display = "block";
