@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"typescript.tsdk": ".yarn/sdks/typescript/lib",
-		"typescript.enablePromptUseWorkspaceTsdk": true
+		"typescript.enablePromptUseWorkspaceTsdk": true,
+		"java.configuration.updateBuildConfiguration": "interactive"
 	}
 }
