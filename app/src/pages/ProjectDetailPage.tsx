@@ -1,5 +1,5 @@
 // src/pages/ProjectDetailPage.tsx
-import {useState} from "react";
+import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {getModuleLabel} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
@@ -7,6 +7,7 @@ import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
 import {boundToLabel} from "../utils/irrigationPeriod";
 import {formatNum, formatRange} from "../lib/formatNum";
+import {generateSummaryPdf, sharePdf} from "../lib/generatePdf";
 import "./ProjectDetailPage.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -19,6 +20,7 @@ export const ProjectDetailPage = () => {
     const {farm} = useFarm();
 
     const [showAddField, setShowAddField] = useState(false);
+    const summaryRef = useRef<HTMLElement>(null);
 
     const project = projects.find((p) => p.id === id);
 
@@ -208,7 +210,7 @@ export const ProjectDetailPage = () => {
 
             {/* Projektzusammenfassung */}
             {project.fieldAssignments.length > 0 && (
-                <section className="project-summary">
+                <section className="project-summary" ref={summaryRef}>
                     <div className="project-summary__print-header">
                         <div className="project-summary__print-logos">
                             <img src={`${base}atb_logo.svg`} alt="ATB" />
@@ -342,14 +344,14 @@ export const ProjectDetailPage = () => {
                 </section>
             )}
             {project.fieldAssignments.length > 0 && (
-                <button className="project-summary__print-btn" onClick={() => {
-                    const details = document.querySelectorAll<HTMLDetailsElement>(".project-summary__details");
-                    const wasOpen = Array.from(details).map((d) => d.open);
-                    details.forEach((d) => { d.open = true; });
-                    window.print();
-                    details.forEach((d, i) => { d.open = wasOpen[i]; });
+                <button className="project-summary__print-btn" onClick={async () => {
+                    const section = summaryRef.current;
+                    if (!section) return;
+                    const filename = `${project.name}-zusammenfassung.pdf`;
+                    const file = await generateSummaryPdf(section, filename);
+                    await sharePdf(file);
                 }}>
-                    Drucken / PDF
+                    PDF Export
                 </button>
             )}
         </div>
