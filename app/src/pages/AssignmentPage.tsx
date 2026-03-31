@@ -78,6 +78,7 @@ export const AssignmentPage = () => {
     const [altWasserM3, setAltWasserM3] = useState<number | "">(assignment?.altWasserM3 ?? "");
 
     const [showSaveHint, setShowSaveHint] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Auto-scroll to next step when key selections change
     useEffect(() => {
@@ -277,6 +278,7 @@ export const AssignmentPage = () => {
                                 setPlantKey(undefined);
                                 setSurchargeHeavySoil(0);
                                 setShowSaveHint(false);
+                                setSearchTerm('');
                             }}
                         >
                             <span className="module-tile__icon">{m.icon}</span>
@@ -303,29 +305,44 @@ export const AssignmentPage = () => {
             )}
 
             {/* Schritt 2b/3: Kultur wählen (level0) */}
-            {showLevel0Picker && (
-                <section className="assignment-section">
-                    <h2>3. Kultur wählen</h2>
-                    <div className="option-list">
-                        {level0Groups.map((name) => (
-                            <button
-                                key={name}
-                                className="option-btn"
-                                onClick={() => {
-                                    setSelectedLevel0(name);
-                                    const key = resolveKey(name);
-                                    if (key) setPlantKey(key);
-                                    // A/J-Vorschlag sofort in surchargeEmergence
-                                    const suggested = (rawVegetableDataAj as Record<string, number | null>)[name];
-                                    if (suggested != null) setSurchargeEmergence(suggested);
-                                }}
-                            >
-                                {name}
-                            </button>
-                        ))}
-                    </div>
-                </section>
-            )}
+            {showLevel0Picker && (() => {
+                const isSearchable = module === 'gemuese_obst' && level0Groups.length > 5;
+                const filtered = isSearchable && searchTerm
+                    ? level0Groups.filter((name) => name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    : level0Groups;
+                return (
+                    <section className="assignment-section">
+                        <h2>3. Kultur wählen</h2>
+                        {isSearchable && (
+                            <input
+                                type="text"
+                                className="option-search"
+                                placeholder="Suchen…"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        )}
+                        <div className={`option-list${isSearchable ? ' option-list--scrollable' : ''}`}>
+                            {filtered.map((name) => (
+                                <button
+                                    key={name}
+                                    className="option-btn"
+                                    onClick={() => {
+                                        setSelectedLevel0(name);
+                                        const key = resolveKey(name);
+                                        if (key) setPlantKey(key);
+                                        const suggested = (rawVegetableDataAj as Record<string, number | null>)[name];
+                                        if (suggested != null) setSurchargeEmergence(suggested);
+                                        setSearchTerm('');
+                                    }}
+                                >
+                                    {name}
+                                </button>
+                            ))}
+                        </div>
+                    </section>
+                );
+            })()}
 
             {/* Schritt 3/4: Variante wählen (level1/level2) */}
             {showLevel1Picker && selectedLevel0 && (
