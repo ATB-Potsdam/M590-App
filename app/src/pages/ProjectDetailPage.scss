@@ -295,6 +295,18 @@
     &__table-wrap {
         overflow-x: auto;
         margin-bottom: 4px;
+
+        // Scroll shadows: local backgrounds move with content,
+        // scroll backgrounds stay fixed — shadows only appear when
+        // there's content to scroll to in that direction.
+        background:
+            linear-gradient(to right, var(--color-bg) 30%, transparent) left,
+            linear-gradient(to left, var(--color-bg) 30%, transparent) right,
+            linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent) left,
+            linear-gradient(to left, rgba(0, 0, 0, 0.08), transparent) right;
+        background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+        background-repeat: no-repeat;
+        background-attachment: local, local, scroll, scroll;
     }
 
     &__table {
