@@ -1,7 +1,7 @@
 {
   "name": "m590-dwa-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.2",
   "type": "module",
   "packageManager": "yarn@4.13.0",
   "scripts": {
@@ -15,7 +15,8 @@
     "cap:ios": "cap open ios",
     "build:ios": "yarn build && yarn cap:sync:ios && yarn cap:ios",
     "cap:android": "CAPACITOR_ANDROID_STUDIO_PATH=/usr/bin/android-studio cap open android",
-    "build:android": "yarn build --mode android && yarn cap:sync:android && yarn cap:android"
+    "bump": "node scripts/bump-version.cjs",
+    "build:android": "yarn bump && yarn build --mode android && yarn cap:sync:android && yarn cap:android"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",

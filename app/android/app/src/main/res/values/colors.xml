@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primärfarbe: mittleres Teal aus dem Icon -->
+    <color name="colorPrimary">#00897B</color>
+    <!-- Dunkleres Teal (unten im Icon-Verlauf) -->
+    <color name="colorPrimaryDark">#00695C</color>
+    <!-- Akzent: helles Teal (oben im Icon-Verlauf) -->
+    <color name="colorAccent">#26A69A</color>
+    <!-- Splash Hintergrund: weiß -->
+    <color name="colorSplashBackground">#FFFFFF</color>
+</resources>

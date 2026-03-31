@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+cd ..
+
 SVG="public/icon.svg"
 OUT="resources"
 
