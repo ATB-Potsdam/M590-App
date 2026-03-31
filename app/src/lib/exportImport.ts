@@ -1,6 +1,7 @@
 // src/lib/exportImport.ts
 import type {Farm} from "../types/farm";
 import type {Project} from "../types/project";
+import {isNative, nativeShareFile} from "./nativeShare";
 
 export const EXPORT_PREFIX = "dwa-m590";
 
@@ -23,14 +24,14 @@ const buildExportFile = (farm: Farm, projects: Project[]): File => {
     return new File([JSON.stringify(data, null, 2)], filename, {type: "application/json"});
 };
 
-/** Try Web Share API (mobile), fall back to download link (desktop). */
+/** Share via native share sheet on Android/iOS, fall back to download link on desktop. */
 export const exportData = async (farm: Farm, projects: Project[]): Promise<"shared" | "downloaded"> => {
     const file = buildExportFile(farm, projects);
-    if (navigator.canShare?.({files: [file]})) {
-        await navigator.share({files: [file]});
+    if (isNative()) {
+        await nativeShareFile(file);
         return "shared";
     }
-    // Fallback: trigger download
+    // Desktop: trigger download
     const url = URL.createObjectURL(file);
     const a = document.createElement("a");
     a.href = url;

@@ -8,6 +8,7 @@ import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} 
 import {boundToLabel} from "../utils/irrigationPeriod";
 import {formatNum, formatRange} from "../lib/formatNum";
 import {generateSummaryPdf, sharePdf} from "../lib/generatePdf";
+import {useAppStore} from "../stores/useAppStore";
 import "./ProjectDetailPage.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -21,6 +22,7 @@ export const ProjectDetailPage = () => {
 
     const [showAddField, setShowAddField] = useState(false);
     const summaryRef = useRef<HTMLElement>(null);
+    const addMessage = useAppStore((s) => s.addMessage);
 
     const project = projects.find((p) => p.id === id);
 
@@ -347,9 +349,13 @@ export const ProjectDetailPage = () => {
                 <button className="project-summary__print-btn" onClick={async () => {
                     const section = summaryRef.current;
                     if (!section) return;
-                    const filename = `${project.name}-zusammenfassung.pdf`;
-                    const file = await generateSummaryPdf(section, filename);
-                    await sharePdf(file);
+                    try {
+                        const filename = `${project.name}-zusammenfassung.pdf`;
+                        const file = await generateSummaryPdf(section, filename);
+                        await sharePdf(file);
+                    } catch {
+                        addMessage({type: "error", message: ["PDF konnte nicht erstellt werden."]});
+                    }
                 }}>
                     PDF Export
                 </button>

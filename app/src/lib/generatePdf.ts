@@ -1,6 +1,7 @@
 // src/lib/generatePdf.ts
 import html2canvas from "html2canvas";
 import {jsPDF} from "jspdf";
+import {isNative, nativeShareFile} from "./nativeShare";
 
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
@@ -152,10 +153,10 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     }
 };
 
-/** Share via Web Share API on native apps, open in new tab on desktop browsers. */
+/** Share via native share sheet on Android/iOS, open in new tab on desktop. */
 export const sharePdf = async (file: File): Promise<"shared" | "opened"> => {
-    if (navigator.canShare?.({files: [file]})) {
-        await navigator.share({files: [file]});
+    if (isNative()) {
+        await nativeShareFile(file);
         return "shared";
     }
     // Desktop: open PDF in a new browser tab
