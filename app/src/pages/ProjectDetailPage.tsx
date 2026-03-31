@@ -2,6 +2,7 @@
 import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
 import {getModuleLabel} from "../constants/modules";
+import {PrintFieldDetail} from "../components/print/PrintFieldDetail";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
@@ -343,6 +344,17 @@ export const ProjectDetailPage = () => {
                             <span>{pendingCount} Schlag/Schläge</span>
                         </div>
                     )}
+
+                    {/* Print-only: per-field detail blocks */}
+                    <div className="project-summary__print-details">
+                        {project.fieldAssignments.map((fa, i) => {
+                            const field = farm.fields.find((f) => f.id === fa.fieldId);
+                            if (!field) return null;
+                            return <PrintFieldDetail key={fa.id} field={field} assignment={fa}
+                                                     result={assignmentResults[i]} index={i + 1} />;
+                        })}
+                    </div>
+
                 </section>
             )}
             {project.fieldAssignments.length > 0 && (

@@ -23,7 +23,7 @@ const rasterizeLogos = (original: HTMLElement): Map<string, string> => {
     const map = new Map<string, string>();
     original.querySelectorAll<HTMLImageElement>(".project-summary__print-logos img").forEach((img) => {
         if (img.src.endsWith(".svg") && img.naturalWidth > 0) {
-            map.set(img.src, svgToPngDataUrl(img, 32));
+            map.set(img.src, svgToPngDataUrl(img, 48));
         }
     });
     return map;
@@ -48,7 +48,7 @@ const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) =>
         logos.querySelectorAll("img").forEach((img) => {
             const png = logoMap.get(img.src);
             if (png) img.src = png;
-            img.style.height = "32px";
+            img.style.height = "44px";
             img.style.width = "auto";
         });
     }
@@ -74,6 +74,66 @@ const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) =>
     }
 };
 
+/** Push an element to the start of the next page by inserting a spacer before it. */
+const forcePageBreakBefore = (clone: HTMLElement, selector: string) => {
+    const el = clone.querySelector<HTMLElement>(selector);
+    if (!el) return;
+
+    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
+    const pageContentHeightMm = A4_HEIGHT_MM - 2 * MARGIN_MM;
+    const pxPerMm = clone.offsetWidth / contentWidthMm;
+    const pageHeightPx = pageContentHeightMm * pxPerMm;
+
+    const cloneRect = clone.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const elTop = elRect.top - cloneRect.top;
+    const currentPage = Math.floor(elTop / pageHeightPx);
+    const nextPageTop = (currentPage + 1) * pageHeightPx;
+    const padNeeded = nextPageTop - elTop;
+
+    if (padNeeded > 0 && padNeeded < pageHeightPx) {
+        const spacer = document.createElement("div");
+        spacer.style.height = `${padNeeded}px`;
+        el.parentElement!.insertBefore(spacer, el);
+    }
+};
+
+/**
+ * Prevent page breaks inside `.print-detail` blocks.
+ * Measures each block's position in the laid-out clone and, if it would be
+ * split by a page boundary, adds top margin to push it onto the next page.
+ *
+ * Uses pixel-level page height derived from the clone width → A4 aspect ratio.
+ */
+const avoidPageBreaks = (clone: HTMLElement) => {
+    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
+    const pageContentHeightMm = A4_HEIGHT_MM - 2 * MARGIN_MM;
+    const pxPerMm = clone.offsetWidth / contentWidthMm;
+    const pageHeightPx = pageContentHeightMm * pxPerMm;
+
+    const blocks = clone.querySelectorAll<HTMLElement>(".print-detail");
+
+    // Re-measure after each adjustment since added margins shift subsequent blocks
+    for (const block of blocks) {
+        const cloneRect = clone.getBoundingClientRect();
+        const blockRect = block.getBoundingClientRect();
+        const blockTop = blockRect.top - cloneRect.top;
+        const blockBottom = blockTop + blockRect.height;
+
+        const pageStart = Math.floor(blockTop / pageHeightPx);
+        const pageEnd = Math.floor((blockBottom - 1) / pageHeightPx);
+
+        if (pageEnd > pageStart && blockRect.height < pageHeightPx * 0.95) {
+            const nextPageTop = (pageStart + 1) * pageHeightPx;
+            const padNeeded = nextPageTop - blockTop;
+            // Insert a spacer div before the block to push it to the next page
+            const spacer = document.createElement("div");
+            spacer.style.height = `${padNeeded + 4}px`;
+            block.parentElement!.insertBefore(spacer, block);
+        }
+    }
+};
+
 /**
  * Clone the element offscreen, force print-header visible & details open,
  * then capture as a multi-page A4 PDF.
@@ -86,7 +146,7 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     clone.style.position = "absolute";
     clone.style.left = "-9999px";
     clone.style.top = "0";
-    clone.style.width = `${element.offsetWidth}px`;
+    clone.style.width = `${Math.max(element.offsetWidth, 800)}px`;
     clone.style.background = "white";
     document.body.appendChild(clone);
 
@@ -96,6 +156,11 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     clone.style.borderRadius = "0";
 
     preparePrintHeader(clone, logoMap);
+
+    // Show print-only detail blocks
+    const printDetails = clone.querySelector<HTMLElement>(".project-summary__print-details");
+    if (printDetails) printDetails.style.display = "block";
+
     clone.querySelectorAll<HTMLDetailsElement>("details").forEach((d) => {
         d.open = true;
         const summary = d.querySelector("summary");
@@ -107,6 +172,13 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     // Hide the screen-only <h2>Zusammenfassung</h2> (print CSS hides it too)
     const h2 = clone.querySelector<HTMLElement>(":scope > h2");
     if (h2) h2.style.display = "none";
+
+    // Force field detail blocks to start on a new page
+    forcePageBreakBefore(clone, ".project-summary__print-details");
+
+    // Avoid page breaks through detail blocks: if a .print-detail would be
+    // split across a page boundary, pad it down to the next page.
+    avoidPageBreaks(clone);
 
     try {
         const canvas = await html2canvas(clone, {
