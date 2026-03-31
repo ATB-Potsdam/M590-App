@@ -1,11 +1,16 @@
 // src/pages/FarmPage.tsx
 import clsx from "clsx";
-import {useState} from "react";
+import type {ChangeEvent} from "react";
+import {useRef, useState} from "react";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
-import {useFarm} from "../hooks/useFarm";
+import {refreshClimateData, useFarm} from "../hooks/useFarm";
+import {exportData, parseImportFile} from "../lib/exportImport";
 import {formatNum} from "../lib/formatNum";
-import type {Field} from "../types/farm";
+import {useAppStore} from "../stores/useAppStore";
+import {sanitize, useLocalStore} from "../stores/useLocalStore";
+import type {Farm, Field} from "../types/farm";
+import type {Project} from "../types/project";
 import "./FarmPage.scss";
 
 const ClimateClassBadge = ({field}: {field: Field;}) => {
@@ -35,8 +40,58 @@ const NfkweBadge = ({field}: {field: Field;}) => {
 
 export const FarmPage = () => {
     const {farm, updateFarmName, addField, editField, removeField} = useFarm();
+    const [projects] = useLocalStore((state) => state.dwa_projects);
+    const addMessage = useAppStore((state) => state.addMessage);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
+    const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleExport = async () => {
+        try {
+            const result = await exportData(farm, projects);
+            if (result === "downloaded") {
+                addMessage({type: "info", message: ["Export wurde heruntergeladen."]});
+            }
+        } catch {
+            // User cancelled share dialog — no action needed
+        }
+    };
+
+    const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        if (!file) return;
+        try {
+            const text = await file.text();
+            const parsed = parseImportFile(text);
+            const importedFarm = sanitize("dwa_farm", parsed.farm) as Farm;
+            // Reset climate statuses so refreshClimateData re-fetches
+            importedFarm.fields = importedFarm.fields.map((f) => ({
+                ...f,
+                climateClassStatus: "idle" as const,
+                climateDataStatus: "idle" as const,
+            }));
+            const importedProjects = sanitize("dwa_projects", parsed.projects) as Project[];
+            setConfirmImport({farm: importedFarm, projects: importedProjects});
+        } catch (err) {
+            addMessage({type: "error", message: [err instanceof Error ? err.message : "Import fehlgeschlagen."]});
+        }
+    };
+
+    const handleConfirmImport = () => {
+        if (!confirmImport) return;
+        const state = useLocalStore.getState();
+        state.dwa_farm[1](confirmImport.farm);
+        state.dwa_projects[1](confirmImport.projects);
+        const {precipitationLookup, et0Lookup} = useAppStore.getState();
+        if (precipitationLookup && et0Lookup) {
+            const [, setFarm] = useLocalStore.getState().dwa_farm;
+            refreshClimateData(precipitationLookup, et0Lookup, setFarm, confirmImport.farm.fields);
+        }
+        addMessage({type: "info", message: ["Daten wurden erfolgreich importiert."]});
+        setConfirmImport(null);
+    };
 
     return (
         <div className="page">
@@ -110,6 +165,34 @@ export const FarmPage = () => {
                         + Feld hinzufügen
                     </button>
                 )
+            )}
+
+            <h2 className="farm-page__fields-heading">Daten exportieren / importieren</h2>
+            <div className="farm-page__export-import">
+                <button onClick={handleExport}>📤 Daten exportieren</button>
+                <button onClick={() => fileInputRef.current?.click()}>📥 Daten importieren</button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    hidden
+                    onChange={handleFileSelect}
+                />
+            </div>
+
+            {confirmImport && (
+                <div className="farm-page__import-confirm">
+                    <strong>Achtung: Der Import ersetzt alle vorhandenen Daten.</strong>
+                    <p>
+                        Betrieb: {confirmImport.farm.name || "(kein Name)"},
+                        {" "}{confirmImport.farm.fields.length} Feld(er),
+                        {" "}{confirmImport.projects.length} Projekt(e)
+                    </p>
+                    <div className="farm-page__import-confirm-actions">
+                        <button onClick={handleConfirmImport}>Importieren</button>
+                        <button onClick={() => setConfirmImport(null)}>Abbrechen</button>
+                    </div>
+                </div>
             )}
         </div>
     );

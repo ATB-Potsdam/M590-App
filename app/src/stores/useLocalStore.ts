@@ -50,7 +50,7 @@ const isValidClimateData = (v: unknown): boolean => {
 };
 
 // Sanitize loaded data against schema changes to prevent crashes on stale localStorage.
-const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): LocalStorageTypes[K] => {
+export const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknown): LocalStorageTypes[K] => {
     if (key === "dwa_farm") {
         const d = data as Partial<Farm>;
         return {

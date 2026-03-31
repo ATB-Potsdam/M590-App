@@ -30,6 +30,26 @@
     &__add-btn {
         margin-top: 12px;
     }
+
+    &__export-import {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    &__import-confirm {
+        border: 1px solid var(--color-warning);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        background: var(--color-bg-warning);
+    }
+
+    &__import-confirm-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
 }
 
 .farm-badge {

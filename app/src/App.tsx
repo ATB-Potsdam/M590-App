@@ -64,7 +64,6 @@ const App = () => {
                     addMessage({type: "error", message: ["Laden fehlgeschlagen: " + (e?.message ?? String(e))]});
                 });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addMessage, layer]);
 
     useEffect(() => {
