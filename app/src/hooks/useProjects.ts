@@ -106,5 +106,16 @@ export const useProjects = () => {
         );
     };
 
-    return {projects, addProject, copyProject, removeProject, updateProject, addFieldAssignment, removeFieldAssignment, updateFieldAssignment};
+    const removeFieldFromAllProjects = (fieldId: string) => {
+        setProjects((prev: Project[]) =>
+            prev.map((p) => {
+                const filtered = p.fieldAssignments.filter((fa) => fa.fieldId !== fieldId);
+                return filtered.length === p.fieldAssignments.length
+                    ? p
+                    : {...p, fieldAssignments: filtered, updatedAt: new Date().toISOString()};
+            })
+        );
+    };
+
+    return {projects, addProject, copyProject, removeProject, updateProject, addFieldAssignment, removeFieldAssignment, removeFieldFromAllProjects, updateFieldAssignment};
 };

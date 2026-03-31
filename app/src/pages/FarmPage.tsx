@@ -5,6 +5,7 @@ import {useRef, useState} from "react";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {refreshClimateData, useFarm} from "../hooks/useFarm";
+import {useProjects} from "../hooks/useProjects";
 import {exportData, parseImportFile} from "../lib/exportImport";
 import {formatNum} from "../lib/formatNum";
 import {useAppStore} from "../stores/useAppStore";
@@ -40,7 +41,7 @@ const NfkweBadge = ({field}: {field: Field;}) => {
 
 export const FarmPage = () => {
     const {farm, updateFarmName, addField, editField, removeField} = useFarm();
-    const [projects] = useLocalStore((state) => state.dwa_projects);
+    const {projects, removeFieldFromAllProjects} = useProjects();
     const addMessage = useAppStore((state) => state.addMessage);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
@@ -144,7 +145,7 @@ export const FarmPage = () => {
                                 <small className="farm-badge farm-badge--loading">⏳ Klimadaten werden geladen…</small>
                             )}                            <div className="farm-page__field-actions">
                                 <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
-                                <button onClick={() => removeField(field.id)}>
+                                <button onClick={() => { removeFieldFromAllProjects(field.id); removeField(field.id); }}>
                                     🗑 <span className={clsx("red")}>Entfernen</span>
                                 </button>
                             </div>

@@ -81,9 +81,9 @@
 
 - [x] **10. Export project calculations to PDF or printer**
 
-- [ ] **11. Export/import farm and project settings**
+- [x] **11. Export/import farm and project settings**
 
-- [ ] **12. When deleting a field it should be removed from all projects too**
+- [x] **12. When deleting a field it should be removed from all projects too**
 
 - [ ] **13. Fix PDF export to match description**
     - [ ] The ATB-Logo in the top left corner is wrongly scaled
