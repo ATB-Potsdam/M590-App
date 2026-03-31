@@ -206,10 +206,14 @@ export const ProjectDetailPage = () => {
             {/* Projektzusammenfassung */}
             {project.fieldAssignments.length > 0 && (
                 <section className="project-summary">
+                    <div className="project-summary__print-header">
+                        <h1>{project.name}</h1>
+                        <p>{farm.name} · {project.year} · Erstellt: {new Date().toLocaleDateString("de-DE")}</p>
+                    </div>
                     <h2>Zusammenfassung</h2>
 
                     {/* Detailtabelle je Schlag */}
-                    <details className="project-summary__details">
+                    <details className="project-summary__details" open>
                         <summary>Details je Schlag</summary>
                     <div className="project-summary__table-wrap">
                         <table className="project-summary__table">
@@ -324,6 +328,11 @@ export const ProjectDetailPage = () => {
                         </div>
                     )}
                 </section>
+            )}
+            {project.fieldAssignments.length > 0 && (
+                <button className="project-summary__print-btn" onClick={() => window.print()}>
+                    Drucken / PDF
+                </button>
             )}
         </div>
     );
