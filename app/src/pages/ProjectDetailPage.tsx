@@ -9,6 +9,9 @@ import {boundToLabel} from "../utils/irrigationPeriod";
 import {formatNum, formatRange} from "../lib/formatNum";
 import "./ProjectDetailPage.scss";
 
+const base = import.meta.env.BASE_URL;
+const APP_TITLE = "DWA-App (M590)";
+
 export const ProjectDetailPage = () => {
     const {id} = useParams<{id: string;}>();
     const navigate = useNavigate();
@@ -207,13 +210,18 @@ export const ProjectDetailPage = () => {
             {project.fieldAssignments.length > 0 && (
                 <section className="project-summary">
                     <div className="project-summary__print-header">
+                        <div className="project-summary__print-logos">
+                            <img src={`${base}atb_logo.svg`} alt="ATB" />
+                            <span className="project-summary__print-title">{APP_TITLE}</span>
+                            <img src={`${base}dwa-logo.svg`} alt="DWA" />
+                        </div>
                         <h1>{project.name}</h1>
                         <p>{farm.name} · {project.year} · Erstellt: {new Date().toLocaleDateString("de-DE")}</p>
                     </div>
                     <h2>Zusammenfassung</h2>
 
                     {/* Detailtabelle je Schlag */}
-                    <details className="project-summary__details" open>
+                    <details className="project-summary__details">
                         <summary>Details je Schlag</summary>
                     <div className="project-summary__table-wrap">
                         <table className="project-summary__table">
@@ -224,7 +232,7 @@ export const ProjectDetailPage = () => {
                                     <th>Fläche</th>
                                     <th>🌤 Normal</th>
                                     <th>☀️ Trocken</th>
-                                    <th>Alt. Wasser</th>
+                                    {totalAltWasserM3 > 0 && <th>Alt. Wasser</th>}
                                 </tr>
                             </thead>
                             <tbody>
@@ -260,11 +268,13 @@ export const ProjectDetailPage = () => {
                                                     </div>
                                                 ) : result?.dry ? "k. W." : "–"}
                                             </td>
-                                            <td>
-                                                {result?.altWasserM3
-                                                    ? `${formatNum(result.altWasserM3, 0)} m³`
-                                                    : "–"}
-                                            </td>
+                                            {totalAltWasserM3 > 0 && (
+                                                <td>
+                                                    {result?.altWasserM3
+                                                        ? `${formatNum(result.altWasserM3, 0)} m³`
+                                                        : "–"}
+                                                </td>
+                                            )}
                                         </tr>
                                     );
                                 })}
@@ -289,7 +299,9 @@ export const ProjectDetailPage = () => {
                                             </div>
                                         ) : "–"}
                                     </td>
-                                    <td>{totalAltWasserM3 > 0 ? `${formatNum(totalAltWasserM3, 0)} m³` : "–"}</td>
+                                    {totalAltWasserM3 > 0 && (
+                                        <td>{formatNum(totalAltWasserM3, 0)} m³</td>
+                                    )}
                                 </tr>
                             </tfoot>
                         </table>
@@ -330,7 +342,13 @@ export const ProjectDetailPage = () => {
                 </section>
             )}
             {project.fieldAssignments.length > 0 && (
-                <button className="project-summary__print-btn" onClick={() => window.print()}>
+                <button className="project-summary__print-btn" onClick={() => {
+                    const details = document.querySelectorAll<HTMLDetailsElement>(".project-summary__details");
+                    const wasOpen = Array.from(details).map((d) => d.open);
+                    details.forEach((d) => { d.open = true; });
+                    window.print();
+                    details.forEach((d, i) => { d.open = wasOpen[i]; });
+                }}>
                     Drucken / PDF
                 </button>
             )}
