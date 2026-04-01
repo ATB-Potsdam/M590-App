@@ -238,8 +238,8 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
             // Draw header on every page
             let bodyTopMm = MARGIN_MM;
             if (header) {
-                const headerImg = header.canvas.toDataURL("image/jpeg", 0.85);
-                pdf.addImage(headerImg, "JPEG", MARGIN_MM, MARGIN_MM, contentWidthMm, header.heightMm);
+                const headerImg = header.canvas.toDataURL("image/png");
+                pdf.addImage(headerImg, "PNG", MARGIN_MM, MARGIN_MM, contentWidthMm, header.heightMm, undefined, "SLOW");
                 bodyTopMm = MARGIN_MM + headerMm;
             }
 
