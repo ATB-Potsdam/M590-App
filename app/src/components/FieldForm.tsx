@@ -1,6 +1,6 @@
 // src/components/FieldForm.tsx
 import clsx from "clsx";
-import {useEffect, useRef, useState, type SubmitEvent} from "react";
+import {useMemo, useRef, useState, type SubmitEvent} from "react";
 import {getCurrentLatLon} from "../lib/location";
 import {latLonToNfkweClass} from "../lib/tools";
 import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
@@ -22,13 +22,23 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
     const [locating, setLocating] = useState(false);
     const locationPickerRef = useRef<LocationPickerHandle | null>(null);
-    const [geoNFkweClass, setGeoNFkweClass] = useState<NFkweClassName | null>(null);
-    const [nFkweClass, setNFkweClass] = useState<NFkweClassName | null>(
-        initialValues?.nFkweClass || null
+    const [manualNFkweClass, setManualNFkweClass] = useState<NFkweClassName | null>(
+        initialValues?.nFkweClassSource === "manual" ? (initialValues?.nFkweClass || null) : null
     );
     const [nFkweSource, setNFkweSource] = useState<'geo' | 'manual'>(
         initialValues?.nFkweClassSource ?? 'geo'
     );
+
+    const geoNFkweClass = useMemo<NFkweClassName | null>(() => {
+        if (!location) return null;
+        try {
+            return latLonToNfkweClass(location);
+        } catch {
+            return null;
+        }
+    }, [location]);
+
+    const nFkweClass = nFkweSource === "geo" ? (geoNFkweClass ?? manualNFkweClass) : manualNFkweClass;
 
     const handleUseCurrentLocation = () => {
         setLocating(true);
@@ -46,19 +56,6 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             });
     };
 
-    useEffect(() => {
-        if (!location) return;
-
-        latLonToNfkweClass(location)
-            .then(nfkwe => {
-                setGeoNFkweClass(nfkwe);
-                if (nfkwe && nFkweClass !== nfkwe && nFkweSource === "geo") {
-                    setNFkweClass(nfkwe);
-                }
-            })
-            .catch(console.error);
-    }, [location, nFkweClass, nFkweSource]);
-
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
         if (!name || !areaHa || !location) return;
@@ -72,7 +69,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
     };
 
     const handleNfkweChange = (cls: NFkweClassName) => {
-        setNFkweClass(cls);
+        setManualNFkweClass(cls);
         setNFkweSource('manual');
     };
 

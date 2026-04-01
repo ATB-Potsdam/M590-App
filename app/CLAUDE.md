@@ -215,6 +215,7 @@ In the assignment list pills: `k. W.` shown instead of values when `hasValue ===
 - The `copyToTesla.sh` and `build.sh` scripts are deployment helpers, not part of the standard dev workflow.
 - Open ranges (e.g. "> 250 mm/a") use `isOpenRange: boolean` + `max === null` in table definitions; display with `>` prefix.
 - Precipitation classes shared across naturrasen/golf/tennen: `NaturrasenPrecipClass` from `naturrasen.ts`, helper `toNaturrasenPrecipClass()`.
+- **No async/await**: Prefer `Promise.then()/catch()/finally()` chains over `async/await` syntax.
 
 ---
 

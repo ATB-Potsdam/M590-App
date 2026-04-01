@@ -11,41 +11,24 @@ export const latLonToClimateClass = ({
 }: {
     lat: number;
     lon: number;
-}): Promise<ClimateClassType> => {
+}): ClimateClassType => {
     const layer = useAppStore.getState().climateLayer;
-    if (!layer) {
-        return Promise.reject("No layer loaded");
-    }
+    if (!layer) throw new Error("No layer loaded");
+
     const json = layer.queryPointJSON(lon, lat, "KWB"); // WASM expects (lon, lat)
     const result: Match[] = JSON.parse(json);
     const kwb = result[0]?.value;
 
-    if (kwb === null || kwb === undefined) {
-        return Promise.reject("Unknown location");
-    }
+    if (kwb === null || kwb === undefined) throw new Error("Unknown location");
 
-    if (kwb > 50) {
-        return Promise.resolve(["A", kwb]);
-    }
-    if (kwb > 0) {
-        return Promise.resolve(["B", kwb]);
-    }
-    if (kwb > -50) {
-        return Promise.resolve(["C", kwb]);
-    }
-    if (kwb > -100) {
-        return Promise.resolve(["D", kwb]);
-    }
-    if (kwb > -150) {
-        return Promise.resolve(["E", kwb]);
-    }
-    if (kwb > -200) {
-        return Promise.resolve(["F", kwb]);
-    }
-    if (kwb > -250) {
-        return Promise.resolve(["G", kwb]);
-    }
-    return Promise.resolve(["H", kwb]);
+    if (kwb > 50) return ["A", kwb];
+    if (kwb > 0) return ["B", kwb];
+    if (kwb > -50) return ["C", kwb];
+    if (kwb > -100) return ["D", kwb];
+    if (kwb > -150) return ["E", kwb];
+    if (kwb > -200) return ["F", kwb];
+    if (kwb > -250) return ["G", kwb];
+    return ["H", kwb];
 };
 
 
@@ -55,9 +38,9 @@ export const latLonToNfkweClass = ({
 }: {
     lat: number;
     lon: number;
-}): Promise<NFkweClassName | null> => {
+}): NFkweClassName | null => {
     const nfkweLayer = useAppStore.getState().nfkweLayer;
-    if (!nfkweLayer) return Promise.reject("No nfkwe layer loaded");
+    if (!nfkweLayer) throw new Error("No nfkwe layer loaded");
 
     const json = nfkweLayer.queryPointJSON(lon, lat, "nfkww_st_DWA");
     const result: Array<Record<string, unknown>> = JSON.parse(json);
@@ -65,13 +48,13 @@ export const latLonToNfkweClass = ({
 
     switch (String(val)) {
         case '1':
-        case '2': return Promise.resolve("1-2");
+        case '2': return "1-2";
         case '3a':
         case '3b':
         case '4':
-        case '5': return Promise.resolve(String(val) as NFkweClassName);
+        case '5': return String(val) as NFkweClassName;
     }
-    return Promise.resolve(null);
+    return null;
 };
 
 

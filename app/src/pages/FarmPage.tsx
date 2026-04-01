@@ -67,11 +67,13 @@ export const FarmPage = () => {
             const text = await file.text();
             const parsed = parseImportFile(text);
             const importedFarm = sanitize("dwa_farm", parsed.farm) as Farm;
-            // Reset climate statuses so refreshClimateData re-fetches
+            // Reset climate statuses to "idle" only when the data is missing,
+            // so refreshClimateData re-fetches it. When the exported data
+            // already contains valid values, keep "done" to avoid losing them.
             importedFarm.fields = importedFarm.fields.map((f) => ({
                 ...f,
-                climateClassStatus: "idle" as const,
-                climateDataStatus: "idle" as const,
+                climateClassStatus: f.climateClass ? "done" as const : "idle" as const,
+                climateDataStatus: f.climateData ? "done" as const : "idle" as const,
             }));
             const importedProjects = sanitize("dwa_projects", parsed.projects) as Project[];
             setConfirmImport({farm: importedFarm, projects: importedProjects});

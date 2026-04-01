@@ -65,29 +65,27 @@ export const useFarm = () => {
             updatedAt: new Date().toISOString(),
         }));
 
-        // Klimazone + Klimadaten parallel ermitteln
-        latLonToClimateClass(field.location)
-            .then((climateClass) => {
-                setFarm((prev: Farm) => ({
-                    ...prev,
-                    fields: prev.fields.map((f) =>
-                        f.id === id ? {...f, climateClass, climateClassStatus: "done" as const} : f
-                    ),
-                    updatedAt: new Date().toISOString(),
-                }));
-            })
-            .catch((e) => {
-                console.error("Klimazone konnte nicht ermittelt werden:", e);
-                setFarm((prev: Farm) => ({
-                    ...prev,
-                    fields: prev.fields.map((f) =>
-                        f.id === id ? {...f, climateClassStatus: "error" as const} : f
-                    ),
-                    updatedAt: new Date().toISOString(),
-                }));
-            });
+        // Klimazone + Klimadaten ermitteln
+        try {
+            const climateClass = latLonToClimateClass(field.location);
+            setFarm((prev: Farm) => ({
+                ...prev,
+                fields: prev.fields.map((f) =>
+                    f.id === id ? {...f, climateClass, climateClassStatus: "done" as const} : f
+                ),
+                updatedAt: new Date().toISOString(),
+            }));
+        } catch (e) {
+            console.error("Klimazone konnte nicht ermittelt werden:", e);
+            setFarm((prev: Farm) => ({
+                ...prev,
+                fields: prev.fields.map((f) =>
+                    f.id === id ? {...f, climateClassStatus: "error" as const} : f
+                ),
+                updatedAt: new Date().toISOString(),
+            }));
+        }
 
-        // Klimadaten synchron aus Raster (getValue ist synchron)
         fetchClimateData(id, field.location.lat, field.location.lon);
     };
 
@@ -112,26 +110,25 @@ export const useFarm = () => {
             updatedAt: new Date().toISOString(),
         }));
 
-        latLonToClimateClass(data.location)
-            .then((climateClass) => {
-                setFarm((prev: Farm) => ({
-                    ...prev,
-                    fields: prev.fields.map((f) =>
-                        f.id === id ? {...f, climateClass, climateClassStatus: "done" as const} : f
-                    ),
-                    updatedAt: new Date().toISOString(),
-                }));
-            })
-            .catch((e) => {
-                console.error("Klimazone konnte nicht ermittelt werden:", e);
-                setFarm((prev: Farm) => ({
-                    ...prev,
-                    fields: prev.fields.map((f) =>
-                        f.id === id ? {...f, climateClassStatus: "error" as const} : f
-                    ),
-                    updatedAt: new Date().toISOString(),
-                }));
-            });
+        try {
+            const climateClass = latLonToClimateClass(data.location);
+            setFarm((prev: Farm) => ({
+                ...prev,
+                fields: prev.fields.map((f) =>
+                    f.id === id ? {...f, climateClass, climateClassStatus: "done" as const} : f
+                ),
+                updatedAt: new Date().toISOString(),
+            }));
+        } catch (e) {
+            console.error("Klimazone konnte nicht ermittelt werden:", e);
+            setFarm((prev: Farm) => ({
+                ...prev,
+                fields: prev.fields.map((f) =>
+                    f.id === id ? {...f, climateClassStatus: "error" as const} : f
+                ),
+                updatedAt: new Date().toISOString(),
+            }));
+        }
 
         fetchClimateData(id, data.location.lat, data.location.lon);
     };
