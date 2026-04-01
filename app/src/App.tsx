@@ -11,7 +11,6 @@ import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylo
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
-import {HomePage} from './pages/HomePage';
 import {ProjectDetailPage} from './pages/ProjectDetailPage';
 import {ProjectsPage} from './pages/ProjectsPage';
 import {useAppStore} from './stores/useAppStore';
@@ -89,10 +88,9 @@ const App = () => {
                         <Routes>
                             <Route
                                 path="/"
-                                element={hasFarm ? <HomePage /> : <Navigate to="/farm" replace />}
+                                element={hasFarm ? <ProjectsPage /> : <Navigate to="/farm" replace />}
                             />
                             <Route path="/farm" element={<FarmPage />} />
-                            <Route path="/projects" element={<ProjectsPage />} />
                             <Route path="/projects/:id" element={<ProjectDetailPage />} />
                             <Route path="/projects/:id/assignment/:assignmentId" element={<AssignmentPage />} />
                             <Route path="*" element={<Navigate to="/" replace />} />

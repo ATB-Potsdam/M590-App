@@ -3,10 +3,14 @@ import type {NavItem} from "../types/nav";
 import "./BottomNav.scss";
 
 const NAV_ITEMS: NavItem[] = [
-    {path: "/", label: "Übersicht", icon: "🌾"},
-    {path: "/projects", label: "Projekte", icon: "📋"},
+    {path: "/", label: "Projekte", icon: "🌾"},
     {path: "/farm", label: "Betrieb", icon: "🏡"},
 ];
+
+const isActive = (item: NavItem, pathname: string): boolean =>
+    item.path === "/"
+        ? pathname === "/" || pathname.startsWith("/projects")
+        : pathname.startsWith(item.path);
 
 export const BottomNav = () => {
     const navigate = useNavigate();
@@ -17,7 +21,7 @@ export const BottomNav = () => {
             {NAV_ITEMS.map((item) => (
                 <button
                     key={item.path}
-                    className={`bottom-nav__item ${location.pathname === item.path ? "bottom-nav__item--active" : ""}`}
+                    className={`bottom-nav__item ${isActive(item, location.pathname) ? "bottom-nav__item--active" : ""}`}
                     onClick={() => navigate(item.path)}
                 >
                     <span className="bottom-nav__icon">{item.icon}</span>

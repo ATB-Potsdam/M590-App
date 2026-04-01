@@ -31,7 +31,7 @@ export const ProjectDetailPage = () => {
         return (
             <div className="page">
                 <p>Projekt nicht gefunden.</p>
-                <button onClick={() => navigate("/projects")}>← Zurück</button>
+                <button onClick={() => navigate("/")}>← Zurück</button>
             </div>
         );
     }
@@ -58,7 +58,7 @@ export const ProjectDetailPage = () => {
         <div className="page">
             {/* Header */}
             <div className="project-detail__header">
-                <button className="project-detail__back" onClick={() => navigate("/projects")}>
+                <button className="project-detail__back" onClick={() => navigate("/")}>
                     ← Projekte
                 </button>
                 <div>

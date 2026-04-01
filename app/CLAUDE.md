@@ -41,12 +41,13 @@ Two stores, both using `subscribeWithSelector`:
 ### Routing
 
 ```
-/         → HomePage (or redirect to /farm if no farm data)
+/         → ProjectsPage (list projects with water totals; redirect to /farm if no farm data)
 /farm     → FarmPage (manage farm name + fields)
-/projects → ProjectsPage (list projects with water totals)
 /projects/:id → ProjectDetailPage (assignments + summary table)
 /projects/:id/assignment/:assignmentId → AssignmentPage (configure assignment)
 ```
+
+**Future idea — Dashboard page:** A cross-project overview could be added later at `/` (moving projects to `/projects`). Potential content: aggregated water demand across all projects (normal + dry totals), assignment completeness status, per-field summary across projects, nFKWe class distribution. Icon: 🌾.
 
 ### Language
 
