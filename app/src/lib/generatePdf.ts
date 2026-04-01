@@ -8,7 +8,11 @@ const A4_HEIGHT_MM = 297;
 const MARGIN_MM = 10;
 const FOOTER_HEIGHT_MM = 8;
 
-/** Rasterize an SVG <img> to a PNG data URL (html2canvas can't handle SVGs well). */
+/** Wait for the browser to finish painting (two frames + microtask flush). */
+const waitForPaint = (): Promise<void> =>
+    new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 50)));
+
+/** Rasterize an SVG img to a PNG data URL (html2canvas can't handle SVGs well). */
 const svgToPngDataUrl = (img: HTMLImageElement, targetHeight: number): string => {
     const canvas = document.createElement("canvas");
     const ratio = img.naturalWidth / img.naturalHeight;
@@ -20,18 +24,27 @@ const svgToPngDataUrl = (img: HTMLImageElement, targetHeight: number): string =>
 };
 
 /** Pre-rasterize SVG logos from the *original* (loaded) element. */
-const rasterizeLogos = (original: HTMLElement): Map<string, string> => {
+const rasterizeLogos = async (original: HTMLElement): Promise<Map<string, string>> => {
     const map = new Map<string, string>();
-    original.querySelectorAll<HTMLImageElement>(".project-summary__print-logos img").forEach((img) => {
-        if (img.src.endsWith(".svg") && img.naturalWidth > 0) {
-            map.set(img.src, svgToPngDataUrl(img, 48));
-        }
-    });
+    const imgs = Array.from(
+        original.querySelectorAll<HTMLImageElement>(".project-summary__print-logos img")
+    ).filter(img => img.src.endsWith(".svg"));
+
+    await Promise.all(
+        imgs.map(img =>
+            img.decode().then(() => {
+                if (img.naturalWidth > 0) {
+                    map.set(img.src, svgToPngDataUrl(img, 48));
+                }
+            })
+        )
+    );
+
     return map;
 };
 
 /** Apply the print-media styles inline on the clone so html2canvas renders them. */
-const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) => {
+const preparePrintHeader = async (clone: HTMLElement, logoMap: Map<string, string>): Promise<void> => {
     const printHeader = clone.querySelector<HTMLElement>(".project-summary__print-header");
     if (!printHeader) return;
 
@@ -46,12 +59,23 @@ const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) =>
         logos.style.justifyContent = "space-between";
         logos.style.marginBottom = "12px";
 
-        logos.querySelectorAll("img").forEach((img) => {
+        // Swap SVG srcs to pre-rasterized PNGs and wait for each to finish loading
+        const swapPromises: Promise<void>[] = [];
+        logos.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
             const png = logoMap.get(img.src);
-            if (png) img.src = png;
+            if (png) {
+                const p = new Promise<void>((resolve) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => resolve(); // don't hang on error
+                });
+                img.src = png; // triggers onload
+                swapPromises.push(p);
+            }
             img.style.height = "44px";
             img.style.width = "auto";
         });
+
+        await Promise.all(swapPromises);
     }
 
     const title = printHeader.querySelector<HTMLElement>(".project-summary__print-title");
@@ -142,7 +166,7 @@ const avoidPageBreaks = (clone: HTMLElement, firstPagePx: number, bodyHeightPx: 
 /**
  * Capture the print header as a separate canvas image for repeating on each page.
  */
-const captureHeader = async (clone: HTMLElement): Promise<{canvas: HTMLCanvasElement; heightMm: number} | null> => {
+const captureHeader = async (clone: HTMLElement): Promise<{canvas: HTMLCanvasElement; heightMm: number;} | null> => {
     const printHeader = clone.querySelector<HTMLElement>(".project-summary__print-header");
     if (!printHeader) return null;
 
@@ -164,8 +188,8 @@ const captureHeader = async (clone: HTMLElement): Promise<{canvas: HTMLCanvasEle
  * then capture as a multi-page A4 PDF with repeated header and page numbers.
  */
 export const generateSummaryPdf = async (element: HTMLElement, filename: string): Promise<File> => {
-    // Pre-rasterize SVG logos from the original (where images are loaded)
-    const logoMap = rasterizeLogos(element);
+    // Pre-rasterize SVG logos from the original (where images are already loaded & decoded)
+    const logoMap = await rasterizeLogos(element);
 
     const clone = element.cloneNode(true) as HTMLElement;
     clone.style.position = "absolute";
@@ -180,7 +204,9 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     clone.style.boxShadow = "none";
     clone.style.borderRadius = "0";
 
-    preparePrintHeader(clone, logoMap);
+    // Swap logos, wait for load, then wait for a paint frame before capturing
+    await preparePrintHeader(clone, logoMap);
+    await waitForPaint();
 
     // Remove scroll shadow hints from table wrapper (not needed in PDF)
     const tableWrap = clone.querySelector<HTMLElement>(".project-summary__table-wrap");
@@ -198,7 +224,7 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     const printBtn = clone.querySelector<HTMLElement>(".project-summary__print-btn");
     if (printBtn) printBtn.style.display = "none";
 
-    // Hide the screen-only <h2>Zusammenfassung</h2> (print CSS hides it too)
+    // Hide the screen-only Zusammenfassung h2 (print CSS hides it too)
     const h2 = clone.querySelector<HTMLElement>(":scope > h2");
     if (h2) h2.style.display = "none";
 
@@ -306,6 +332,7 @@ export const sharePdf = async (file: File): Promise<"shared" | "opened"> => {
         await nativeShareFile(file);
         return "shared";
     }
+
     // Desktop: open PDF in a new browser tab
     const url = URL.createObjectURL(file);
     window.open(url, "_blank");
