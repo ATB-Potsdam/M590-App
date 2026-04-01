@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-M590 DWA App — a German agricultural irrigation advisory tool (DWA = Deutsche Vereinigung für Wasserwirtschaft). It calculates irrigation water demand for farms based on climate data, soil properties, and crop types per DWA-M 590 standard. Built as a hybrid web/mobile app.
+M 590 DWA App — a German agricultural irrigation advisory tool (DWA = Deutsche Vereinigung für Wasserwirtschaft). It calculates irrigation water demand for farms based on climate data, soil properties, and crop types per DWA-M 590 standard. Built as a hybrid web/mobile app.
 
 ## Git
 

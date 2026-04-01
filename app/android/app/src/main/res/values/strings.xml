@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">M590-app</string>
-    <string name="title_activity_main">M590-app</string>
+    <string name="app_name">M 590 Zusatzwasserbedarf</string>
+    <string name="title_activity_main">M 590 Zusatzwasserbedarf</string>
     <string name="package_name">de.runlevel3.m590</string>
     <string name="custom_url_scheme">de.runlevel3.m590</string>
 </resources>

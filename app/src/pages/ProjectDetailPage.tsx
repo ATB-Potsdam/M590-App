@@ -1,19 +1,19 @@
 // src/pages/ProjectDetailPage.tsx
 import {useRef, useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import {getModuleLabel} from "../constants/modules";
 import {PrintFieldDetail} from "../components/print/PrintFieldDetail";
+import {getModuleLabel} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
-import {boundToLabel} from "../utils/irrigationPeriod";
 import {formatNum, formatRange} from "../lib/formatNum";
 import {generateSummaryPdf, sharePdf} from "../lib/generatePdf";
 import {useAppStore} from "../stores/useAppStore";
+import {boundToLabel} from "../utils/irrigationPeriod";
 import "./ProjectDetailPage.scss";
 
 const base = import.meta.env.BASE_URL;
-const APP_TITLE = "DWA-App (M590)";
+const APP_TITLE = "DWA-App (M 590)";
 
 export const ProjectDetailPage = () => {
     const {id} = useParams<{id: string;}>();
@@ -228,89 +228,89 @@ export const ProjectDetailPage = () => {
                     {/* Detailtabelle je Schlag */}
                     <details className="project-summary__details">
                         <summary>Details je Schlag</summary>
-                    <div className="project-summary__table-wrap">
-                        <table className="project-summary__table">
-                            <thead>
-                                <tr>
-                                    <th>Schlag</th>
-                                    <th>Nutzung</th>
-                                    <th>Fläche</th>
-                                    <th>🌤 Normal</th>
-                                    <th>☀️ Trocken</th>
-                                    {totalAltWasserM3 > 0 && <th>Alt. Wasser</th>}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {project.fieldAssignments.map((fa, i) => {
-                                    const field = farm.fields.find((f) => f.id === fa.fieldId);
-                                    if (!field) return null;
-                                    const result = assignmentResults[i];
-                                    return (
-                                        <tr key={fa.id}>
-                                            <td>
-                                                <strong>{field.name}</strong>
-                                                {fa.plantKey && (
-                                                    <span className="project-summary__plant">
-                                                        {fa.plantKey.split("|").slice(0, 2).join(" · ")}
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
-                                            <td>{field.areaHa} ha</td>
-                                            <td>
-                                                {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
-                                                    <div className="project-summary__two-line">
-                                                        <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
-                                                        <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
-                                                    </div>
-                                                ) : result?.normal ? "k. W." : "–"}
-                                            </td>
-                                            <td>
-                                                {result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue) ? (
-                                                    <div className="project-summary__two-line">
-                                                        <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
-                                                        <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
-                                                    </div>
-                                                ) : result?.dry ? "k. W." : "–"}
-                                            </td>
-                                            {totalAltWasserM3 > 0 && (
+                        <div className="project-summary__table-wrap">
+                            <table className="project-summary__table">
+                                <thead>
+                                    <tr>
+                                        <th>Schlag</th>
+                                        <th>Nutzung</th>
+                                        <th>Fläche</th>
+                                        <th>🌤 Normal</th>
+                                        <th>☀️ Trocken</th>
+                                        {totalAltWasserM3 > 0 && <th>Alt. Wasser</th>}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {project.fieldAssignments.map((fa, i) => {
+                                        const field = farm.fields.find((f) => f.id === fa.fieldId);
+                                        if (!field) return null;
+                                        const result = assignmentResults[i];
+                                        return (
+                                            <tr key={fa.id}>
                                                 <td>
-                                                    {result?.altWasserM3
-                                                        ? `${formatNum(result.altWasserM3, 0)} m³`
-                                                        : "–"}
+                                                    <strong>{field.name}</strong>
+                                                    {fa.plantKey && (
+                                                        <span className="project-summary__plant">
+                                                            {fa.plantKey.split("|").slice(0, 2).join(" · ")}
+                                                        </span>
+                                                    )}
                                                 </td>
-                                            )}
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                            <tfoot>
-                                <tr className="project-summary__total-row">
-                                    <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} Schläge)</strong></td>
-                                    <td>{formatNum(totalAreaHa, 1)} ha</td>
-                                    <td>
-                                        {normalM3 ? (
-                                            <div className="project-summary__two-line">
-                                                {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
-                                                <span>{formatRange(normalM3, "m³/a")}</span>
-                                            </div>
-                                        ) : "–"}
-                                    </td>
-                                    <td>
-                                        {dryM3 ? (
-                                            <div className="project-summary__two-line">
-                                                {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
-                                                <span>{formatRange(dryM3, "m³/a")}</span>
-                                            </div>
-                                        ) : "–"}
-                                    </td>
-                                    {totalAltWasserM3 > 0 && (
-                                        <td>{formatNum(totalAltWasserM3, 0)} m³</td>
-                                    )}
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                                                <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
+                                                <td>{field.areaHa} ha</td>
+                                                <td>
+                                                    {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
+                                                        <div className="project-summary__two-line">
+                                                            <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
+                                                            <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
+                                                        </div>
+                                                    ) : result?.normal ? "k. W." : "–"}
+                                                </td>
+                                                <td>
+                                                    {result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue) ? (
+                                                        <div className="project-summary__two-line">
+                                                            <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
+                                                            <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
+                                                        </div>
+                                                    ) : result?.dry ? "k. W." : "–"}
+                                                </td>
+                                                {totalAltWasserM3 > 0 && (
+                                                    <td>
+                                                        {result?.altWasserM3
+                                                            ? `${formatNum(result.altWasserM3, 0)} m³`
+                                                            : "–"}
+                                                    </td>
+                                                )}
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                                <tfoot>
+                                    <tr className="project-summary__total-row">
+                                        <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} Schläge)</strong></td>
+                                        <td>{formatNum(totalAreaHa, 1)} ha</td>
+                                        <td>
+                                            {normalM3 ? (
+                                                <div className="project-summary__two-line">
+                                                    {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
+                                                    <span>{formatRange(normalM3, "m³/a")}</span>
+                                                </div>
+                                            ) : "–"}
+                                        </td>
+                                        <td>
+                                            {dryM3 ? (
+                                                <div className="project-summary__two-line">
+                                                    {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
+                                                    <span>{formatRange(dryM3, "m³/a")}</span>
+                                                </div>
+                                            ) : "–"}
+                                        </td>
+                                        {totalAltWasserM3 > 0 && (
+                                            <td>{formatNum(totalAltWasserM3, 0)} m³</td>
+                                        )}
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </details>
 
                     {/* Brutto / Alt. Wasser / Netto */}
@@ -351,7 +351,7 @@ export const ProjectDetailPage = () => {
                             const field = farm.fields.find((f) => f.id === fa.fieldId);
                             if (!field) return null;
                             return <PrintFieldDetail key={fa.id} field={field} assignment={fa}
-                                                     result={assignmentResults[i]} index={i + 1} />;
+                                result={assignmentResults[i]} index={i + 1} />;
                         })}
                     </div>
 
