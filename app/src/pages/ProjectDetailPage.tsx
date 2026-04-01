@@ -221,7 +221,7 @@ export const ProjectDetailPage = () => {
                             <img src={`${base}dwa-logo.svg`} alt="DWA" />
                         </div>
                         <h1>{project.name}</h1>
-                        <p>{farm.name} · {project.year} · Erstellt: {new Date().toLocaleDateString("de-DE")}</p>
+                        <p>{farm.name}{project.year ? ` · ${project.year}` : ""} · Erstellt: {new Date().toLocaleDateString("de-DE")}</p>
                     </div>
                     <h2>Zusammenfassung</h2>
 

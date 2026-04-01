@@ -76,10 +76,24 @@ const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) =>
 };
 
 /**
- * Push an element to the start of the next page by inserting a spacer before it.
- * @param bodyHeightPx — the usable body content height per page in pixels
+ * Return the page number for a given y-offset in the source canvas.
+ * Page 0 may be shorter due to a title; subsequent pages use the full body height.
  */
-const forcePageBreakBefore = (clone: HTMLElement, selector: string, bodyHeightPx: number) => {
+const getPageForY = (y: number, firstPagePx: number, bodyHeightPx: number): number => {
+    if (y < firstPagePx) return 0;
+    return 1 + Math.floor((y - firstPagePx) / bodyHeightPx);
+};
+
+/** Return the top y-offset of the given page. */
+const getPageTop = (page: number, firstPagePx: number, bodyHeightPx: number): number => {
+    if (page <= 0) return 0;
+    return firstPagePx + (page - 1) * bodyHeightPx;
+};
+
+/**
+ * Push an element to the start of the next page by inserting a spacer before it.
+ */
+const forcePageBreakBefore = (clone: HTMLElement, selector: string, firstPagePx: number, bodyHeightPx: number) => {
     const el = clone.querySelector<HTMLElement>(selector);
     if (!el) return;
 
@@ -87,11 +101,12 @@ const forcePageBreakBefore = (clone: HTMLElement, selector: string, bodyHeightPx
     const elRect = el.getBoundingClientRect();
     const elTop = elRect.top - cloneRect.top;
 
-    const currentPage = Math.floor(elTop / bodyHeightPx);
-    const nextPageTop = (currentPage + 1) * bodyHeightPx;
+    const currentPage = getPageForY(elTop, firstPagePx, bodyHeightPx);
+    const nextPageTop = getPageTop(currentPage + 1, firstPagePx, bodyHeightPx);
     const padNeeded = nextPageTop - elTop;
 
-    if (padNeeded > 0 && padNeeded < bodyHeightPx) {
+    const pageHeight = currentPage === 0 ? firstPagePx : bodyHeightPx;
+    if (padNeeded > 0 && padNeeded < pageHeight) {
         const spacer = document.createElement("div");
         spacer.style.height = `${padNeeded}px`;
         el.parentElement!.insertBefore(spacer, el);
@@ -100,9 +115,8 @@ const forcePageBreakBefore = (clone: HTMLElement, selector: string, bodyHeightPx
 
 /**
  * Prevent page breaks inside `.print-detail` blocks.
- * @param bodyHeightPx — the usable body content height per page in pixels
  */
-const avoidPageBreaks = (clone: HTMLElement, bodyHeightPx: number) => {
+const avoidPageBreaks = (clone: HTMLElement, firstPagePx: number, bodyHeightPx: number) => {
     const blocks = clone.querySelectorAll<HTMLElement>(".print-detail");
 
     // Re-measure after each adjustment since added margins shift subsequent blocks
@@ -112,11 +126,11 @@ const avoidPageBreaks = (clone: HTMLElement, bodyHeightPx: number) => {
         const blockTop = blockRect.top - cloneRect.top;
         const blockBottom = blockTop + blockRect.height;
 
-        const pageStart = Math.floor(blockTop / bodyHeightPx);
-        const pageEnd = Math.floor((blockBottom - 1) / bodyHeightPx);
+        const pageStart = getPageForY(blockTop, firstPagePx, bodyHeightPx);
+        const pageEnd = getPageForY(blockBottom - 1, firstPagePx, bodyHeightPx);
 
         if (pageEnd > pageStart && blockRect.height < bodyHeightPx * 0.95) {
-            const nextPageTop = (pageStart + 1) * bodyHeightPx;
+            const nextPageTop = getPageTop(pageStart + 1, firstPagePx, bodyHeightPx);
             const padNeeded = nextPageTop - blockTop;
             const spacer = document.createElement("div");
             spacer.style.height = `${padNeeded + 4}px`;
@@ -202,12 +216,14 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     const pageFullHeight = A4_HEIGHT_MM - 2 * MARGIN_MM;
     const bodyHeightPerPageMm = pageFullHeight - headerMm - FOOTER_HEIGHT_MM;
     const bodyHeightPerPagePx = bodyHeightPerPageMm * pxPerMm;
+    const titleOffsetMm = 10;
+    const firstPageBodyPx = (bodyHeightPerPageMm - titleOffsetMm) * pxPerMm;
 
     // Force field detail blocks to start on a new page
-    forcePageBreakBefore(clone, ".project-summary__print-details", bodyHeightPerPagePx);
+    forcePageBreakBefore(clone, ".project-summary__print-details", firstPageBodyPx, bodyHeightPerPagePx);
 
     // Avoid page breaks through detail blocks
-    avoidPageBreaks(clone, bodyHeightPerPagePx);
+    avoidPageBreaks(clone, firstPageBodyPx, bodyHeightPerPagePx);
 
     try {
         const canvas = await html2canvas(clone, {
@@ -232,9 +248,6 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
         while (remainingHeight > 0) {
             if (page > 0) pdf.addPage();
 
-            const sliceHeightMm = Math.min(remainingHeight, bodyHeightPerPageMm);
-            const sliceHeightPx = sliceHeightMm * capturePxPerMm;
-
             // Draw header on every page
             let bodyTopMm = MARGIN_MM;
             if (header) {
@@ -242,6 +255,18 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
                 pdf.addImage(headerImg, "PNG", MARGIN_MM, MARGIN_MM, contentWidthMm, header.heightMm, undefined, "SLOW");
                 bodyTopMm = MARGIN_MM + headerMm;
             }
+
+            // Draw "Zusammenfassung" title on first page only
+            if (page === 0) {
+                pdf.setFontSize(16);
+                pdf.setFont("helvetica", "bold");
+                pdf.setTextColor(0);
+                pdf.text("Zusammenfassung", MARGIN_MM, bodyTopMm + 5);
+                bodyTopMm += titleOffsetMm;
+            }
+
+            const sliceHeightMm = Math.min(remainingHeight, bodyHeightPerPageMm - (page === 0 ? titleOffsetMm : 0));
+            const sliceHeightPx = sliceHeightMm * capturePxPerMm;
 
             // Draw body content slice
             const sliceCanvas = document.createElement("canvas");
