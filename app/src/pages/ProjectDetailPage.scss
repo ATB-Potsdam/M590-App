@@ -1,24 +1,15 @@
 // src/pages/ProjectDetailPage.scss
 .project-detail {
-    &__header {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 24px;
-
-        h1 {
-            margin: 0 0 4px;
-        }
-    }
-
     &__back {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 4px 0;
+        padding: 0;
         color: var(--color-accent);
         white-space: nowrap;
-        margin-top: 4px;
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
     }
 
     &__meta {

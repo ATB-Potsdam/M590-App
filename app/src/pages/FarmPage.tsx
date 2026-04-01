@@ -189,7 +189,7 @@ export const FarmPage = () => {
                     <p>
                         Betrieb: {confirmImport.farm.name || "(kein Name)"},
                         {" "}{confirmImport.farm.fields.length} Feld(er),
-                        {" "}{confirmImport.projects.length} Projekt(e)
+                        {" "}{confirmImport.projects.length} {confirmImport.projects.length === 1 ? "Szenario" : "Szenarien"}
                     </p>
                     <div className="farm-page__import-confirm-actions">
                         <button onClick={handleConfirmImport}>Importieren</button>

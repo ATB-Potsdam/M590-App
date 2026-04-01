@@ -26,7 +26,7 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
     return (
         <form className="field-form" onSubmit={handleSubmit}>
             <label>
-                Projektname
+                Szenarioname
                 <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -63,7 +63,7 @@ export const ProjectForm = ({existingProjects, onSave, onCancel}: Props) => {
 
             <div className="field-form__actions">
                 <button type="submit" disabled={!name.trim()}>
-                    Projekt erstellen
+                    Szenario erstellen
                 </button>
                 <button type="button" onClick={onCancel}>
                     Abbrechen

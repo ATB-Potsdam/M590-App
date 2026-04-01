@@ -30,7 +30,7 @@ export const ProjectDetailPage = () => {
     if (!project) {
         return (
             <div className="page">
-                <p>Projekt nicht gefunden.</p>
+                <p>Szenario nicht gefunden.</p>
                 <button onClick={() => navigate("/")}>← Zurück</button>
             </div>
         );
@@ -57,17 +57,13 @@ export const ProjectDetailPage = () => {
     return (
         <div className="page">
             {/* Header */}
-            <div className="project-detail__header">
-                <button className="project-detail__back" onClick={() => navigate("/")}>
-                    ← Projekte
-                </button>
-                <div>
-                    <h1>{project.name}</h1>
-                    <span className="project-detail__meta">
-                        {project.year && <span>{project.year}</span>}
-                    </span>
-                </div>
-            </div>
+            <button className="project-detail__back" onClick={() => navigate("/")}>
+                ← Szenarien
+            </button>
+            <h1>{project.name}</h1>
+            {project.year && (
+                <span className="project-detail__meta">{project.year}</span>
+            )}
 
             {/* Feldzuweisungen */}
             <h2>Feldzuweisungen</h2>
@@ -211,7 +207,7 @@ export const ProjectDetailPage = () => {
                 </button>
             )}
 
-            {/* Projektzusammenfassung */}
+            {/* Zusammenfassung */}
             {project.fieldAssignments.length > 0 && (
                 <section className="project-summary" ref={summaryRef}>
                     <div className="project-summary__print-header">

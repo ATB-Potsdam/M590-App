@@ -29,10 +29,10 @@ export const ProjectsPage = () => {
 
     return (
         <div className="page">
-            <h1>Projekte</h1>
+            <h1>Szenarien</h1>
 
             {projects.length === 0 && !showForm && (
-                <p className="projects-page__empty">Noch keine Projekte vorhanden.</p>
+                <p className="projects-page__empty">Noch keine Szenarien vorhanden.</p>
             )}
 
             <ul className="project-list">
@@ -68,7 +68,7 @@ export const ProjectsPage = () => {
                         <button
                             className="project-list__delete"
                             onClick={() => removeProject(project.id)}
-                            title="Projekt löschen"
+                            title="Szenario löschen"
                         >
                             🗑
                         </button>
@@ -85,7 +85,7 @@ export const ProjectsPage = () => {
                 />
             ) : (
                 <button onClick={() => setShowForm(true)} className="projects-page__add-btn">
-                    + Neues Projekt
+                    + Neues Szenario
                 </button>
             )}
         </div>
