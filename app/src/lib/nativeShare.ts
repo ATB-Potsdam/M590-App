@@ -31,7 +31,7 @@ export const nativeShareFile = async (file: File): Promise<void> => {
     });
     await Share.share({
         title: file.name,
-        url: uri,
+        files: [uri],
         dialogTitle: "Datei teilen",
     });
 };

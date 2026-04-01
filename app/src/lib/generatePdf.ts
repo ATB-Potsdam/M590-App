@@ -6,6 +6,7 @@ import {isNative, nativeShareFile} from "./nativeShare";
 const A4_WIDTH_MM = 210;
 const A4_HEIGHT_MM = 297;
 const MARGIN_MM = 10;
+const FOOTER_HEIGHT_MM = 8;
 
 /** Rasterize an SVG <img> to a PNG data URL (html2canvas can't handle SVGs well). */
 const svgToPngDataUrl = (img: HTMLImageElement, targetHeight: number): string => {
@@ -74,24 +75,23 @@ const preparePrintHeader = (clone: HTMLElement, logoMap: Map<string, string>) =>
     }
 };
 
-/** Push an element to the start of the next page by inserting a spacer before it. */
-const forcePageBreakBefore = (clone: HTMLElement, selector: string) => {
+/**
+ * Push an element to the start of the next page by inserting a spacer before it.
+ * @param bodyHeightPx — the usable body content height per page in pixels
+ */
+const forcePageBreakBefore = (clone: HTMLElement, selector: string, bodyHeightPx: number) => {
     const el = clone.querySelector<HTMLElement>(selector);
     if (!el) return;
-
-    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
-    const pageContentHeightMm = A4_HEIGHT_MM - 2 * MARGIN_MM;
-    const pxPerMm = clone.offsetWidth / contentWidthMm;
-    const pageHeightPx = pageContentHeightMm * pxPerMm;
 
     const cloneRect = clone.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
     const elTop = elRect.top - cloneRect.top;
-    const currentPage = Math.floor(elTop / pageHeightPx);
-    const nextPageTop = (currentPage + 1) * pageHeightPx;
+
+    const currentPage = Math.floor(elTop / bodyHeightPx);
+    const nextPageTop = (currentPage + 1) * bodyHeightPx;
     const padNeeded = nextPageTop - elTop;
 
-    if (padNeeded > 0 && padNeeded < pageHeightPx) {
+    if (padNeeded > 0 && padNeeded < bodyHeightPx) {
         const spacer = document.createElement("div");
         spacer.style.height = `${padNeeded}px`;
         el.parentElement!.insertBefore(spacer, el);
@@ -100,17 +100,9 @@ const forcePageBreakBefore = (clone: HTMLElement, selector: string) => {
 
 /**
  * Prevent page breaks inside `.print-detail` blocks.
- * Measures each block's position in the laid-out clone and, if it would be
- * split by a page boundary, adds top margin to push it onto the next page.
- *
- * Uses pixel-level page height derived from the clone width → A4 aspect ratio.
+ * @param bodyHeightPx — the usable body content height per page in pixels
  */
-const avoidPageBreaks = (clone: HTMLElement) => {
-    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
-    const pageContentHeightMm = A4_HEIGHT_MM - 2 * MARGIN_MM;
-    const pxPerMm = clone.offsetWidth / contentWidthMm;
-    const pageHeightPx = pageContentHeightMm * pxPerMm;
-
+const avoidPageBreaks = (clone: HTMLElement, bodyHeightPx: number) => {
     const blocks = clone.querySelectorAll<HTMLElement>(".print-detail");
 
     // Re-measure after each adjustment since added margins shift subsequent blocks
@@ -120,13 +112,12 @@ const avoidPageBreaks = (clone: HTMLElement) => {
         const blockTop = blockRect.top - cloneRect.top;
         const blockBottom = blockTop + blockRect.height;
 
-        const pageStart = Math.floor(blockTop / pageHeightPx);
-        const pageEnd = Math.floor((blockBottom - 1) / pageHeightPx);
+        const pageStart = Math.floor(blockTop / bodyHeightPx);
+        const pageEnd = Math.floor((blockBottom - 1) / bodyHeightPx);
 
-        if (pageEnd > pageStart && blockRect.height < pageHeightPx * 0.95) {
-            const nextPageTop = (pageStart + 1) * pageHeightPx;
+        if (pageEnd > pageStart && blockRect.height < bodyHeightPx * 0.95) {
+            const nextPageTop = (pageStart + 1) * bodyHeightPx;
             const padNeeded = nextPageTop - blockTop;
-            // Insert a spacer div before the block to push it to the next page
             const spacer = document.createElement("div");
             spacer.style.height = `${padNeeded + 4}px`;
             block.parentElement!.insertBefore(spacer, block);
@@ -135,8 +126,28 @@ const avoidPageBreaks = (clone: HTMLElement) => {
 };
 
 /**
+ * Capture the print header as a separate canvas image for repeating on each page.
+ */
+const captureHeader = async (clone: HTMLElement): Promise<{canvas: HTMLCanvasElement; heightMm: number} | null> => {
+    const printHeader = clone.querySelector<HTMLElement>(".project-summary__print-header");
+    if (!printHeader) return null;
+
+    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
+    const pxPerMm = clone.offsetWidth / contentWidthMm;
+    const headerHeightMm = printHeader.offsetHeight / pxPerMm;
+
+    const headerCanvas = await html2canvas(printHeader, {
+        scale: 1.5,
+        useCORS: true,
+        logging: false,
+    });
+
+    return {canvas: headerCanvas, heightMm: headerHeightMm};
+};
+
+/**
  * Clone the element offscreen, force print-header visible & details open,
- * then capture as a multi-page A4 PDF.
+ * then capture as a multi-page A4 PDF with repeated header and page numbers.
  */
 export const generateSummaryPdf = async (element: HTMLElement, filename: string): Promise<File> => {
     // Pre-rasterize SVG logos from the original (where images are loaded)
@@ -177,26 +188,42 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
     const h2 = clone.querySelector<HTMLElement>(":scope > h2");
     if (h2) h2.style.display = "none";
 
-    // Force field detail blocks to start on a new page
-    forcePageBreakBefore(clone, ".project-summary__print-details");
+    // Capture the header before hiding it
+    const header = await captureHeader(clone);
 
-    // Avoid page breaks through detail blocks: if a .print-detail would be
-    // split across a page boundary, pad it down to the next page.
-    avoidPageBreaks(clone);
+    // Hide header from the main content (it will be drawn separately on each page)
+    const printHeader = clone.querySelector<HTMLElement>(".project-summary__print-header");
+    if (printHeader) printHeader.style.display = "none";
+
+    // Compute body height per page in pixels (for page-break spacing)
+    const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
+    const pxPerMm = clone.offsetWidth / contentWidthMm;
+    const headerMm = header ? header.heightMm + 2 : 0;
+    const pageFullHeight = A4_HEIGHT_MM - 2 * MARGIN_MM;
+    const bodyHeightPerPageMm = pageFullHeight - headerMm - FOOTER_HEIGHT_MM;
+    const bodyHeightPerPagePx = bodyHeightPerPageMm * pxPerMm;
+
+    // Force field detail blocks to start on a new page
+    forcePageBreakBefore(clone, ".project-summary__print-details", bodyHeightPerPagePx);
+
+    // Avoid page breaks through detail blocks
+    avoidPageBreaks(clone, bodyHeightPerPagePx);
 
     try {
         const canvas = await html2canvas(clone, {
-            scale: 2,
+            scale: 1.5,
             useCORS: true,
             logging: false,
         });
 
-        const contentWidthMm = A4_WIDTH_MM - 2 * MARGIN_MM;
-        const pxPerMm = canvas.width / contentWidthMm;
-        const contentHeightMm = canvas.height / pxPerMm;
-        const pageContentHeight = A4_HEIGHT_MM - 2 * MARGIN_MM;
+        const capturePxPerMm = canvas.width / contentWidthMm;
+        const contentHeightMm = canvas.height / capturePxPerMm;
 
         const pdf = new jsPDF("p", "mm", "a4");
+
+        // Count total pages
+        let totalPages = Math.ceil(contentHeightMm / bodyHeightPerPageMm);
+        if (totalPages < 1) totalPages = 1;
 
         let remainingHeight = contentHeightMm;
         let sourceY = 0;
@@ -205,17 +232,36 @@ export const generateSummaryPdf = async (element: HTMLElement, filename: string)
         while (remainingHeight > 0) {
             if (page > 0) pdf.addPage();
 
-            const sliceHeightMm = Math.min(remainingHeight, pageContentHeight);
-            const sliceHeightPx = sliceHeightMm * pxPerMm;
+            const sliceHeightMm = Math.min(remainingHeight, bodyHeightPerPageMm);
+            const sliceHeightPx = sliceHeightMm * capturePxPerMm;
 
+            // Draw header on every page
+            let bodyTopMm = MARGIN_MM;
+            if (header) {
+                const headerImg = header.canvas.toDataURL("image/jpeg", 0.85);
+                pdf.addImage(headerImg, "JPEG", MARGIN_MM, MARGIN_MM, contentWidthMm, header.heightMm);
+                bodyTopMm = MARGIN_MM + headerMm;
+            }
+
+            // Draw body content slice
             const sliceCanvas = document.createElement("canvas");
             sliceCanvas.width = canvas.width;
-            sliceCanvas.height = sliceHeightPx;
+            sliceCanvas.height = Math.ceil(sliceHeightPx);
             const ctx = sliceCanvas.getContext("2d")!;
-            ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+            ctx.drawImage(canvas, 0, sourceY, canvas.width, sliceHeightPx, 0, 0, canvas.width, Math.ceil(sliceHeightPx));
 
-            const imgData = sliceCanvas.toDataURL("image/png");
-            pdf.addImage(imgData, "PNG", MARGIN_MM, MARGIN_MM, contentWidthMm, sliceHeightMm);
+            const imgData = sliceCanvas.toDataURL("image/jpeg", 0.85);
+            pdf.addImage(imgData, "JPEG", MARGIN_MM, bodyTopMm, contentWidthMm, sliceHeightMm);
+
+            // Page number centered at bottom
+            pdf.setFontSize(9);
+            pdf.setTextColor(150);
+            pdf.text(
+                `Seite ${page + 1} von ${totalPages}`,
+                A4_WIDTH_MM / 2,
+                A4_HEIGHT_MM - MARGIN_MM + 2,
+                {align: "center"},
+            );
 
             sourceY += sliceHeightPx;
             remainingHeight -= sliceHeightMm;
@@ -238,6 +284,5 @@ export const sharePdf = async (file: File): Promise<"shared" | "opened"> => {
     // Desktop: open PDF in a new browser tab
     const url = URL.createObjectURL(file);
     window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
     return "opened";
 };
