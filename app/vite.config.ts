@@ -13,7 +13,7 @@ export default defineConfig(({mode}) => {
           manualChunks: {
             'vendor-react': ['react', 'react-dom', 'react-router', 'zustand'],
             'vendor-map': ['leaflet', 'react-leaflet', 'proj4'],
-            'vendor-pdf': ['jspdf', 'html2canvas'],
+            'vendor-pdf': ['@react-pdf/renderer'],
           },
         },
       },

@@ -1,19 +1,18 @@
 // src/pages/ProjectDetailPage.tsx
-import {useRef, useState} from "react";
+import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
-import {PrintFieldDetail} from "../components/print/PrintFieldDetail";
 import {getModuleLabel} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
 import {formatNum, formatRange} from "../lib/formatNum";
-import {generateSummaryPdf, sharePdf} from "../lib/generatePdf";
+import {generateSummaryPdf, sharePdf} from "../lib/generateSummaryPdf";
+import {emojiToPngDataUrl, svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
 import {useAppStore} from "../stores/useAppStore";
 import {boundToLabel} from "../utils/irrigationPeriod";
 import "./ProjectDetailPage.scss";
 
 const base = import.meta.env.BASE_URL;
-const APP_TITLE = "DWA-App (M 590)";
 
 export const ProjectDetailPage = () => {
     const {id} = useParams<{id: string;}>();
@@ -22,7 +21,6 @@ export const ProjectDetailPage = () => {
     const {farm} = useFarm();
 
     const [showAddField, setShowAddField] = useState(false);
-    const summaryRef = useRef<HTMLElement>(null);
     const addMessage = useAppStore((s) => s.addMessage);
 
     const project = projects.find((p) => p.id === id);
@@ -46,13 +44,36 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalMm, normalM3, dryMm, dryM3, totalAltWasserM3, nettoM3} = sumResults(
+    const {normalMm, normalM3, dryMm, dryM3, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
         assignmentResults.filter((r): r is AssignmentResult => r !== null)
     );
+
+    const normalCount = assignmentResults.filter(r =>
+        r?.normal && (!("hasValue" in r.normal) || r.normal.hasValue)
+    ).length;
+    const dryCount = assignmentResults.filter(r =>
+        r?.dry && (!("hasValue" in r.dry) || r.dry.hasValue)
+    ).length;
+    const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
+
+    // Only show netto deduction when ALL assigned fields contribute to that scenario
+    const nettoM3: [number, number] | null = normalCount === assignedCount ? nettoM3Raw : null;
+    const nettoDryM3: [number, number] | null = dryM3 && totalAltWasserM3 > 0 && dryCount === assignedCount
+        ? [Math.max(0, dryM3[0] - totalAltWasserM3), Math.max(0, dryM3[1] - totalAltWasserM3)]
+        : null;
 
     const pendingCount = project.fieldAssignments.filter((fa) => !fa.module).length;
     const totalAreaHa = project.fieldAssignments
         .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0);
+
+    // Netto in mm/a: derived from m³/a ÷ (totalAreaHa × 10)
+    const areaFactor = totalAreaHa > 0 ? totalAreaHa * 10 : null;
+    const nettoMm: [number, number] | null = nettoM3 && areaFactor
+        ? [Math.round(nettoM3[0] / areaFactor), Math.round(nettoM3[1] / areaFactor)]
+        : null;
+    const nettoDryMm: [number, number] | null = nettoDryM3 && areaFactor
+        ? [Math.round(nettoDryM3[0] / areaFactor), Math.round(nettoDryM3[1] / areaFactor)]
+        : null;
 
     return (
         <div className="page">
@@ -209,16 +230,7 @@ export const ProjectDetailPage = () => {
 
             {/* Zusammenfassung */}
             {project.fieldAssignments.length > 0 && (
-                <section className="project-summary" ref={summaryRef}>
-                    <div className="project-summary__print-header">
-                        <div className="project-summary__print-logos">
-                            <img src={`${base}atb_logo.svg`} alt="ATB" />
-                            <span className="project-summary__print-title">{APP_TITLE}</span>
-                            <img src={`${base}dwa-logo.svg`} alt="DWA" />
-                        </div>
-                        <h1>{project.name}</h1>
-                        <p>{farm.name}{project.year ? ` · ${project.year}` : ""} · Erstellt: {new Date().toLocaleDateString("de-DE")}</p>
-                    </div>
+                <section className="project-summary">
                     <h2>Zusammenfassung</h2>
 
                     {/* Detailtabelle je Schlag */}
@@ -312,13 +324,19 @@ export const ProjectDetailPage = () => {
                     {/* Brutto / Alt. Wasser / Netto */}
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
-                            <span>🌤 Brutto Normaljahr</span>
+                            <span>
+                                🌤 Brutto Normaljahr
+                                {normalCount < assignedCount && <span className="project-summary__partial"> ({normalCount}/{assignedCount} Schläge)</span>}
+                            </span>
                             <strong>{normalMm && `${formatRange(normalMm, "mm/a")} · `}{formatRange(normalM3, "m³/a")}</strong>
                         </div>
                     )}
                     {dryM3 && (
                         <div className="project-summary__row project-summary__row--result">
-                            <span>☀️ Brutto Trockenjahr</span>
+                            <span>
+                                ☀️ Brutto Trockenjahr
+                                {dryCount < assignedCount && <span className="project-summary__partial"> ({dryCount}/{assignedCount} Schläge)</span>}
+                            </span>
                             <strong>{dryMm && `${formatRange(dryMm, "mm/a")} · `}{formatRange(dryM3, "m³/a")}</strong>
                         </div>
                     )}
@@ -330,8 +348,14 @@ export const ProjectDetailPage = () => {
                     )}
                     {nettoM3 && totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
-                            <span>Netto-Antragsmenge</span>
-                            <strong>{formatRange(nettoM3, "m³/a")}</strong>
+                            <span>🌤 Netto-Antragsmenge (Normaljahr)</span>
+                            <strong>{nettoMm && `${formatRange(nettoMm, "mm/a")} · `}{formatRange(nettoM3, "m³/a")}</strong>
+                        </div>
+                    )}
+                    {nettoDryM3 && totalAltWasserM3 > 0 && (
+                        <div className="project-summary__row project-summary__row--netto">
+                            <span>☀️ Netto-Antragsmenge (Trockenjahr)</span>
+                            <strong>{nettoDryMm && `${formatRange(nettoDryMm, "mm/a")} · `}{formatRange(nettoDryM3, "m³/a")}</strong>
                         </div>
                     )}
                     {pendingCount > 0 && (
@@ -340,30 +364,46 @@ export const ProjectDetailPage = () => {
                             <span>{pendingCount} Schlag/Schläge</span>
                         </div>
                     )}
-
-                    {/* Print-only: per-field detail blocks */}
-                    <div className="project-summary__print-details">
-                        {project.fieldAssignments.map((fa, i) => {
-                            const field = farm.fields.find((f) => f.id === fa.fieldId);
-                            if (!field) return null;
-                            return <PrintFieldDetail key={fa.id} field={field} assignment={fa}
-                                result={assignmentResults[i]} index={i + 1} />;
-                        })}
-                    </div>
+                    {(normalCount < assignedCount || dryCount < assignedCount) && (
+                        <div className="project-summary__row project-summary__row--footnote">
+                            <span>
+                                * Summe umfasst nicht alle Schläge
+                                {normalCount < assignedCount && ` (Normaljahr: ${normalCount}/${assignedCount})`}
+                                {dryCount < assignedCount && ` (Trockenjahr: ${dryCount}/${assignedCount})`}
+                                {" – nicht alle Nutzungen liefern beide Szenariowerte. Netto-Antragsmenge wird nur bei vollständigen Szenarien ausgewiesen."}
+                            </span>
+                        </div>
+                    )}
 
                 </section>
             )}
             {project.fieldAssignments.length > 0 && (
-                <button className="project-summary__print-btn" onClick={async () => {
-                    const section = summaryRef.current;
-                    if (!section) return;
-                    try {
-                        const filename = `${project.name}-zusammenfassung.pdf`;
-                        const file = await generateSummaryPdf(section, filename);
-                        await sharePdf(file);
-                    } catch {
+                <button className="project-summary__print-btn" onClick={() => {
+                    const filename = `${project.name}-zusammenfassung.pdf`;
+                    Promise.all([
+                        svgUrlToPngDataUrl(`${base}atb_logo.svg`, 48),
+                        svgUrlToPngDataUrl(`${base}dwa-logo.svg`, 48),
+                    ])
+                    .then(([logoAtbDataUrl, logoDwaDataUrl]) => generateSummaryPdf({
+                        project,
+                        farm,
+                        assignmentResults,
+                        normalMm, normalM3, dryMm, dryM3,
+                        totalAltWasserM3, nettoM3, nettoMm, nettoDryM3, nettoDryMm,
+                        totalAreaHa,
+                        pendingCount,
+                        normalCount,
+                        dryCount,
+                        logoAtbDataUrl,
+                        logoDwaDataUrl,
+                        iconNormalDataUrl: emojiToPngDataUrl("🌤"),
+                        iconDryDataUrl: emojiToPngDataUrl("☀️"),
+                        createdDateStr: new Date().toLocaleDateString("de-DE"),
+                    }, filename))
+                    .then(file => sharePdf(file))
+                    .catch(() => {
                         addMessage({type: "error", message: ["PDF konnte nicht erstellt werden."]});
-                    }
+                    });
                 }}>
                     PDF Export
                 </button>

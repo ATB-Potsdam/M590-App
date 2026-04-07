@@ -247,6 +247,19 @@
         }
     }
 
+    &__partial {
+        font-size: 11px;
+        color: var(--color-text-muted);
+        font-weight: normal;
+    }
+
+    &__row--footnote {
+        font-size: 11px;
+        color: var(--color-text-muted);
+        padding: 6px 14px;
+        border-bottom: none;
+    }
+
     &__row--alt {
         background: var(--color-warning-bg-light);
         font-size: 14px;
