@@ -1,4 +1,5 @@
 // src/components/pdf/PdfBerechnungsBlock.tsx
+import React from "react";
 import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe, formatRangeDe} from "./pdfFormatNum";
@@ -42,14 +43,22 @@ const SourceLine = ({source}: {source: SourceReference}) => (
     </Text>
 );
 
-const DetailRow = ({label, value}: {label: string; value: string}) => (
+/** Subscript text: smaller font, shifted down slightly. */
+export const Sub = ({children}: {children: React.ReactNode}) => (
+    <Text style={{fontSize: 6, position: "relative", top: 2}}>{children}</Text>
+);
+
+/** ET₀ rendered with proper subscript zero. */
+export const ET0 = () => <Text>ET<Sub>0</Sub></Text>;
+
+const DetailRow = ({label, value}: {label: React.ReactNode; value: string}) => (
     <View style={styles.detailTableRow}>
         <Text style={styles.detailTableLabel}>{label}</Text>
         <Text style={styles.detailTableValue}>{value}</Text>
     </View>
 );
 
-const DetailRowBold = ({label, value}: {label: string; value: string}) => (
+const DetailRowBold = ({label, value}: {label: React.ReactNode; value: string}) => (
     <View style={styles.detailTableRow}>
         <Text style={styles.detailTableLabel}>{label}</Text>
         <Text style={styles.detailTableValueBold}>{value}</Text>
@@ -113,9 +122,9 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                                     <View style={styles.subtableHeaderRow}>
                                         <Text style={styles.subtableHeaderCellLeft}>Monat</Text>
                                         <Text style={styles.subtableHeaderCell}>N (mm)</Text>
-                                        <Text style={styles.subtableHeaderCell}>ET₀</Text>
+                                        <Text style={styles.subtableHeaderCell}><ET0 /></Text>
                                         <Text style={styles.subtableHeaderCell}>KWB</Text>
-                                        <Text style={styles.subtableHeaderCell}>KWB_Ref</Text>
+                                        <Text style={styles.subtableHeaderCell}>KWB<Sub>Ref</Sub></Text>
                                         <Text style={styles.subtableHeaderCell}>ΔKWB</Text>
                                     </View>
                                     {r.monthlyRows.map((row) => (
@@ -168,7 +177,7 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                         <Text style={styles.detailTableHeaderCell}>Berechnungsgrundlagen</Text>
                     </View>
                     <DetailRow
-                        label={`Ø ET₀ im Zeitraum (${MONTH_NAMES[r.periodStart - 1]}–${MONTH_NAMES[r.periodEnd - 1]})`}
+                        label={<>Ø <ET0 /> im Zeitraum ({MONTH_NAMES[r.periodStart - 1]}–{MONTH_NAMES[r.periodEnd - 1]})</>}
                         value={`${formatNumDe(r.avgDailyEt0, 2)} mm/d`}
                     />
                     <DetailRow
@@ -200,7 +209,7 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                         value={formatNumDe(r.factorProduct, 3)}
                     />
                     <DetailRowBold
-                        label={`ET_t = ET₀ × ${formatNumDe(r.factorProduct, 3)}`}
+                        label={<>ET<Sub>t</Sub> = <ET0 /> × {formatNumDe(r.factorProduct, 3)}</>}
                         value={`${formatNumDe(r.ettMmPerDay, 2)} mm/d`}
                     />
                     <DetailRow label="Zeitraum" value={`${r.periodDays} Tage`} />

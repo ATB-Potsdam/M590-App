@@ -2,7 +2,7 @@
 import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe} from "./pdfFormatNum";
-import {PdfBerechnungsBlock} from "./PdfBerechnungsBlock";
+import {PdfBerechnungsBlock, ET0} from "./PdfBerechnungsBlock";
 import {PdfZuschlaegeBlock} from "./PdfZuschlaegeBlock";
 import {PdfErgebnisBlock} from "./PdfErgebnisBlock";
 import {getModuleLabel} from "../../constants/modules";
@@ -74,7 +74,7 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormal
                             <Text style={styles.detailTableValue}>{formatNumDe(annualPrecip, 0)} mm</Text>
                         </View>
                         <View style={styles.detailTableRow}>
-                            <Text style={styles.detailTableLabel}>Jahres-ET₀</Text>
+                            <Text style={styles.detailTableLabel}>Jahres-<ET0 /></Text>
                             <Text style={styles.detailTableValue}>{formatNumDe(annualEt0, 0)} mm</Text>
                         </View>
                     </>
