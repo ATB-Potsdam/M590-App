@@ -47,7 +47,13 @@ export const FarmPage = () => {
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
+    const [confirmReset, setConfirmReset] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleReset = () => {
+        localStorage.clear();
+        window.location.reload();
+    };
 
     const handleExport = async () => {
         try {
@@ -188,6 +194,23 @@ export const FarmPage = () => {
                     hidden
                     onChange={handleFileSelect}
                 />
+            </div>
+
+            <div className="farm-page__reset">
+                {confirmReset ? (
+                    <div className="farm-page__reset-confirm">
+                        <strong>Alle Daten unwiderruflich löschen?</strong>
+                        <p>Betrieb, alle Felder und Szenarien werden gelöscht und können nicht wiederhergestellt werden.</p>
+                        <div className="farm-page__import-confirm-actions">
+                            <button className="farm-page__reset-confirm-btn" onClick={handleReset}>Ja, alles löschen</button>
+                            <button onClick={() => setConfirmReset(false)}>Abbrechen</button>
+                        </div>
+                    </div>
+                ) : (
+                    <button className="farm-page__reset-btn" onClick={() => setConfirmReset(true)}>
+                        🗑 Alle Daten löschen
+                    </button>
+                )}
             </div>
 
             {confirmImport && (
