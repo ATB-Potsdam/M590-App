@@ -135,7 +135,7 @@ export const FarmPage = () => {
                         />
                     ) : (
                         <>
-                            <strong>{field.name}</strong> — {field.areaHa} ha
+                            <strong>{field.name}</strong> — {formatNum(field.areaHa, 2)} ha
                             <br />
                             <small>
                                 Lat: {formatNum(field.location.lat, 5)}, Lon: {formatNum(field.location.lon, 5)}
