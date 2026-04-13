@@ -27,6 +27,12 @@
         margin-top: 8px;
     }
 
+    &__empty-hint {
+        color: var(--color-text-muted);
+        font-size: 0.9rem;
+        margin: 8px 0 4px;
+    }
+
     &__add-btn {
         margin-top: 12px;
     }

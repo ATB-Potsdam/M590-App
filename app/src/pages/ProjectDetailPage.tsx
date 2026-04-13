@@ -1,6 +1,7 @@
 // src/pages/ProjectDetailPage.tsx
 import {useState} from "react";
 import {useNavigate, useParams} from "react-router";
+import {OnboardingBanner} from "../components/OnboardingBanner";
 import {getModuleLabel} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
@@ -86,12 +87,14 @@ export const ProjectDetailPage = () => {
                 <span className="project-detail__meta">{project.year}</span>
             )}
 
+            <OnboardingBanner />
+
             {/* Feldzuweisungen */}
             <h2>Feldzuweisungen</h2>
 
             {project.fieldAssignments.length === 0 && (
                 <p className="project-detail__empty">
-                    Noch keine Felder zugewiesen. Füge einen Schlag hinzu.
+                    Noch keine Felder zugewiesen. Fügen Sie mit „+ Schlag hinzufügen" einen Schlag hinzu und weisen Sie ihm eine Nutzung zu.
                 </p>
             )}
 

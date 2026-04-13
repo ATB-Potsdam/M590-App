@@ -5,6 +5,7 @@ import {BottomNav} from './components/BottomNav';
 import {ErrorBoundary} from './components/ErrorBoundary';
 import {LogoBar} from './components/LogoBar';
 import {Messages} from './components/Messages';
+import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
 import {refreshClimateData, useFarm} from './hooks/useFarm';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
@@ -14,9 +15,9 @@ import {FarmPage} from './pages/FarmPage';
 import {ProjectDetailPage} from './pages/ProjectDetailPage';
 import {ProjectsPage} from './pages/ProjectsPage';
 import {useAppStore} from './stores/useAppStore';
+import {useLocalStore} from './stores/useLocalStore';
 
 const SPLASH_MIN_DURATION_MS = 2000;
-import {useLocalStore} from './stores/useLocalStore';
 
 const App = () => {
     const layer = useAppStore((state) => state.climateLayer);
@@ -24,7 +25,10 @@ const App = () => {
     const et0Lookup = useAppStore((state) => state.et0Lookup);
     const addMessage = useAppStore((state) => state.addMessage);
     const {farm} = useFarm();
-    const hasFarm = farm.name.trim().length > 0 || farm.fields.length > 0;
+    const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
+
+    const [onboardingDismissed, setOnboardingDismissed] = useLocalStore((s) => s.dwa_onboarding_dismissed);
+    const [overlayForcedOpen, setOverlayForcedOpen] = useState(false);
 
     const [splashState, setSplashState] = useState<"loading" | "ready" | "done" | "error">("loading");
     const [splashDismissed, setSplashDismissed] = useState(false);
@@ -71,6 +75,13 @@ const App = () => {
         refreshClimateData(precipitationLookup, et0Lookup, setFarm, farm.fields);
     }, [precipitationLookup, et0Lookup]);
 
+    const showOverlay = splashDismissed && (!onboardingDismissed || overlayForcedOpen);
+
+    const handleCloseOverlay = () => {
+        setOverlayForcedOpen(false);
+        setOnboardingDismissed(true);
+    };
+
     const isLoaded = !!(layer && precipitationLookup && et0Lookup);
 
     return (
@@ -96,10 +107,11 @@ const App = () => {
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </ErrorBoundary>
-                    <LogoBar />
-                    <BottomNav />
+                    {hasFarm && <LogoBar />}
+                    {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
                 </>
             )}
+            {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}
             <Messages />
         </>
     );

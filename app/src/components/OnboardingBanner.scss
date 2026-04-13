@@ -1,0 +1,62 @@
+// src/components/OnboardingBanner.scss
+.onboarding-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-primary-bg);
+    border: 1px solid var(--color-primary-border);
+    border-radius: 8px;
+    padding: 10px 8px 10px 12px;
+    margin-bottom: 16px;
+
+    &__steps {
+        flex: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+    }
+
+    &__step {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.82rem;
+        color: var(--color-text-muted);
+
+        &--done {
+            color: var(--color-primary);
+        }
+    }
+
+    &__step-icon {
+        font-size: 1rem;
+    }
+
+    &__step-label {
+        white-space: nowrap;
+    }
+
+    &__step-check {
+        font-weight: 700;
+        font-size: 0.85rem;
+        min-width: 10px;
+    }
+
+    &__close {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        line-height: 1;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: 4px;
+        align-self: flex-start;
+
+        &:hover {
+            background: var(--color-bg-surface);
+            color: var(--color-text);
+        }
+    }
+}

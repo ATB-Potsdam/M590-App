@@ -11,6 +11,8 @@ import type {ValueSetter} from "../types/types";
 interface LocalStorageTypes {
     dwa_farm: Farm;
     dwa_projects: Project[];
+    dwa_onboarding_dismissed: boolean;
+    dwa_banner_dismissed: boolean;
 }
 
 type LocalStoreState = {
@@ -25,7 +27,9 @@ const defaultValues: {[K in keyof LocalStorageTypes]: LocalStorageTypes[K]} = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
     },
-    dwa_projects: []
+    dwa_projects: [],
+    dwa_onboarding_dismissed: false,
+    dwa_banner_dismissed: false,
 } as const;
 
 const VALID_NFKWE: string[] = ["1-2", "3a", "3b", "4", "5"];
@@ -87,6 +91,9 @@ export const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknow
                 : [],
         } as LocalStorageTypes[K];
     }
+    if (key === "dwa_onboarding_dismissed" || key === "dwa_banner_dismissed") {
+        return (data === true) as LocalStorageTypes[K];
+    }
     if (key === "dwa_projects") {
         const arr = Array.isArray(data) ? data : [];
         return arr.map((p) => ({
@@ -137,6 +144,8 @@ export const useLocalStore = create<LocalStoreState>()(
         return ({
             dwa_farm: createStub("dwa_farm"),
             dwa_projects: createStub("dwa_projects"),
+            dwa_onboarding_dismissed: createStub("dwa_onboarding_dismissed"),
+            dwa_banner_dismissed: createStub("dwa_banner_dismissed"),
         });
     })
 );

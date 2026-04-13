@@ -47,7 +47,13 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
+  // bottom padding = nav (64px) + logo bar (28px) + safe area + breathing room
   padding: 16px 16px calc(64px + 28px + env(safe-area-inset-bottom) + 16px);
+
+  @media (max-height: 600px) {
+    // logo bar is hidden at this height — reduce bottom padding accordingly
+    padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
+  }
 }
 
 .red {

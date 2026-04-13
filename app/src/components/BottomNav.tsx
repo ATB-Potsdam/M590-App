@@ -7,12 +7,17 @@ const NAV_ITEMS: NavItem[] = [
     {path: "/farm", label: "Betrieb", icon: "🏡"},
 ];
 
+
 const isActive = (item: NavItem, pathname: string): boolean =>
     item.path === "/"
         ? pathname === "/" || pathname.startsWith("/projects")
         : pathname.startsWith(item.path);
 
-export const BottomNav = () => {
+interface Props {
+    onShowHelp: () => void;
+}
+
+export const BottomNav = ({onShowHelp}: Props) => {
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -28,6 +33,9 @@ export const BottomNav = () => {
                     <span className="bottom-nav__label">{item.label}</span>
                 </button>
             ))}
+            <button className="bottom-nav__item bottom-nav__item--help" onClick={onShowHelp} title="Hilfe">
+                <span className="bottom-nav__icon bottom-nav__icon--small">❓</span>
+            </button>
         </nav>
     );
 };

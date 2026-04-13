@@ -4,6 +4,7 @@ import type {ChangeEvent} from "react";
 import {useRef, useState} from "react";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
+import {OnboardingBanner} from "../components/OnboardingBanner";
 import {refreshClimateData, useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {exportData, parseImportFile} from "../lib/exportImport";
@@ -100,6 +101,8 @@ export const FarmPage = () => {
         <div className="page">
             <h1>Stammdaten</h1>
 
+            <OnboardingBanner />
+
             <label>
                 <strong>Betriebsname</strong>
                 <input
@@ -112,7 +115,11 @@ export const FarmPage = () => {
 
             <h2 className="farm-page__fields-heading">Felder</h2>
 
-            {farm.fields.length === 0 && <p>Noch keine Felder angelegt.</p>}
+            {farm.fields.length === 0 && (
+                <p className="farm-page__empty-hint">
+                    Noch keine Felder angelegt. Klicken Sie auf „+ Feld hinzufügen", um Ihren ersten Schlag mit Standort und Bodenklasse zu erfassen.
+                </p>
+            )}
 
             {farm.fields.map((field) => (
                 <div key={field.id} className="farm-page__field-card">

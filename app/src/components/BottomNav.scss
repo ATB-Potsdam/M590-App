@@ -22,11 +22,18 @@
         background: none;
         border: none;
         cursor: pointer;
+
+        &:focus {
+            outline: none;
+        }
         color: var(--color-text-muted);
-        transition: color 0.15s;
+        transition: color 0.15s, background 0.15s;
+        // Active indicator: 2px line at top, hidden by default
+        box-shadow: inset 0 0 0 0 transparent;
 
         &--active {
             color: var(--color-primary);
+            box-shadow: inset 0 3px 0 0 var(--color-primary);
         }
 
         &:active {
@@ -34,9 +41,20 @@
         }
     }
 
+    &__item--help {
+        flex: 0;
+        width: 48px;
+        // Separator via box-shadow to avoid interfering with the active indicator
+        box-shadow: inset 1px 0 0 0 var(--color-border-light);
+    }
+
     &__icon {
         font-size: 22px;
         line-height: 1;
+    }
+
+    &__icon--small {
+        font-size: 16px;
     }
 
     &__label {

@@ -1,6 +1,7 @@
 // src/pages/ProjectsPage.tsx
 import {useState} from "react";
 import {useNavigate} from "react-router";
+import {OnboardingBanner} from "../components/OnboardingBanner";
 import {ProjectForm} from "../components/ProjectForm";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
@@ -31,8 +32,12 @@ export const ProjectsPage = () => {
         <div className="page">
             <h1>Szenarien</h1>
 
+            <OnboardingBanner />
+
             {projects.length === 0 && !showForm && (
-                <p className="projects-page__empty">Noch keine Szenarien vorhanden.</p>
+                <p className="projects-page__empty">
+                    Noch keine Szenarien vorhanden. Legen Sie mit „+ Neues Szenario" Ihr erstes Bewässerungsszenario an.
+                </p>
             )}
 
             <ul className="project-list">

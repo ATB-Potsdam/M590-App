@@ -1,0 +1,51 @@
+// src/components/OnboardingBanner.tsx
+import {useFarm} from "../hooks/useFarm";
+import {useProjects} from "../hooks/useProjects";
+import {useLocalStore} from "../stores/useLocalStore";
+import "./OnboardingBanner.scss";
+
+export const OnboardingBanner = () => {
+    const {farm} = useFarm();
+    const {projects} = useProjects();
+    const [bannerDismissed, setBannerDismissed] = useLocalStore((s) => s.dwa_banner_dismissed);
+
+    if (bannerDismissed) return null;
+
+    const hasFarm = farm.name.trim().length > 0 || farm.fields.length > 0;
+    const hasProject = projects.length > 0;
+    const hasAssignment = projects.some((p) => p.fieldAssignments.some((fa) => fa.module));
+
+    // Auto-hide once all three steps are complete
+    if (hasFarm && hasProject && hasAssignment) return null;
+
+    const steps: {label: string; done: boolean; icon: string}[] = [
+        {icon: "🏡", label: "Betrieb einrichten", done: hasFarm},
+        {icon: "🌾", label: "Szenario anlegen", done: hasProject},
+        {icon: "💧", label: "Nutzung zuweisen", done: hasAssignment},
+    ];
+
+    return (
+        <div className="onboarding-banner">
+            <div className="onboarding-banner__steps">
+                {steps.map((step, i) => (
+                    <div
+                        key={i}
+                        className={`onboarding-banner__step${step.done ? " onboarding-banner__step--done" : ""}`}
+                    >
+                        <span className="onboarding-banner__step-icon">{step.icon}</span>
+                        <span className="onboarding-banner__step-label">{step.label}</span>
+                        <span className="onboarding-banner__step-check">{step.done ? "✓" : ""}</span>
+                    </div>
+                ))}
+            </div>
+            <button
+                className="onboarding-banner__close"
+                onClick={() => setBannerDismissed(true)}
+                title="Hinweis schließen"
+                aria-label="Hinweis schließen"
+            >
+                ×
+            </button>
+        </div>
+    );
+};
