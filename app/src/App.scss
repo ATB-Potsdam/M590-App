@@ -72,7 +72,6 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
-  text-align: left;
   // bottom padding = nav (64px) + logo bar (28px) + safe area + breathing room
   padding: 16px 16px calc(64px + 28px + env(safe-area-inset-bottom) + 16px);
 
