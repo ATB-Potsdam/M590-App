@@ -39,12 +39,15 @@
 
     &__export-import {
         display: flex;
+        justify-content: center;
         gap: 8px;
         margin-top: 8px;
     }
 
     &__reset {
         margin-top: 16px;
+        display: flex;
+        justify-content: center;
     }
 
     &__reset-btn {
