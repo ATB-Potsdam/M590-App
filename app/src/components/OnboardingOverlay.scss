@@ -66,6 +66,42 @@
         }
     }
 
+    &__step-body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    &__step-link {
+        margin-top: 6px;
+        padding: 0;
+        background: none;
+        border: none;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+
+        &:hover {
+            color: var(--color-primary-dark);
+            border: none;
+        }
+
+        &:disabled {
+            color: var(--color-text-faint);
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+
+        // Suppress the global :focus-visible outline — underline is enough here
+        &:focus-visible {
+            outline: none;
+            text-decoration-thickness: 2px;
+        }
+    }
+
     &__step-icon {
         font-size: 1.6rem;
         line-height: 1;
