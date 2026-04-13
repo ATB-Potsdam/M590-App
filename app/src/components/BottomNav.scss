@@ -22,9 +22,15 @@
         cursor: pointer;
         color: var(--color-text-muted);
         transition: color 0.15s, background 0.15s;
+        -webkit-tap-highlight-color: transparent;
 
         &:focus {
             outline: none;
+            border-top-color: transparent;
+        }
+
+        &--active:focus {
+            border-top-color: var(--color-primary);
         }
 
         &--active {
