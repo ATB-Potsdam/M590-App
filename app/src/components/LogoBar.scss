@@ -1,8 +1,5 @@
+// src/components/LogoBar.scss
 .logo-bar {
-    position: fixed;
-    bottom: calc(64px + env(safe-area-inset-bottom));
-    left: 0;
-    right: 0;
     height: 28px;
     background: var(--color-bg);
     border-top: 1px solid var(--color-border-faint);
@@ -11,7 +8,6 @@
     justify-content: flex-end;
     gap: 12px;
     padding: 0 12px;
-    z-index: 999;
 
     @media (max-height: 600px) {
         display: none;

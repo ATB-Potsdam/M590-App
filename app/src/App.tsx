@@ -107,8 +107,13 @@ const App = () => {
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </ErrorBoundary>
-                    {hasFarm && <LogoBar />}
-                    {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
+                    {hasFarm && (
+                        <div className="bottom-bar-wrapper">
+                            <div className="bottom-bar-wrapper__shadow" />
+                            <LogoBar />
+                            <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />
+                        </div>
+                    )}
                 </>
             )}
             {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}

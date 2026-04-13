@@ -44,6 +44,24 @@
   color: var(--color-text-muted);
 }
 
+.bottom-bar-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  &__shadow {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.15), transparent);
+    pointer-events: none;
+  }
+}
+
 .page {
   max-width: 720px;
   margin: 0 auto;

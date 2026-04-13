@@ -1,14 +1,10 @@
+// src/components/BottomNav.scss
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     height: 64px;
     background: var(--color-bg);
     border-top: 1px solid var(--color-border);
     display: flex;
     align-items: stretch;
-    z-index: 1000;
     // iOS safe area (Capacitor)
     padding-bottom: env(safe-area-inset-bottom);
 
