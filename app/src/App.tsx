@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {Navigate, Route, Routes} from 'react-router';
+import {Navigate, Route, Routes, useLocation} from 'react-router';
 import "./App.scss";
 import {BottomNav} from './components/BottomNav';
 import {ErrorBoundary} from './components/ErrorBoundary';
@@ -76,7 +76,8 @@ const App = () => {
         refreshClimateData(precipitationLookup, et0Lookup, setFarm, farm.fields);
     }, [precipitationLookup, et0Lookup]);
 
-    const atBottom = useIsScrolledToBottom();
+    const location = useLocation();
+    const atBottom = useIsScrolledToBottom(location.pathname, splashDismissed);
     const showOverlay = splashDismissed && (!onboardingDismissed || overlayForcedOpen);
 
     const handleCloseOverlay = () => {
