@@ -18,7 +18,10 @@ interface Props {
 
 export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
-    const [areaHa, setAreaHa] = useState<number | "">(initialValues?.areaHa ?? "");
+    const [areaHaText, setAreaHaText] = useState<string>(
+        initialValues?.areaHa != null ? String(initialValues.areaHa) : ""
+    );
+    const areaHa = areaHaText === "" ? "" : Number(areaHaText.replace(",", "."));
     const [location, setLocation] = useState<GeoPoint | null>(initialValues?.location ?? null);
     const [locating, setLocating] = useState(false);
     const locationPickerRef = useRef<LocationPickerHandle | null>(null);
@@ -56,12 +59,14 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             });
     };
 
+    const areaHaValid = typeof areaHa === "number" && isFinite(areaHa) && areaHa > 0;
+
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
-        if (!name || !areaHa || !location) return;
+        if (!name || !areaHaValid || !location) return;
         onSave({
             name,
-            areaHa: Number(areaHa),
+            areaHa: areaHa as number,
             location,
             nFkweClass: nFkweClass ?? "3a",
             nFkweClassSource: nFkweSource,
@@ -88,12 +93,11 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             <label>
                 Fläche (ha)
                 <input
-                    type="number"
-                    min={0.01}
-                    step={0.01}
-                    value={areaHa}
-                    onChange={(e) => setAreaHa(e.target.value === "" ? "" : Number(e.target.value))}
-                    placeholder="z. B. 12.5"
+                    type="text"
+                    inputMode="decimal"
+                    value={areaHaText}
+                    onChange={(e) => setAreaHaText(e.target.value)}
+                    placeholder="z. B. 12,5"
                     required
                 />
             </label>
@@ -140,7 +144,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             </fieldset>
 
             <div className="field-form__actions">
-                <button type="submit" disabled={!name || !areaHa || !location}>
+                <button type="submit" disabled={!name || !areaHaValid || !location}>
                     Speichern
                 </button>
                 <button type="button" onClick={onCancel}>
