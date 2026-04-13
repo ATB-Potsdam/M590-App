@@ -8,6 +8,7 @@ import {Messages} from './components/Messages';
 import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
 import {refreshClimateData, useFarm} from './hooks/useFarm';
+import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
 import {AssignmentPage} from './pages/AssignmentPage';
@@ -75,6 +76,7 @@ const App = () => {
         refreshClimateData(precipitationLookup, et0Lookup, setFarm, farm.fields);
     }, [precipitationLookup, et0Lookup]);
 
+    const atBottom = useIsScrolledToBottom();
     const showOverlay = splashDismissed && (!onboardingDismissed || overlayForcedOpen);
 
     const handleCloseOverlay = () => {
@@ -109,7 +111,7 @@ const App = () => {
                     </ErrorBoundary>
                     {hasFarm && (
                         <div className="bottom-bar-wrapper">
-                            <div className="bottom-bar-wrapper__shadow" />
+                            <div className={`bottom-bar-wrapper__shadow${atBottom ? " bottom-bar-wrapper__shadow--hidden" : ""}`} />
                             <LogoBar />
                             <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />
                         </div>

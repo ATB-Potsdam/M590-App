@@ -59,6 +59,12 @@
     height: 16px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.15), transparent);
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+
+    &--hidden {
+      opacity: 0;
+    }
   }
 }
 
