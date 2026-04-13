@@ -179,7 +179,7 @@ export const FarmPage = () => {
 
             <h2 className="farm-page__fields-heading">Daten exportieren / importieren</h2>
             <div className="farm-page__export-import">
-                <button onClick={handleExport}>📤 Daten exportieren</button>
+                <button onClick={handleExport} disabled={!farm.name.trim() || farm.fields.length === 0}>📤 Daten exportieren</button>
                 <button onClick={() => fileInputRef.current?.click()}>📥 Daten importieren</button>
                 <input
                     ref={fileInputRef}
