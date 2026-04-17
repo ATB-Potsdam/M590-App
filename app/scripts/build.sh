@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # build web assets
-yarn build
+yarn build:android
 
 # copy web assets into native projects
-yarn cap copy
-yarn cap sync
+#yarn cap copy
+#yarn cap sync
 
 export CAPACITOR_ANDROID_STUDIO_PATH="/var/usr/opt/android-studio/bin/studio.sh"
 
