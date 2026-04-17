@@ -27,42 +27,45 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                     Diese App unterstützt Sie bei der Berechnung des Bewässerungsbedarfs
                     landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
                 </p>
+
+                <p className="onboarding-overlay__steps-heading">In drei Schritten zum Ergebnis:</p>
+
                 <ol className="onboarding-overlay__steps">
                     <li>
-                        <span className="onboarding-overlay__step-icon">🏡</span>
+                        <span className="onboarding-overlay__step-num">1</span>
                         <div className="onboarding-overlay__step-body">
                             <strong>Betrieb einrichten</strong>
                             <p>Geben Sie Ihren Betriebsnamen ein und legen Sie Ihre Schläge mit Standort und Bodenklasse an.</p>
-                            <button className="onboarding-overlay__step-link" onClick={() => goTo("/farm")}>
-                                → Jetzt einrichten
+                            <button className="onboarding-overlay__step-btn" onClick={() => goTo("/farm")}>
+                                Jetzt einrichten →
                             </button>
                         </div>
                     </li>
                     <li>
-                        <span className="onboarding-overlay__step-icon">🌾</span>
+                        <span className="onboarding-overlay__step-num">2</span>
                         <div className="onboarding-overlay__step-body">
                             <strong>Szenario anlegen</strong>
                             <p>Erstellen Sie ein Bewässerungsszenario (z. B. für ein bestimmtes Jahr) und wählen Sie die zu berechnenden Schläge aus.</p>
                             <button
-                                className="onboarding-overlay__step-link"
+                                className="onboarding-overlay__step-btn"
                                 onClick={() => goTo("/")}
                                 disabled={!hasFarm}
                                 title={!hasFarm ? "Zuerst Betrieb einrichten" : undefined}
                             >
-                                → Jetzt anlegen
+                                Jetzt anlegen →
                             </button>
                         </div>
                     </li>
                     <li>
-                        <span className="onboarding-overlay__step-icon">💧</span>
+                        <span className="onboarding-overlay__step-num">3</span>
                         <div className="onboarding-overlay__step-body">
                             <strong>Nutzung zuweisen</strong>
                             <p>Weisen Sie jedem Schlag ein Nutzungsmodul zu (z. B. Hauptkulturen, Gemüse, Golf). Die App berechnet den Wasserbedarf automatisch.</p>
                         </div>
                     </li>
                 </ol>
-                <button className="onboarding-overlay__cta" onClick={onClose}>
-                    Los geht's →
+                <button className="onboarding-overlay__dismiss" onClick={onClose}>
+                    Verstanden
                 </button>
 
                 <div className="onboarding-overlay__logos">

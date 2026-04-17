@@ -173,8 +173,9 @@
     }
 
     &--empty {
-        background: var(--color-warning-bg-light);
-        color: var(--color-warning-dark);
+        background: var(--color-primary);
+        color: #fff;
+        font-weight: 600;
     }
 }
 

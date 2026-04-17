@@ -27,14 +27,17 @@ export const OnboardingBanner = () => {
         {icon: "💧", label: "Nutzung zuweisen", done: hasAssignment},
     ];
 
+    // Current step = first incomplete
+    const currentIndex = steps.findIndex((s) => !s.done);
+
     // Next action: first incomplete step that is reachable
     let nextLabel: string | null = null;
     let nextPath: string | null = null;
     if (!hasFarm && pathname !== "/farm") {
-        nextLabel = "→ Betrieb einrichten";
+        nextLabel = "Betrieb einrichten";
         nextPath = "/farm";
     } else if (hasFarm && !hasProject && pathname !== "/") {
-        nextLabel = "→ Szenario anlegen";
+        nextLabel = "Szenario anlegen";
         nextPath = "/";
     }
     // Step 3 (Nutzung) has no single target URL — user must pick a scenario first
@@ -42,24 +45,39 @@ export const OnboardingBanner = () => {
     return (
         <div className="onboarding-banner">
             <div className="onboarding-banner__body">
+                <div className="onboarding-banner__header">
+                    <span className="onboarding-banner__title">Erste Schritte</span>
+                    <span className="onboarding-banner__progress">
+                        {steps.filter((s) => s.done).length} von {steps.length}
+                    </span>
+                </div>
                 <div className="onboarding-banner__steps">
-                    {steps.map((step, i) => (
-                        <div
-                            key={i}
-                            className={`onboarding-banner__step${step.done ? " onboarding-banner__step--done" : ""}`}
-                        >
-                            <span className="onboarding-banner__step-icon">{step.icon}</span>
-                            <span className="onboarding-banner__step-label">{step.label}</span>
-                            <span className="onboarding-banner__step-check">{step.done ? "✓" : ""}</span>
-                        </div>
-                    ))}
+                    {steps.map((step, i) => {
+                        const isCurrent = i === currentIndex;
+                        const cls = [
+                            "onboarding-banner__step",
+                            step.done ? "onboarding-banner__step--done" : "",
+                            isCurrent ? "onboarding-banner__step--current" : "",
+                        ]
+                            .filter(Boolean)
+                            .join(" ");
+                        return (
+                            <div key={i} className={cls}>
+                                <span className="onboarding-banner__step-num">
+                                    {step.done ? "✓" : i + 1}
+                                </span>
+                                <span className="onboarding-banner__step-icon">{step.icon}</span>
+                                <span className="onboarding-banner__step-label">{step.label}</span>
+                            </div>
+                        );
+                    })}
                 </div>
                 {nextPath && nextLabel && (
                     <button
                         className="onboarding-banner__next"
                         onClick={() => navigate(nextPath!)}
                     >
-                        {nextLabel}
+                        {nextLabel} →
                     </button>
                 )}
             </div>
