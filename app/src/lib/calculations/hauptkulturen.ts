@@ -17,10 +17,16 @@ export interface HauptkulturenInput {
 export interface HauptkulturenResult {
     // Basiswert aus Tabelle (mm/a) als Range
     baseRangeMm: Range;
-    // Automatischer Zuschlag (mm)
+    // Automatischer Zuschlag (mm) — gesamt
     autoSurchargeMm: number;
-    // Optionale Zuschläge (mm)
+    // Beschriftung des automatischen Zuschlags (z.B. "Speisekartoffeln", "Körnermais")
+    autoSurchargeLabel?: string;
+    // Optionale Zuschläge (mm) — gesamt
     optionalSurchargeMm: number;
+    // Itemisierte optionale Zuschläge für Transparenz (Szenario-Ansicht / PDF)
+    surchargeIntermediateMm: number;
+    surchargeEmergenceMm: number;
+    surchargeHeavySoilMm: number;
     // Gesamtzuschlag (mm)
     totalSurchargeMm: number;
     // Gesamtbedarf (mm/a) als Range
@@ -33,10 +39,17 @@ export interface HauptkulturenResult {
     hasValue: boolean;
 }
 
-// Automatischer Zuschlag je Kultur
+// Automatischer Zuschlag je Kultur (Spec § 4.2.2):
+// - Speisekartoffeln: +20 mm/a
+// - Körnermais (vs. Silomais): +20 mm/a
 const AUTO_SURCHARGE_MM: Partial<Record<CropName, number>> = {
     "Kartoffeln": 20,
-    "Silomais": 20,
+    "Silomais|Körnermais": 20,
+};
+
+const AUTO_SURCHARGE_LABEL: Partial<Record<CropName, string>> = {
+    "Kartoffeln": "Speisekartoffeln",
+    "Silomais|Körnermais": "Körnermais",
 };
 
 const getTableValue = (
@@ -59,12 +72,13 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
 
     // Automatischer Zuschlag
     const autoSurchargeMm = AUTO_SURCHARGE_MM[crop] ?? 0;
+    const autoSurchargeLabel = AUTO_SURCHARGE_LABEL[crop];
 
-    // Optionale Zuschläge
-    const optionalSurchargeMm =
-        (surchargeIntermediate ? 10 : 0) +
-        surchargeEmergence +
-        surchargeHeavySoil;
+    // Optionale Zuschläge — itemisiert für transparente Ausgabe
+    const surchargeIntermediateMm = surchargeIntermediate ? 10 : 0;
+    const surchargeEmergenceMm = surchargeEmergence;
+    const surchargeHeavySoilMm = surchargeHeavySoil;
+    const optionalSurchargeMm = surchargeIntermediateMm + surchargeEmergenceMm + surchargeHeavySoilMm;
 
     const totalSurchargeMm = autoSurchargeMm + optionalSurchargeMm;
 
@@ -82,7 +96,11 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
     return {
         baseRangeMm,
         autoSurchargeMm,
+        autoSurchargeLabel,
         optionalSurchargeMm,
+        surchargeIntermediateMm,
+        surchargeEmergenceMm,
+        surchargeHeavySoilMm,
         totalSurchargeMm,
         totalRangeMm,
         totalRangeM3,

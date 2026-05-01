@@ -18,8 +18,7 @@ export interface GemueseObstInput {
     // Standort-Klimadaten (aus Field)
     precipitation: MonthValueType;
     et0: MonthValueType;
-    // Zuschläge
-    surchargeIntermediate: boolean;
+    // Zuschläge (Spec § 4.3 erlaubt nur Auflaufbewässerung A/J — kein Zwischenfrucht-Zuschlag)
     surchargeEmergence: number;
 }
 
@@ -40,6 +39,7 @@ export interface GemueseObstResult {
     correctionMm: number;
     ajSuggestedMm: number | null;
     optionalSurchargeMm: number;
+    surchargeEmergenceMm: number;
     totalSurchargeMm: number;
     totalRangeMm: Range;
     totalRangeM3: Range;
@@ -57,7 +57,7 @@ const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10]
 export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult => {
     const {
         plant, nFkweClass, areaHa, scenario, irrigationPeriod,
-        precipitation, et0, surchargeIntermediate, surchargeEmergence,
+        precipitation, et0, surchargeEmergence,
     } = input;
 
     const rawData = allOtherPlants[plant];
@@ -66,7 +66,8 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         const zero: Range = [0, 0];
         return {
             baseRangeMm: zero, deltaKwb: 0, correctionMm: 0, ajSuggestedMm: null,
-            optionalSurchargeMm: 0, totalSurchargeMm: 0, totalRangeMm: zero,
+            optionalSurchargeMm: 0, surchargeEmergenceMm: 0,
+            totalSurchargeMm: 0, totalRangeMm: zero,
             totalRangeM3: zero, scenario, monthlyRows: [], hasValue: false,
         };
     }
@@ -110,10 +111,9 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     // AJ-Vorschlag aus Konstante (nur Gemüse)
     const ajSuggestedMm = (rawVegetableDataAj as Record<string, number | null>)[plant] ?? null;
 
-    // Optionale Zuschläge
-    const optionalSurchargeMm =
-        (surchargeIntermediate ? 10 : 0) +
-        surchargeEmergence;
+    // Optionale Zuschläge (nur Auflaufbewässerung — Spec § 4.3)
+    const surchargeEmergenceMm = surchargeEmergence;
+    const optionalSurchargeMm = surchargeEmergenceMm;
 
     const totalSurchargeMm = optionalSurchargeMm;
 
@@ -127,6 +127,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         correctionMm,
         ajSuggestedMm,
         optionalSurchargeMm,
+        surchargeEmergenceMm,
         totalSurchargeMm,
         totalRangeMm,
         totalRangeM3,

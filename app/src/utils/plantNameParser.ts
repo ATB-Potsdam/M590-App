@@ -26,8 +26,10 @@ export const getLevel0Groups = (options: PlantOption[]): string[] =>
 export const getLevel1Options = (options: PlantOption[], level0: string): PlantOption[] =>
     options.filter((o) => o.level0 === level0);
 
-// Prüft ob eine level0-Gruppe Untervarianten hat
+// Prüft ob eine level0-Gruppe echte Auswahl-Varianten hat (mehr als eine Option).
+// Single-option-Gruppen (z.B. fodder "Knaulgras|1") sollen automatisch aufgelöst werden,
+// auch wenn die Option ein level1-Tag hat.
 export const hasVariants = (options: PlantOption[], level0: string): boolean => {
     const group = getLevel1Options(options, level0);
-    return group.length > 1 || group[0]?.level1 !== undefined;
+    return group.length > 1;
 };

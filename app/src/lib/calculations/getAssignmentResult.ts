@@ -60,7 +60,6 @@ export const getAssignmentResult = (
             irrigationPeriod: fa.irrigationPeriod,
             precipitation: field.climateData.precipitation,
             et0: field.climateData.et0,
-            surchargeIntermediate: fa.surchargeIntermediate,
             surchargeEmergence: fa.surchargeEmergence,
         };
 
@@ -259,6 +258,17 @@ export const getMissingData = (
         if (!fa.fllMoisture) missing.push("Standortfeuchte (Faktor L)");
         if (!fa.fllSoil) missing.push("Bodenart (Faktor B)");
         if (!fa.fllSun) missing.push("Sonnenexposition (Faktor S)");
+    }
+
+    // Alt. Wasserquellen-Pflichtangabe (0 = "keine vorhanden", undefined = nicht beantwortet)
+    if (
+        fa.module === "gruenflaechen" ||
+        fa.module === "naturrasen" ||
+        fa.module === "golf" ||
+        fa.module === "kunstrasen" ||
+        fa.module === "tennen"
+    ) {
+        if (fa.altWasserM3 === undefined) missing.push("Alternative Wasserquellen");
     }
 
     return missing;

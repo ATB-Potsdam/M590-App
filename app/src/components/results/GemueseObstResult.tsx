@@ -111,14 +111,14 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             </table>
         </details>
 
-        {/* Block 3: Zuschläge */}
+        {/* Block 3: Zuschläge — itemisiert */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
                 <summary>Zuschläge (+{result.totalSurchargeMm} mm)</summary>
-                {result.optionalSurchargeMm > 0 && (
+                {result.surchargeEmergenceMm > 0 && (
                     <div className="result-card__value-row">
-                        <span>Weitere Zuschläge</span>
-                        <span>+{result.optionalSurchargeMm} mm</span>
+                        <span>Auflaufbewässerung</span>
+                        <span>+{result.surchargeEmergenceMm} mm</span>
                     </div>
                 )}
             </details>

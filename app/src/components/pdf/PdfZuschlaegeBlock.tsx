@@ -23,17 +23,24 @@ export const PdfZuschlaegeBlock = ({module, result}: Props) => {
     if (module === "hauptkulturen") {
         const hk = r as HauptkulturenResult;
         if (hk.autoSurchargeMm > 0) {
-            rows.push(["Automatisch (Kultur)", `+${formatNumDe(hk.autoSurchargeMm, 0)} mm`]);
+            const label = hk.autoSurchargeLabel ? `Automatisch: ${hk.autoSurchargeLabel}` : "Automatisch (Kultur)";
+            rows.push([label, `+${formatNumDe(hk.autoSurchargeMm, 0)} mm`]);
         }
-        if (hk.optionalSurchargeMm > 0) {
-            rows.push(["Optionale Zuschläge", `+${formatNumDe(hk.optionalSurchargeMm, 0)} mm`]);
+        if (hk.surchargeIntermediateMm > 0) {
+            rows.push(["Zwischenfrucht", `+${formatNumDe(hk.surchargeIntermediateMm, 0)} mm`]);
+        }
+        if (hk.surchargeEmergenceMm > 0) {
+            rows.push(["Auflaufbewässerung", `+${formatNumDe(hk.surchargeEmergenceMm, 0)} mm`]);
+        }
+        if (hk.surchargeHeavySoilMm > 0) {
+            rows.push(["Schwere Böden", `+${formatNumDe(hk.surchargeHeavySoilMm, 0)} mm`]);
         }
     }
 
     if (module === "gemuese_obst") {
         const go = r as GemueseObstResult;
-        if (go.optionalSurchargeMm > 0) {
-            rows.push(["Weitere Zuschläge", `+${formatNumDe(go.optionalSurchargeMm, 0)} mm`]);
+        if (go.surchargeEmergenceMm > 0) {
+            rows.push(["Auflaufbewässerung", `+${formatNumDe(go.surchargeEmergenceMm, 0)} mm`]);
         }
     }
 

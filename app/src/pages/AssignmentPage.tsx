@@ -31,11 +31,6 @@ import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationP
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
 import './AssignmentPage.scss';
 
-const defaultPeriod: IrrigationPeriod = {
-    from: {month: 4, position: 'early'},
-    to: {month: 9, position: 'late'},
-};
-
 export const AssignmentPage = () => {
     const {id, assignmentId} = useParams<{id: string; assignmentId: string;}>();
     const navigate = useNavigate();
@@ -52,8 +47,8 @@ export const AssignmentPage = () => {
     const [plantCategory, setPlantCategory] = useState<PlantCategory | undefined>(assignment?.plantCategory);
     const [selectedLevel0, setSelectedLevel0] = useState<string | undefined>(assignment?.plantKey?.split('|')[0]);
     const [plantKey, setPlantKey] = useState<string | undefined>(assignment?.plantKey);
-    const [irrigationPeriod, setIrrigationPeriod] = useState<IrrigationPeriod>(
-        assignment?.irrigationPeriod ?? defaultPeriod
+    const [irrigationPeriod, setIrrigationPeriod] = useState<IrrigationPeriod | undefined>(
+        assignment?.irrigationPeriod
     );
     const [surchargeIntermediate, setSurchargeIntermediate] = useState(assignment?.surchargeIntermediate ?? false);
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
@@ -74,8 +69,20 @@ export const AssignmentPage = () => {
     // Kunstrasen
     const [kunstrasenWeeks, setKunstrasenWeeks] = useState(assignment?.kunstrasenWeeks ?? 20);
     const [kunstrasenMmPerWeek, setKunstrasenMmPerWeek] = useState(assignment?.kunstrasenMmPerWeek ?? 30);
-    // Alternative Wasserquellen
-    const [altWasserM3, setAltWasserM3] = useState<number | "">(assignment?.altWasserM3 ?? "");
+    // Alternative Wasserquellen — explizite Auswahl: keine | vorhanden (m³/a)
+    // Bestehende Zuweisung mit altWasserM3 === undefined → kein Modus → Auswahl erzwingen.
+    // altWasserM3 === 0 ist gültige Antwort "keine vorhanden".
+    type AltWasserMode = "none" | "available";
+    const initialAltMode: AltWasserMode | undefined =
+        assignment?.altWasserM3 === undefined
+            ? undefined
+            : assignment.altWasserM3 === 0
+                ? "none"
+                : "available";
+    const [altWasserMode, setAltWasserMode] = useState<AltWasserMode | undefined>(initialAltMode);
+    const [altWasserM3, setAltWasserM3] = useState<number | "">(
+        assignment?.altWasserM3 !== undefined && assignment.altWasserM3 > 0 ? assignment.altWasserM3 : ""
+    );
 
     const [showSaveHint, setShowSaveHint] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -106,10 +113,19 @@ export const AssignmentPage = () => {
 
     const level0Groups = getLevel0Groups(currentNames);
 
-    // Kein level1 nötig → fullKey = level0
+    // Single-Option-Gruppe: fullKey direkt (level0 oder level0|level1)
     const resolveKey = (level0: string): string | undefined => {
         const opts = getLevel1Options(currentNames, level0);
-        return opts.length === 1 && !opts[0].level1 ? level0 : undefined;
+        return opts.length === 1 ? opts[0].fullKey : undefined;
+    };
+
+    // Auto-Auswahl Bewässerungszeitraum: wenn nur ein Zeitraum verfügbar ist,
+    // diesen direkt setzen (vermeidet redundanten Klick und Default-Werte ohne Bezug).
+    const autoSetIrrigationPeriod = (fullKey: string) => {
+        if (module !== 'gemuese_obst') return;
+        const periods = (allOtherPlants[fullKey as VegetableName]?.[2] ?? []).map(timeRangeToPeriod);
+        if (periods.length === 1) setIrrigationPeriod(periods[0]);
+        else setIrrigationPeriod(undefined);
     };
 
     // A/J-Vorschlag für Gemüse/Obst
@@ -120,16 +136,17 @@ export const AssignmentPage = () => {
 
     const needsPlantSelection = module === 'gemuese_obst' || module === 'hauptkulturen';
     const needsIrrigationSelection = module === 'gemuese_obst';
-    const irrigationPeriodMissing = needsIrrigationSelection && plantKey
-        ? !(allOtherPlants[plantKey as VegetableName]?.[2] ?? [])
-            .map(timeRangeToPeriod)
-            .some((tr) => periodToKey(tr) === periodToKey(irrigationPeriod))
-        : false;
+    const availablePeriods: IrrigationPeriod[] = needsIrrigationSelection && plantKey
+        ? (allOtherPlants[plantKey as VegetableName]?.[2] ?? []).map(timeRangeToPeriod)
+        : [];
+    const irrigationPeriodMissing = needsIrrigationSelection && !!plantKey && (
+        !irrigationPeriod ||
+        !availablePeriods.some((tr) => periodToKey(tr) === periodToKey(irrigationPeriod))
+    );
     const showCategoryPicker = module === 'gemuese_obst' && !plantCategory;
     const showLevel0Picker = needsPlantSelection && (module === 'hauptkulturen' || plantCategory) && !selectedLevel0;
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
     const showSurcharges = !!plantKey || (!!selectedLevel0 && !hasVariants(currentNames, selectedLevel0));
-    const showSurchargesNonPlant = module && !needsPlantSelection;
 
     // Ergebnis live berechnen
     const result = (() => {
@@ -147,7 +164,7 @@ export const AssignmentPage = () => {
             return {type: 'hauptkulturen' as const, normal, dry};
         }
 
-        if (module === 'gemuese_obst' && plantKey && field.climateDataStatus === 'done' && field.climateData && field.nFkweClass) {
+        if (module === 'gemuese_obst' && plantKey && irrigationPeriod && field.climateDataStatus === 'done' && field.climateData && field.nFkweClass) {
             const input = {
                 plant: plantKey as AnyPlantName,
                 nFkweClass: field.nFkweClass as NFkweClassName,
@@ -155,7 +172,6 @@ export const AssignmentPage = () => {
                 irrigationPeriod,
                 precipitation: field.climateData.precipitation,
                 et0: field.climateData.et0,
-                surchargeIntermediate,
                 surchargeEmergence,
             };
             const {normal, dry} = calculateGemueseObstBoth(input);
@@ -242,7 +258,12 @@ export const AssignmentPage = () => {
             golfFairwayM2: golfFairwayM2 !== "" ? golfFairwayM2 : undefined,
             kunstrasenWeeks,
             kunstrasenMmPerWeek,
-            altWasserM3: altWasserM3 !== "" ? altWasserM3 : undefined,
+            altWasserM3:
+                altWasserMode === 'none'
+                    ? 0
+                    : altWasserMode === 'available' && altWasserM3 !== ""
+                        ? altWasserM3
+                        : undefined,
         });
         navigate(`/projects/${id}`);
     };
@@ -330,7 +351,10 @@ export const AssignmentPage = () => {
                                     onClick={() => {
                                         setSelectedLevel0(name);
                                         const key = resolveKey(name);
-                                        if (key) setPlantKey(key);
+                                        if (key) {
+                                            setPlantKey(key);
+                                            autoSetIrrigationPeriod(key);
+                                        }
                                         const suggested = (rawVegetableDataAj as Record<string, number | null>)[name];
                                         if (suggested != null) setSurchargeEmergence(suggested);
                                         setSearchTerm('');
@@ -347,7 +371,12 @@ export const AssignmentPage = () => {
             {/* Schritt 3/4: Variante wählen (level1/level2) */}
             {showLevel1Picker && selectedLevel0 && (
                 <section className="assignment-section">
-                    <h2>Variante wählen</h2>
+                    <h2>{plantCategory === 'futter' ? 'Schnitte zur Samennutzung wählen' : 'Variante wählen'}</h2>
+                    {selectedLevel0 === 'Silomais' && (
+                        <p className="assignment-page__hint">
+                            Körnermais benötigt im Vergleich zu Silomais generell einen Zuschlag von +20 mm/a (Merkblatt § 4.2.2).
+                        </p>
+                    )}
                     <div className="option-list">
                         {getLevel1Options(currentNames, selectedLevel0).map((opt) => (
                             <button
@@ -355,6 +384,7 @@ export const AssignmentPage = () => {
                                 className="option-btn"
                                 onClick={() => {
                                     setPlantKey(opt.fullKey);
+                                    autoSetIrrigationPeriod(opt.fullKey);
                                     const suggested = (rawVegetableDataAj as Record<string, number | null>)[selectedLevel0];
                                     if (suggested != null) setSurchargeEmergence(suggested);
                                 }}
@@ -375,6 +405,7 @@ export const AssignmentPage = () => {
                         onClick={() => {
                             setPlantKey(undefined);
                             setSelectedLevel0(undefined);
+                            setIrrigationPeriod(undefined);
                             setSurchargeEmergence(0);
                             setSurchargeHeavySoil(0);
                         }}
@@ -602,27 +633,25 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Bewässerungszeitraum + Zuschläge */}
-            {(showSurcharges || showSurchargesNonPlant) && module !== 'gruenflaechen' && module !== 'golf' && module !== 'kunstrasen' && module !== 'naturrasen' && module !== 'tennen' && (
+            {/* Bewässerungszeitraum + Zuschläge — nur für hauptkulturen / gemuese_obst (Spec § 4.2.2 / § 4.3) */}
+            {showSurcharges && (module === 'hauptkulturen' || module === 'gemuese_obst') && (
                 <>
-                    {needsIrrigationSelection && plantKey && (
+                    {needsIrrigationSelection && plantKey && availablePeriods.length > 1 && (
                         <section className="assignment-section">
                             <h2>Bewässerungszeitraum</h2>
-                            {allOtherPlants[plantKey as VegetableName]?.[2]
-                                .map(timeRangeToPeriod)
-                                .map((timeRange) => {
-                                    const key = periodToKey(timeRange);
-                                    return <label key={key} className="assignment-page__radio-label">
-                                        <input
-                                            type="radio"
-                                            name="irrigationPeriod"
-                                            value={key}
-                                            checked={periodToKey(irrigationPeriod) === key}
-                                            onChange={() => setIrrigationPeriod(timeRange)}
-                                        />
-                                        {boundToLabel(timeRange.from)} bis {boundToLabel(timeRange.to)}
-                                    </label>;
-                                })}
+                            {availablePeriods.map((timeRange) => {
+                                const key = periodToKey(timeRange);
+                                return <label key={key} className="assignment-page__radio-label">
+                                    <input
+                                        type="radio"
+                                        name="irrigationPeriod"
+                                        value={key}
+                                        checked={!!irrigationPeriod && periodToKey(irrigationPeriod) === key}
+                                        onChange={() => setIrrigationPeriod(timeRange)}
+                                    />
+                                    {boundToLabel(timeRange.from)} bis {boundToLabel(timeRange.to)}
+                                </label>;
+                            })}
                         </section>
                     )}
                     {/*
@@ -663,14 +692,16 @@ export const AssignmentPage = () => {
                             </label>
                         )}
 
-                        <label className="surcharge-row">
-                            <input
-                                type="checkbox"
-                                checked={surchargeIntermediate}
-                                onChange={(e) => setSurchargeIntermediate(e.target.checked)}
-                            />
-                            Zwischenfrucht <span className="surcharge-hint">+10 mm</span>
-                        </label>
+                        {module === 'hauptkulturen' && (
+                            <label className="surcharge-row">
+                                <input
+                                    type="checkbox"
+                                    checked={surchargeIntermediate}
+                                    onChange={(e) => setSurchargeIntermediate(e.target.checked)}
+                                />
+                                Zwischenfrucht <span className="surcharge-hint">+10 mm</span>
+                            </label>
+                        )}
 
                         {/*
                         module === 'hauptkulturen' && (
@@ -769,24 +800,47 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Alternative Wasserquellen */}
+            {/* Alternative Wasserquellen — Pflichtangabe (Merkblatt: müssen abgezogen werden) */}
             {result && (module === 'gruenflaechen' || module === 'naturrasen' || module === 'golf' || module === 'kunstrasen' || module === 'tennen') && (
                 <section className="assignment-section">
                     <h2>Alternative Wasserquellen</h2>
                     <p className="assignment-section__hint">
-                        Gesammeltes Niederschlagswasser, Dränagewasser o. ä. kann vom Bruttobedarf abgezogen werden (Netto-Antragsmenge).
+                        Verfügbare alternative Wasserquellen (z.B. gesammeltes Niederschlagswasser, Dränagewasser) müssen vom Bruttobedarf abgezogen werden (Netto-Antragsmenge).
                     </p>
-                    <label className="assignment-section__label">
-                        Verfügbare alternative Wasserquellen (m³/a)
+                    <label className="assignment-page__radio-label">
                         <input
-                            type="number"
-                            min={0}
-                            step={1}
-                            placeholder="0"
-                            value={altWasserM3}
-                            onChange={(e) => setAltWasserM3(e.target.value === "" ? "" : Number(e.target.value))}
+                            type="radio"
+                            name="altWasserMode"
+                            checked={altWasserMode === 'none'}
+                            onChange={() => {
+                                setAltWasserMode('none');
+                                setAltWasserM3("");
+                            }}
                         />
+                        Keine alternativen Wasserquellen vorhanden
                     </label>
+                    <label className="assignment-page__radio-label">
+                        <input
+                            type="radio"
+                            name="altWasserMode"
+                            checked={altWasserMode === 'available'}
+                            onChange={() => setAltWasserMode('available')}
+                        />
+                        Wasserquellen vorhanden:
+                    </label>
+                    {altWasserMode === 'available' && (
+                        <label className="assignment-section__label">
+                            Verfügbare Menge (m³/a)
+                            <input
+                                type="number"
+                                min={0}
+                                step={1}
+                                placeholder="0"
+                                value={altWasserM3}
+                                onChange={(e) => setAltWasserM3(e.target.value === "" ? "" : Number(e.target.value))}
+                            />
+                        </label>
+                    )}
                 </section>
             )}
 
@@ -804,6 +858,13 @@ export const AssignmentPage = () => {
                 if (module === 'golf') {
                     if (!golfAreaMode) missingHints.push('Flächeneingabe-Modus wählen');
                     else if (!golfGreensM2 || !golfTeeM2 || !golfFairwayM2) missingHints.push('Teilflächen eingeben');
+                }
+                // Alt. Wasserquellen-Pflichtangabe für Sport-/Grünflächenmodule
+                if (module === 'gruenflaechen' || module === 'naturrasen' || module === 'golf' || module === 'kunstrasen' || module === 'tennen') {
+                    if (!altWasserMode) missingHints.push('Alternative Wasserquellen angeben');
+                    else if (altWasserMode === 'available' && (altWasserM3 === "" || altWasserM3 < 0)) {
+                        missingHints.push('Verfügbare Menge (m³/a) eingeben');
+                    }
                 }
                 const isDisabled = missingHints.length > 0;
                 return <>

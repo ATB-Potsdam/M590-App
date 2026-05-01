@@ -1,6 +1,7 @@
 export const cropNames = [
     "Kartoffeln",
-    "Silomais",
+    "Silomais|Silomais",
+    "Silomais|Körnermais",
     "Sommerbrauger",
     "sonst. Getreide",
     "Winterraps",

@@ -14,7 +14,8 @@ import type {AgriculturalPlantName, CropName, FordderPlantName, FruitName, KwbZo
 export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     A: {
         "Kartoffeln": [35, 25],
-        "Silomais": [30],
+        "Silomais|Silomais": [30],
+        "Silomais|Körnermais": [30],
         "Sommerbrauger": [60, 35, 20],
         "sonst. Getreide": [50, 25],
         "Winterraps": [40],
@@ -23,7 +24,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     B: {
         "Kartoffeln": [55, 40, 35, 25],
-        "Silomais": [45, 20],
+        "Silomais|Silomais": [45, 20],
+        "Silomais|Körnermais": [45, 20],
         "Sommerbrauger": [75, 50, 35, 20],
         "sonst. Getreide": [60, 35, 20],
         "Winterraps": [50, 25],
@@ -32,7 +34,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     C: {
         "Kartoffeln": [70, 60, 50, 45, 25],
-        "Silomais": [60, 35, 20],
+        "Silomais|Silomais": [60, 35, 20],
+        "Silomais|Körnermais": [60, 35, 20],
         "Sommerbrauger": [85, 60, 45, 30],
         "sonst. Getreide": [65, 40, 25],
         "Winterraps": [55, 30],
@@ -41,7 +44,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     D: {
         "Kartoffeln": [90, 75, 70, 60, 45],
-        "Silomais": [70, 45, 30],
+        "Silomais|Silomais": [70, 45, 30],
+        "Silomais|Körnermais": [70, 45, 30],
         "Sommerbrauger": [95, 75, 60, 45],
         "sonst. Getreide": [70, 50, 35, 20],
         "Winterraps": [60, 40, 25],
@@ -50,7 +54,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     E: {
         "Kartoffeln": [105, 95, 85, 80, 60, 30],
-        "Silomais": [85, 60, 45, 30],
+        "Silomais|Silomais": [85, 60, 45, 30],
+        "Silomais|Körnermais": [85, 60, 45, 30],
         "Sommerbrauger": [110, 85, 70, 55, 20],
         "sonst. Getreide": [80, 55, 40, 25],
         "Winterraps": [70, 45, 30],
@@ -59,7 +64,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     F: {
         "Kartoffeln": [120, 110, 100, 95, 75, 45],
-        "Silomais": [95, 75, 60, 45],
+        "Silomais|Silomais": [95, 75, 60, 45],
+        "Silomais|Körnermais": [95, 75, 60, 45],
         "Sommerbrauger": [120, 100, 85, 70, 30],
         "sonst. Getreide": [85, 60, 45, 30],
         "Winterraps": [75, 50, 35, 20],
@@ -68,7 +74,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     G: {
         "Kartoffeln": [140, 125, 120, 110, 95, 65],
-        "Silomais": [110, 85, 70, 55, 20],
+        "Silomais|Silomais": [110, 85, 70, 55, 20],
+        "Silomais|Körnermais": [110, 85, 70, 55, 20],
         "Sommerbrauger": [135, 110, 95, 80, 45],
         "sonst. Getreide": [95, 70, 55, 40],
         "Winterraps": [85, 60, 45, 30],
@@ -77,7 +84,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
     },
     H: {
         "Kartoffeln": [155, 145, 135, 130, 110, 80],
-        "Silomais": [125, 100, 85, 70, 35],
+        "Silomais|Silomais": [125, 100, 85, 70, 35],
+        "Silomais|Körnermais": [125, 100, 85, 70, 35],
         "Sommerbrauger": [145, 120, 105, 90, 55],
         "sonst. Getreide": [100, 75, 60, 45],
         "Winterraps": [90, 65, 50, 35],
@@ -89,7 +97,8 @@ export const rawCropDataNorm: Record<KwbZone, Record<CropName, number[]>> = {
 export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     A: {
         "Kartoffeln": [70, 60, 55, 45, 25],
-        "Silomais": [50, 25],
+        "Silomais|Silomais": [50, 25],
+        "Silomais|Körnermais": [50, 25],
         "Sommerbrauger": [100, 75, 60, 45],
         "sonst. Getreide": [75, 50, 35, 20],
         "Winterraps": [65, 40, 25],
@@ -98,7 +107,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     B: {
         "Kartoffeln": [90, 75, 70, 60, 45],
-        "Silomais": [65, 40, 25],
+        "Silomais|Silomais": [65, 40, 25],
+        "Silomais|Körnermais": [65, 40, 25],
         "Sommerbrauger": [110, 85, 70, 55, 20],
         "sonst. Getreide": [85, 60, 45, 30],
         "Winterraps": [75, 50, 35, 20],
@@ -107,7 +117,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     C: {
         "Kartoffeln": [105, 95, 85, 80, 60, 30],
-        "Silomais": [75, 50, 35, 20],
+        "Silomais|Silomais": [75, 50, 35, 20],
+        "Silomais|Körnermais": [75, 50, 35, 20],
         "Sommerbrauger": [125, 100, 85, 70, 35],
         "sonst. Getreide": [90, 65, 50, 35],
         "Winterraps": [80, 55, 40, 25],
@@ -116,7 +127,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     D: {
         "Kartoffeln": [125, 110, 105, 95, 80, 50],
-        "Silomais": [90, 65, 50, 35],
+        "Silomais|Silomais": [90, 65, 50, 35],
+        "Silomais|Körnermais": [90, 65, 50, 35],
         "Sommerbrauger": [135, 110, 95, 80, 45],
         "sonst. Getreide": [95, 75, 60, 45],
         "Winterraps": [85, 65, 50, 35],
@@ -125,7 +137,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     E: {
         "Kartoffeln": [140, 130, 120, 115, 95, 65],
-        "Silomais": [105, 80, 65, 50],
+        "Silomais|Silomais": [105, 80, 65, 50],
+        "Silomais|Körnermais": [105, 80, 65, 50],
         "Sommerbrauger": [150, 125, 110, 95, 60],
         "sonst. Getreide": [105, 80, 65, 50],
         "Winterraps": [95, 70, 55, 40],
@@ -134,7 +147,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     F: {
         "Kartoffeln": [155, 145, 140, 130, 110, 82],
-        "Silomais": [115, 90, 75, 60, 25],
+        "Silomais|Silomais": [115, 90, 75, 60, 25],
+        "Silomais|Körnermais": [115, 90, 75, 60, 25],
         "Sommerbrauger": [160, 135, 120, 105, 70],
         "sonst. Getreide": [110, 85, 70, 55, 20],
         "Winterraps": [100, 75, 60, 45],
@@ -143,7 +157,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     G: {
         "Kartoffeln": [175, 160, 155, 145, 130, 100],
-        "Silomais": [130, 105, 90, 75, 40],
+        "Silomais|Silomais": [130, 105, 90, 75, 40],
+        "Silomais|Körnermais": [130, 105, 90, 75, 40],
         "Sommerbrauger": [170, 150, 135, 120, 80, 20],
         "sonst. Getreide": [120, 95, 80, 65, 30],
         "Winterraps": [110, 85, 70, 55, 20],
@@ -152,7 +167,8 @@ export const rawCropDataDry: Record<KwbZone, Record<CropName, number[]>> = {
     },
     H: {
         "Kartoffeln": [190, 180, 170, 165, 145, 115],
-        "Silomais": [145, 120, 105, 90, 55],
+        "Silomais|Silomais": [145, 120, 105, 90, 55],
+        "Silomais|Körnermais": [145, 120, 105, 90, 55],
         "Sommerbrauger": [185, 160, 145, 130, 95, 35],
         "sonst. Getreide": [125, 100, 85, 70, 35],
         "Winterraps": [115, 90, 75, 60, 25],
