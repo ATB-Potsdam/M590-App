@@ -20,6 +20,10 @@ export const PdfZuschlaegeBlock = ({module, result}: Props) => {
 
     const rows: [string, string][] = [];
 
+    if (r.isUserCustom) {
+        rows.push(["Basis", `${formatNumDe(r.userCustomMm, 0)} mm/a (benutzerdefiniert)`]);
+    }
+
     if (module === "hauptkulturen") {
         const hk = r as HauptkulturenResult;
         if (hk.autoSurchargeMm > 0) {

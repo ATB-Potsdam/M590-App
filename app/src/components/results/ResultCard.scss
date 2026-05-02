@@ -73,6 +73,14 @@
         line-height: 1.4;
     }
 
+    &__custom-tag {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--color-warning-hint);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     &__details {
         summary {
             cursor: pointer;

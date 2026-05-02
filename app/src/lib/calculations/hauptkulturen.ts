@@ -12,6 +12,8 @@ export interface HauptkulturenInput {
     surchargeIntermediate: boolean;  // +10 mm
     surchargeEmergence: number;      // 0–20 mm
     surchargeHeavySoil: number;      // 0–20 mm (nur Kartoffeln)
+    // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
+    userCustomMm?: number;
 }
 
 export interface HauptkulturenResult {
@@ -37,6 +39,10 @@ export interface HauptkulturenResult {
     scenario: Scenario;
     // false wenn kein Literaturwert vorhanden (Tabellenwert = 0)
     hasValue: boolean;
+    // true wenn das Ergebnis aus einem benutzerdefinierten Wert (userCustomMm) abgeleitet wurde
+    isUserCustom: boolean;
+    // benutzerdefinierter Basiswert (mm/a) — nur gesetzt wenn isUserCustom
+    userCustomMm: number;
 }
 
 // Automatischer Zuschlag je Kultur (Spec § 4.2.2):
@@ -65,10 +71,17 @@ const getTableValue = (
 
 export const calculateHauptkulturen = (input: HauptkulturenInput): HauptkulturenResult => {
     const {crop, nFkweClass, kwbZone, areaHa, scenario,
-        surchargeIntermediate, surchargeEmergence, surchargeHeavySoil} = input;
+        surchargeIntermediate, surchargeEmergence, surchargeHeavySoil, userCustomMm} = input;
 
     const baseRangeMmRaw = getTableValue(kwbZone, crop, nFkweClass, scenario);
-    const baseRangeMm: Range = baseRangeMmRaw ?? [0, 0];
+    const hasLiteratureValue = baseRangeMmRaw !== null;
+    // Fallback auf userCustomMm wenn kein Literaturwert vorliegt und ein Anwenderwert gesetzt ist
+    const isUserCustom = !hasLiteratureValue && userCustomMm !== undefined && userCustomMm > 0;
+    const baseRangeMm: Range = hasLiteratureValue
+        ? baseRangeMmRaw!
+        : isUserCustom
+            ? [userCustomMm!, userCustomMm!]
+            : [0, 0];
 
     // Automatischer Zuschlag
     const autoSurchargeMm = AUTO_SURCHARGE_MM[crop] ?? 0;
@@ -105,7 +118,10 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         totalRangeMm,
         totalRangeM3,
         scenario,
-        hasValue: baseRangeMmRaw !== null,
+        // hasValue=true heißt „Bedarfsangabe vorhanden" — auch via Anwenderwert
+        hasValue: hasLiteratureValue || isUserCustom,
+        isUserCustom,
+        userCustomMm: isUserCustom ? userCustomMm! : 0,
     };
 };
 

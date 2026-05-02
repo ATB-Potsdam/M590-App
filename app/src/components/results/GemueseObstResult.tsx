@@ -20,7 +20,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
 
         {/* Block 1: Ergebnis */}
         <div className="result-card__block">
-            <h4>Zusatzwasserbedarf</h4>
+            <h4>Zusatzwasserbedarf{result.isUserCustom && <span className="result-card__custom-tag"> · benutzerdefiniert</span>}</h4>
             {!result.hasValue ? (
                 <p className="result-card__no-value">
                     Kein Literaturwert vorhanden. Leere Felder bedeuten fehlende Literaturwerte, nicht „kein Bedarf".
@@ -53,13 +53,17 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             <summary>Berechnungsgrundlagen</summary>
 
             <div className="result-card__value-row">
-                <span>Basiswert Potsdam</span>
+                <span>{result.isUserCustom ? "Benutzerdefinierter Wert" : "Basiswert Potsdam"}</span>
                 <span>
-                    {result.hasValue ? formatRange(result.baseRangeMm, 'mm') : "kein Literaturwert"}
+                    {result.isUserCustom
+                        ? `${result.userCustomMm} mm/a (benutzerdefiniert)`
+                        : result.hasValue ? formatRange(result.baseRangeMm, 'mm') : "kein Literaturwert"}
                     {dryResult && (
                         <>
                             {" 🌤 / "}
-                            {dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"} ☀️
+                            {dryResult.isUserCustom
+                                ? `${dryResult.userCustomMm} mm/a (benutzerdefiniert)`
+                                : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"} ☀️
                         </>
                     )}
                 </span>

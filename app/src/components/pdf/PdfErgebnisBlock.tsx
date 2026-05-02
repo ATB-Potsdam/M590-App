@@ -18,11 +18,14 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
     const normalHasValue = normal && (!("hasValue" in normal) || normal.hasValue);
     const dryHasValue = dry && (!("hasValue" in dry) || dry.hasValue);
     const isOpenRange = normal && "isOpenRange" in normal && (normal as NaturrasenResult | TennenResult).isOpenRange;
+    const isUserCustom = !!(normal && "isUserCustom" in normal && normal.isUserCustom);
 
     return (
         <View style={styles.detailTable}>
             <View style={styles.detailTableHeader}>
-                <Text style={styles.detailTableHeaderCell}>Ergebnis</Text>
+                <Text style={styles.detailTableHeaderCell}>
+                    {isUserCustom ? "Ergebnis (benutzerdefiniert)" : "Ergebnis"}
+                </Text>
             </View>
             {normalHasValue && normal ? (
                 <View style={styles.detailTableRow}>

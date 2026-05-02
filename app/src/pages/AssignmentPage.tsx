@@ -53,6 +53,7 @@ export const AssignmentPage = () => {
     const [surchargeIntermediate, setSurchargeIntermediate] = useState(assignment?.surchargeIntermediate ?? false);
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
     const [surchargeHeavySoil, setSurchargeHeavySoil] = useState(assignment?.surchargeHeavySoil ?? 0);
+    const [userCustomMm, setUserCustomMm] = useState<number | "">(assignment?.userCustomMm ?? "");
     const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
     // Grünflächen FLL factors
     const [fllVegetation, setFllVegetation] = useState<FllVegetation | undefined>(assignment?.fllVegetation);
@@ -159,6 +160,7 @@ export const AssignmentPage = () => {
                 surchargeIntermediate,
                 surchargeEmergence,
                 surchargeHeavySoil,
+                userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             };
             const {normal, dry} = calculateHauptkulturenBoth(input);
             return {type: 'hauptkulturen' as const, normal, dry};
@@ -173,6 +175,7 @@ export const AssignmentPage = () => {
                 precipitation: field.climateData.precipitation,
                 et0: field.climateData.et0,
                 surchargeEmergence,
+                userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             };
             const {normal, dry} = calculateGemueseObstBoth(input);
             return {type: 'gemuese_obst' as const, normal, dry};
@@ -245,6 +248,7 @@ export const AssignmentPage = () => {
             surchargeIntermediate,
             surchargeEmergence,
             surchargeHeavySoil,
+            userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             isJunganlage,
             fllVegetation,
             fllMoisture,
@@ -297,7 +301,9 @@ export const AssignmentPage = () => {
                                 setPlantCategory(undefined);
                                 setSelectedLevel0(undefined);
                                 setPlantKey(undefined);
+                                setSurchargeEmergence(0);
                                 setSurchargeHeavySoil(0);
+                                setUserCustomMm("");
                                 setShowSaveHint(false);
                                 setSearchTerm('');
                             }}
@@ -408,6 +414,7 @@ export const AssignmentPage = () => {
                             setIrrigationPeriod(undefined);
                             setSurchargeEmergence(0);
                             setSurchargeHeavySoil(0);
+                            setUserCustomMm("");
                         }}
                     >
                         ändern
@@ -654,14 +661,6 @@ export const AssignmentPage = () => {
                             })}
                         </section>
                     )}
-                    {/*
-                    needsIrrigationSelection && (
-                        <section className="assignment-section">
-                            <h2>Bewässerungszeitraum</h2>
-                            <IrrigationPeriodPicker value={irrigationPeriod} onChange={setIrrigationPeriod} />
-                        </section>
-                    )
-                    */}
 
                     {(module === 'hauptkulturen' || (module === 'gemuese_obst' && ajSuggested !== null)) && (
                     <section className="assignment-section">
@@ -704,11 +703,12 @@ export const AssignmentPage = () => {
                             </label>
                         )}
 
-                        {/*
-                        module === 'hauptkulturen' && (
+                        {module === 'hauptkulturen' && (
                             <label className="surcharge-row">
-                                Auflaufbewässerung
-                                <span className="surcharge-hint">0–20 mm</span>
+                                <span>
+                                    Auflaufbewässerung
+                                    <span className="surcharge-hint"> · Frühjahrstrockenheit, 0–20 mm</span>
+                                </span>
                                 <input
                                     type="range" min={0} max={20} step={5}
                                     value={surchargeEmergence}
@@ -716,8 +716,7 @@ export const AssignmentPage = () => {
                                 />
                                 <span className="surcharge-value">{surchargeEmergence} mm</span>
                             </label>
-                        )
-                        */}
+                        )}
 
                         {(plantKey?.startsWith('Kartoffel') || selectedLevel0?.startsWith('Kartoffel')) && (
                             <label className="surcharge-row">
@@ -799,6 +798,30 @@ export const AssignmentPage = () => {
                             areaHa={field.areaHa}
                         />
                     )}
+                </section>
+            )}
+
+            {/* Benutzerdefinierte Zusatzbewässerung — nur wenn kein Literaturwert (oder User schon eigenen Wert gesetzt) */}
+            {result && (result.type === 'hauptkulturen' || result.type === 'gemuese_obst') && result.normal &&
+                ('isUserCustom' in result.normal) &&
+                (result.normal.isUserCustom || !result.normal.hasValue) && (
+                <section className="assignment-section">
+                    <h2>Benutzerdefinierte Zusatzbewässerung</h2>
+                    <p className="assignment-section__hint">
+                        Für diese Kultur liegt kein Literaturwert vor. Sie können hier optional einen eigenen
+                        Schätzwert (mm/a) eingeben. Das Ergebnis wird klar als „benutzerdefiniert" markiert.
+                    </p>
+                    <label className="assignment-section__label">
+                        Benutzerdefinierter Bedarf (mm/a)
+                        <input
+                            type="number"
+                            min={0}
+                            step={1}
+                            placeholder="z.B. 60"
+                            value={userCustomMm}
+                            onChange={(e) => setUserCustomMm(e.target.value === "" ? "" : Number(e.target.value))}
+                        />
+                    </label>
                 </section>
             )}
 

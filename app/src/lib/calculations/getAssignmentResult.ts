@@ -40,6 +40,7 @@ export const getAssignmentResult = (
             surchargeIntermediate: fa.surchargeIntermediate,
             surchargeEmergence: fa.surchargeEmergence,
             surchargeHeavySoil: fa.surchargeHeavySoil,
+            userCustomMm: fa.userCustomMm,
         };
 
         const {normal, dry} = calculateHauptkulturenBoth(input);
@@ -61,6 +62,7 @@ export const getAssignmentResult = (
             precipitation: field.climateData.precipitation,
             et0: field.climateData.et0,
             surchargeEmergence: fa.surchargeEmergence,
+            userCustomMm: fa.userCustomMm,
         };
 
         const {normal, dry} = calculateGemueseObstBoth(input);

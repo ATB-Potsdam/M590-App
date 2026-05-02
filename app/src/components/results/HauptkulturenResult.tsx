@@ -19,7 +19,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
 
         {/* Block 1: Ergebnis */}
         <div className="result-card__block">
-            <h4>Zusatzwasserbedarf</h4>
+            <h4>Zusatzwasserbedarf{result.isUserCustom && <span className="result-card__custom-tag"> · benutzerdefiniert</span>}</h4>
             {!result.hasValue ? (
                 <p className="result-card__no-value">
                     Kein Literaturwert vorhanden. Leere Felder bedeuten fehlende Literaturwerte, nicht „kein Bedarf".
@@ -51,15 +51,19 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
-                <span>{dryResult && "🌤 "}Tabellenwert (Basis)</span>
+                <span>{dryResult && "🌤 "}{result.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
-                    {result.hasValue ? formatRange(result.baseRangeMm, "mm/a") : "kein Literaturwert"}
+                    {result.isUserCustom
+                        ? `${result.userCustomMm} mm/a (benutzerdefiniert)`
+                        : result.hasValue ? formatRange(result.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>
             {dryResult && <div className="result-card__value-row">
-                <span>☀️ Tabellenwert (Basis)</span>
+                <span>☀️ {dryResult.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
-                    {dryResult.hasValue ? formatRange(dryResult.baseRangeMm, "mm/a") : "kein Literaturwert"}
+                    {dryResult.isUserCustom
+                        ? `${dryResult.userCustomMm} mm/a (benutzerdefiniert)`
+                        : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>}
             <div className="result-card__value-row">

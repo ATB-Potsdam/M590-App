@@ -20,6 +20,8 @@ export interface GemueseObstInput {
     et0: MonthValueType;
     // Zuschläge (Spec § 4.3 erlaubt nur Auflaufbewässerung A/J — kein Zwischenfrucht-Zuschlag)
     surchargeEmergence: number;
+    // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
+    userCustomMm?: number;
 }
 
 export interface MonthlyClimateRow {
@@ -47,6 +49,8 @@ export interface GemueseObstResult {
     monthlyRows: MonthlyClimateRow[];
     // false wenn kein Literaturwert vorhanden (Tabellenwert null)
     hasValue: boolean;
+    isUserCustom: boolean;
+    userCustomMm: number;
 }
 
 
@@ -57,7 +61,7 @@ const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10]
 export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult => {
     const {
         plant, nFkweClass, areaHa, scenario, irrigationPeriod,
-        precipitation, et0, surchargeEmergence,
+        precipitation, et0, surchargeEmergence, userCustomMm,
     } = input;
 
     const rawData = allOtherPlants[plant];
@@ -69,13 +73,19 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
             optionalSurchargeMm: 0, surchargeEmergenceMm: 0,
             totalSurchargeMm: 0, totalRangeMm: zero,
             totalRangeM3: zero, scenario, monthlyRows: [], hasValue: false,
+            isUserCustom: false, userCustomMm: 0,
         };
     }
     const rawIndex = nFkweToRawIndex(nFkweClass);
     const scenarioData = scenario === "dry" ? rawData[1] : rawData[0];
     const rawBaseRange = scenarioData?.[rawIndex];
-    const hasValue = rawBaseRange !== null && rawBaseRange !== undefined;
-    const baseRangeMm: Range = rawBaseRange ?? [0, 0];
+    const hasLiteratureValue = rawBaseRange !== null && rawBaseRange !== undefined;
+    const isUserCustom = !hasLiteratureValue && userCustomMm !== undefined && userCustomMm > 0;
+    const baseRangeMm: Range = hasLiteratureValue
+        ? rawBaseRange
+        : isUserCustom
+            ? [userCustomMm!, userCustomMm!]
+            : [0, 0];
 
     // Monatliche Gewichtungen für den Bewässerungszeitraum
     const weights = getMonthWeights(irrigationPeriod);
@@ -105,8 +115,9 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         });
     }
 
-    // Korrektur = ΔKWB × rFactor
-    const correctionMm = Math.round(deltaKwb * rFactor[nFkweClass]);
+    // Korrektur = ΔKWB × rFactor — entfällt für Anwender-Werte (Anwendung
+    // gibt direkt den Bedarf an, keine standortbezogene Klimakorrektur)
+    const correctionMm = isUserCustom ? 0 : Math.round(deltaKwb * rFactor[nFkweClass]);
 
     // AJ-Vorschlag aus Konstante (nur Gemüse)
     const ajSuggestedMm = (rawVegetableDataAj as Record<string, number | null>)[plant] ?? null;
@@ -133,7 +144,9 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         totalRangeM3,
         scenario,
         monthlyRows,
-        hasValue,
+        hasValue: hasLiteratureValue || isUserCustom,
+        isUserCustom,
+        userCustomMm: isUserCustom ? userCustomMm! : 0,
     };
 };
 

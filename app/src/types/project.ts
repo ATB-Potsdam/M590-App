@@ -41,6 +41,12 @@ export interface FieldAssignment {
     surchargeIntermediate: boolean;
     surchargeEmergence: number;
     surchargeHeavySoil: number;
+    /**
+     * Benutzerdefinierte Zusatzbewässerung (mm/a) für Kulturen ohne Literaturwert.
+     * Ersetzt fehlende Tabellenwerte durch Anwender-geschätzten Bedarf.
+     * Nur wirksam wenn Tabellenwert null (hasValue=false).
+     */
+    userCustomMm?: number;
     isJunganlage?: boolean;
     // Grünflächen FLL factors
     fllVegetation?: "rasen" | "stauden" | "baeume";
