@@ -636,7 +636,7 @@ export const AssignmentPage = () => {
             {/* Bewässerungszeitraum + Zuschläge — nur für hauptkulturen / gemuese_obst (Spec § 4.2.2 / § 4.3) */}
             {showSurcharges && (module === 'hauptkulturen' || module === 'gemuese_obst') && (
                 <>
-                    {needsIrrigationSelection && plantKey && availablePeriods.length > 1 && (
+                    {needsIrrigationSelection && plantKey && availablePeriods.length > 0 && (
                         <section className="assignment-section">
                             <h2>Bewässerungszeitraum</h2>
                             {availablePeriods.map((timeRange) => {
@@ -663,6 +663,7 @@ export const AssignmentPage = () => {
                     )
                     */}
 
+                    {(module === 'hauptkulturen' || (module === 'gemuese_obst' && ajSuggested !== null)) && (
                     <section className="assignment-section">
                         <h2>Zuschläge</h2>
 
@@ -731,6 +732,7 @@ export const AssignmentPage = () => {
                             </label>
                         )}
                     </section>
+                    )}
                 </>
             )}
 
