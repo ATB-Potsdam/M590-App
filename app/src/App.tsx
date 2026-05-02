@@ -8,7 +8,7 @@ import {Messages} from './components/Messages';
 import {UpdateBanner} from './components/UpdateBanner';
 import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
-import {refreshClimateData, useFarm} from './hooks/useFarm';
+import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm';
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
@@ -82,6 +82,14 @@ const App = () => {
         const [farm, setFarm] = useLocalStore.getState().dwa_farm;
         refreshClimateData(precipitationLookup, et0Lookup, setFarm, farm.fields);
     }, [precipitationLookup, et0Lookup]);
+
+    // Klimazone (KWBv-Klasse) selbstheilend nachladen sobald WASM-Layer bereit ist.
+    // Verhindert „Klimazone fehlt"-Fehlermeldungen direkt nach App-Start.
+    useEffect(() => {
+        if (!layer) return;
+        const [farm, setFarm] = useLocalStore.getState().dwa_farm;
+        refreshClimateClass(setFarm, farm.fields);
+    }, [layer]);
 
     const location = useLocation();
     const atBottom = useIsScrolledToBottom(location.pathname, splashDismissed);

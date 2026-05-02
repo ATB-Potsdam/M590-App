@@ -179,3 +179,31 @@ export const refreshClimateData = (
             }
         });
 };
+
+/** Klimazone (KWBv-Klasse) für Felder ermitteln, deren Status noch nicht "done" ist. */
+export const refreshClimateClass = (
+    setFarm: (fn: (prev: Farm) => Farm) => void,
+    fields: Field[]
+) => {
+    fields
+        .filter((f) => f.climateClassStatus !== "done")
+        .forEach((f) => {
+            try {
+                const climateClass = latLonToClimateClass(f.location);
+                setFarm((prev: Farm) => ({
+                    ...prev,
+                    fields: prev.fields.map((pf) =>
+                        pf.id === f.id ? {...pf, climateClass, climateClassStatus: "done" as const} : pf
+                    ),
+                }));
+            } catch (e) {
+                console.error(`Klimazone für Feld ${f.name} fehlgeschlagen:`, e);
+                setFarm((prev: Farm) => ({
+                    ...prev,
+                    fields: prev.fields.map((pf) =>
+                        pf.id === f.id ? {...pf, climateClassStatus: "error" as const} : pf
+                    ),
+                }));
+            }
+        });
+};

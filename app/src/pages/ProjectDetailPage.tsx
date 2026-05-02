@@ -199,6 +199,15 @@ export const ProjectDetailPage = () => {
                                     const normalHasValue = result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue);
                                     const dryHasValue = result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue);
 
+                                    // Selbstheilende Lookups: wenn nur Klima/Klimadaten gerade noch nicht
+                                    // geladen sind, zeigen wir „wird ermittelt…" statt einer Fehler-/Link-Liste.
+                                    const climateLoading = !result && fa.module && (
+                                        field.climateClassStatus === "loading" ||
+                                        field.climateClassStatus === "idle" ||
+                                        field.climateDataStatus === "loading" ||
+                                        field.climateDataStatus === "idle"
+                                    );
+
                                     if (result) return (
                                         <div className="assignment-list__result">
                                             {normalHasValue && result.normal && (
@@ -219,15 +228,26 @@ export const ProjectDetailPage = () => {
                                         </div>
                                     );
 
+                                    if (climateLoading && missing.length === 0) {
+                                        return (
+                                            <div className="assignment-list__result">
+                                                <span className="result-pill result-pill--pending">
+                                                    ⏳ Klimazone / Klimadaten werden ermittelt…
+                                                </span>
+                                            </div>
+                                        );
+                                    }
+
                                     if (missing.length > 0) {
                                         // Field-level Mängel werden auf Farm-Seite behoben (?edit=<id>),
                                         // Modul-/Plant-/Optionen auf der Zuweisungs-Seite.
-                                        const fieldLevel = new Set(["Klimazone", "Klimadaten", "nFKWe-Klasse"]);
+                                        const isFieldLevel = (m: string) =>
+                                            m.startsWith("Klimazone") || m.startsWith("Klimadaten") || m === "nFKWe-Klasse";
                                         return (
                                             <div className="assignment-list__result">
                                                 <span className="result-pill result-pill--pending">⚠️ Fehlt:</span>
                                                 {missing.map((m) => {
-                                                    const isField = fieldLevel.has(m);
+                                                    const isField = isFieldLevel(m);
                                                     const target = isField
                                                         ? `/farm?edit=${field.id}`
                                                         : `/projects/${project.id}/assignment/${fa.id}`;
@@ -236,7 +256,10 @@ export const ProjectDetailPage = () => {
                                                             key={m}
                                                             type="button"
                                                             className="result-pill result-pill--pending result-pill--link"
-                                                            onClick={() => navigate(target)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                navigate(target);
+                                                            }}
                                                             title={isField ? "Auf Farm-Seite bearbeiten" : "In Zuweisung öffnen"}
                                                         >
                                                             {m} →

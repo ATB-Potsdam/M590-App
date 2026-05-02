@@ -2,7 +2,8 @@
 import clsx from "clsx";
 import {useMemo, useRef, useState, type SubmitEvent} from "react";
 import {getCurrentLatLon} from "../lib/location";
-import {latLonToNfkweClass} from "../lib/tools";
+import {latLonToClimateClass, latLonToNfkweClass} from "../lib/tools";
+import type {ClimateClassType} from "../types";
 import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
 import {formatNum} from "../lib/formatNum";
 import type {FieldInput, GeoPoint} from "../types/farm";
@@ -36,6 +37,15 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
         if (!location) return null;
         try {
             return latLonToNfkweClass(location);
+        } catch {
+            return null;
+        }
+    }, [location]);
+
+    const geoClimateClass = useMemo<ClimateClassType | null>(() => {
+        if (!location) return null;
+        try {
+            return latLonToClimateClass(location);
         } catch {
             return null;
         }
@@ -118,6 +128,9 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             {location && (
                 <small>
                     Lat: {formatNum(location.lat, 5)}, Lon: {formatNum(location.lon, 5)}
+                    {geoClimateClass
+                        ? <> · 🌿 Klimazone: <b>{geoClimateClass[0]}</b> (KWB: {formatNum(geoClimateClass[1], 0)})</>
+                        : <> · ⚠️ Klimazone für diesen Standort nicht verfügbar</>}
                 </small>
             )}
 

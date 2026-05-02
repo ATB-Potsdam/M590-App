@@ -242,12 +242,15 @@ export const getMissingData = (
         missing.push("Bewässerungszeitraum");
     }
 
-    if (field.climateClassStatus !== "done") {
-        missing.push("Klimazone");
+    // Automatisch ermittelbare Werte (Klimazone, Klimadaten, nFKWe) werden NICHT
+    // als Fehler gemeldet wenn sie nur noch nicht geladen sind — sie heilen sich
+    // selbst, sobald die WASM-/Raster-Lookups bereit sind. Nur echte Fehler melden.
+    if (field.climateClassStatus === "error") {
+        missing.push("Klimazone (Standort prüfen)");
     }
 
-    if (field.climateDataStatus !== "done") {
-        missing.push("Klimadaten");
+    if (field.climateDataStatus === "error") {
+        missing.push("Klimadaten (Standort prüfen)");
     }
 
     if (!field.nFkweClass &&
