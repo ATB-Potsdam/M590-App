@@ -1,7 +1,8 @@
 // src/pages/FarmPage.tsx
 import clsx from "clsx";
 import type {ChangeEvent} from "react";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
+import {useSearchParams} from "react-router";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {OnboardingBanner} from "../components/OnboardingBanner";
@@ -49,6 +50,29 @@ export const FarmPage = () => {
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
     const [confirmReset, setConfirmReset] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Deep-Link aus ProjectDetailPage: ?edit=<fieldId> öffnet Editor + scrollt.
+    // URL-→-State-Synchronisation bedingt setState im Effect; ist nicht
+    // eigentliches Anti-Pattern (Quelle ist externer Router-State).
+    useEffect(() => {
+        const editId = searchParams.get("edit");
+        if (!editId) return;
+        const target = farm.fields.find((f) => f.id === editId);
+        if (target) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setEditingField(target);
+            setTimeout(() => {
+                document.getElementById(`farm-field-${editId}`)?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+            }, 50);
+        }
+        // Param entfernen damit nachfolgende Renders nicht erneut feuern
+        searchParams.delete("edit");
+        setSearchParams(searchParams, {replace: true});
+    }, [searchParams, setSearchParams, farm.fields]);
 
     const handleReset = () => {
         localStorage.clear();
@@ -128,7 +152,7 @@ export const FarmPage = () => {
             )}
 
             {farm.fields.map((field) => (
-                <div key={field.id} className="farm-page__field-card">
+                <div key={field.id} id={`farm-field-${field.id}`} className="farm-page__field-card">
                     {editingField?.id === field.id ? (
                         <FieldForm
                             initialValues={{...field}}

@@ -195,6 +195,16 @@
         background: var(--color-error-bg);
         color: var(--color-error);
     }
+
+    &--link {
+        cursor: pointer;
+        border: none;
+        text-decoration: underline;
+
+        &:hover {
+            filter: brightness(0.95);
+        }
+    }
 }
 
 .module-badge {

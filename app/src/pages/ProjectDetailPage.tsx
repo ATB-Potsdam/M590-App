@@ -219,13 +219,33 @@ export const ProjectDetailPage = () => {
                                         </div>
                                     );
 
-                                    if (missing.length > 0) return (
-                                        <div className="assignment-list__result">
-                                            <span className="result-pill result-pill--pending">
-                                                ⚠️ Fehlt: {missing.join(", ")}
-                                            </span>
-                                        </div>
-                                    );
+                                    if (missing.length > 0) {
+                                        // Field-level Mängel werden auf Farm-Seite behoben (?edit=<id>),
+                                        // Modul-/Plant-/Optionen auf der Zuweisungs-Seite.
+                                        const fieldLevel = new Set(["Klimazone", "Klimadaten", "nFKWe-Klasse"]);
+                                        return (
+                                            <div className="assignment-list__result">
+                                                <span className="result-pill result-pill--pending">⚠️ Fehlt:</span>
+                                                {missing.map((m) => {
+                                                    const isField = fieldLevel.has(m);
+                                                    const target = isField
+                                                        ? `/farm?edit=${field.id}`
+                                                        : `/projects/${project.id}/assignment/${fa.id}`;
+                                                    return (
+                                                        <button
+                                                            key={m}
+                                                            type="button"
+                                                            className="result-pill result-pill--pending result-pill--link"
+                                                            onClick={() => navigate(target)}
+                                                            title={isField ? "Auf Farm-Seite bearbeiten" : "In Zuweisung öffnen"}
+                                                        >
+                                                            {m} →
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+                                    }
 
                                     return null;
                                 })()}
