@@ -14,7 +14,7 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>Grünfläche · {areaHa} ha</span>
+            <span>Grünfläche · {formatNum(areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}

@@ -39,7 +39,7 @@ export const NaturrasenResultCard = ({result, fieldName, areaHa}: Props) => (
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>Naturrasensportplatz · {areaHa} ha</span>
+            <span>Naturrasensportplatz · {formatNum(areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}

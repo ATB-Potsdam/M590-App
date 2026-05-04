@@ -1,4 +1,4 @@
-import {formatRange} from "../../lib/formatNum";
+import {formatNum, formatRange} from "../../lib/formatNum";
 import type {HauptkulturenResult} from "../../lib/calculations/hauptkulturen";
 import "./ResultCard.scss";
 
@@ -14,7 +14,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>{cropName} · {areaHa} ha</span>
+            <span>{cropName} · {formatNum(areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}

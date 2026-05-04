@@ -22,7 +22,7 @@ export const WeinbauResultCard = ({result, dryResult, fieldName, areaHa}: Props)
         <div className="result-card">
             <div className="result-card__header">
                 <strong>{fieldName}</strong>
-                <span>Weinbau · {areaHa} ha</span>
+                <span>Weinbau · {formatNum(areaHa, 2)} ha</span>
             </div>
 
             {/* Block 1: Ergebnis */}

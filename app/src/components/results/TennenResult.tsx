@@ -40,7 +40,7 @@ export const TennenResultCard = ({result, fieldName, areaHa}: Props) => (
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>Tennenfläche · {areaHa} ha</span>
+            <span>Tennenfläche · {formatNum(areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}

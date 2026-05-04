@@ -11,7 +11,7 @@ export const KunstrasenResultCard = ({result, fieldName}: Props) => (
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>Kunstrasen · {result.areaHa} ha</span>
+            <span>Kunstrasen · {formatNum(result.areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}
@@ -34,7 +34,7 @@ export const KunstrasenResultCard = ({result, fieldName}: Props) => (
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
                 <span>Fläche</span>
-                <span>{result.areaHa} ha</span>
+                <span>{formatNum(result.areaHa, 2)} ha</span>
             </div>
             <div className="result-card__value-row">
                 <span>Wochen/Saison</span>

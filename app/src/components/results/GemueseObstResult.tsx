@@ -1,5 +1,5 @@
 // src/components/results/GemueseObstResult.tsx
-import {formatRange} from "../../lib/formatNum";
+import {formatNum, formatRange} from "../../lib/formatNum";
 import type {GemueseObstResult} from "../../lib/calculations/gemueseObst";
 import "./ResultCard.scss";
 
@@ -15,7 +15,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
     <div className="result-card">
         <div className="result-card__header">
             <strong>{fieldName}</strong>
-            <span>{plantName} · {areaHa} ha</span>
+            <span>{plantName} · {formatNum(areaHa, 2)} ha</span>
         </div>
 
         {/* Block 1: Ergebnis */}

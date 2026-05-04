@@ -144,7 +144,7 @@ export const FarmPage = () => {
                             <strong>{field.name}</strong> — {formatNum(field.areaHa, 2)} ha
                             <br />
                             <small>
-                                Lat: {formatNum(field.location.lat, 5)}, Lon: {formatNum(field.location.lon, 5)}
+                                {formatNum(field.location.lat, 5)}° N, {formatNum(field.location.lon, 5)}° E
                             </small>
                             <br />
                             <ClimateClassBadge field={field} />
