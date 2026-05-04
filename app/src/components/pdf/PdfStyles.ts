@@ -10,6 +10,7 @@ export const C = {
     borderLight: "#e8e8e8",
     borderMedium: "#ccc",
     primary: "#2e7d32",
+    warning: "#e65100",
     white: "#ffffff",
     black: "#000000",
 } as const;
@@ -121,17 +122,18 @@ export const styles = StyleSheet.create({
         color: C.textMuted,
     },
 
-    // --- Two-line cell (mm/a + m³/a stacked) ---
+    // --- Two-line cell (mm/a secondary on top, m³/a bold primary below) ---
     twoLineCell: {
         flexDirection: "column",
     },
     twoLinePrimary: {
-        fontSize: 9,
-        color: C.text,
-    },
-    twoLineSecondary: {
         fontSize: 8,
         color: C.textSecondary,
+    },
+    twoLineSecondary: {
+        fontSize: 9,
+        fontFamily: "Helvetica-Bold",
+        color: C.text,
     },
 
     // --- Summary result rows (below the main table) ---
@@ -150,7 +152,12 @@ export const styles = StyleSheet.create({
     summaryRowValue: {
         fontSize: 9,
         fontFamily: "Helvetica-Bold",
-        color: C.text,
+        color: C.primary,
+    },
+    summaryRowAlt: {
+        fontSize: 9,
+        fontFamily: "Helvetica-Bold",
+        color: C.warning,
     },
     summaryRowNetto: {
         fontSize: 9,

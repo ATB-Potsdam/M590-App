@@ -45,17 +45,17 @@ export const PdfSummaryTable = ({data}: Props) => {
                 <View style={styles.tableHeaderRow}>
                     <Text style={[styles.tableHeaderCell, {flex: COL.schlag}]}>Schlag</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.nutzung}]}>Nutzung</Text>
-                    <Text style={[styles.tableHeaderCell, {flex: COL.flaeche}]}>Fläche</Text>
-                    <View style={[{flex: COL.normal, flexDirection: "row", alignItems: "center", padding: 4}]}>
+                    <Text style={[styles.tableHeaderCell, {flex: COL.flaeche, textAlign: "right"}]}>Fläche</Text>
+                    <View style={[{flex: COL.normal, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
                         <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
                         <Text style={{fontSize: 8, fontFamily: "Helvetica-Bold", color: styles.tableHeaderCell.color}}>Normaljahr</Text>
                     </View>
-                    <View style={[{flex: COL.trocken, flexDirection: "row", alignItems: "center", padding: 4}]}>
+                    <View style={[{flex: COL.trocken, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
                         <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
                         <Text style={{fontSize: 8, fontFamily: "Helvetica-Bold", color: styles.tableHeaderCell.color}}>Trockenjahr</Text>
                     </View>
                     {showAltWasser && (
-                        <Text style={[styles.tableHeaderCell, {flex: COL.altWasser}]}>Alt. Wasser</Text>
+                        <Text style={[styles.tableHeaderCell, {flex: COL.altWasser, textAlign: "right"}]}>Alt. Wasser</Text>
                     )}
                 </View>
 
@@ -80,10 +80,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                             <Text style={[styles.tableCell, {flex: COL.nutzung}]}>
                                 {fa.module ? getModuleLabel(fa.module) : "–"}
                             </Text>
-                            <Text style={[styles.tableCell, {flex: COL.flaeche}]}>
+                            <Text style={[styles.tableCell, {flex: COL.flaeche, textAlign: "right"}]}>
                                 {formatNumDe(field.areaHa, 2)} ha
                             </Text>
-                            <View style={{flex: COL.normal, padding: 4}}>
+                            <View style={{flex: COL.normal, padding: 4, alignItems: "flex-end"}}>
                                 {normalHasValue && result?.normal ? (
                                     <>
                                         <Text style={styles.twoLinePrimary}>
@@ -99,7 +99,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                                     </Text>
                                 )}
                             </View>
-                            <View style={{flex: COL.trocken, padding: 4}}>
+                            <View style={{flex: COL.trocken, padding: 4, alignItems: "flex-end"}}>
                                 {dryHasValue && result?.dry ? (
                                     <>
                                         <Text style={styles.twoLinePrimary}>
@@ -116,8 +116,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                                 )}
                             </View>
                             {showAltWasser && (
-                                <Text style={[styles.tableCell, {flex: COL.altWasser}]}>
-                                    {result?.altWasserM3 ? `${formatNumDe(result.altWasserM3, 0)} m³` : "–"}
+                                <Text style={[styles.tableCell, {flex: COL.altWasser, textAlign: "right"}]}>
+                                    {result?.altWasserM3 ? `${formatNumDe(result.altWasserM3, 0)} m³/a` : "–"}
                                 </Text>
                             )}
                         </View>
@@ -126,13 +126,14 @@ export const PdfSummaryTable = ({data}: Props) => {
 
                 {/* Footer row */}
                 <View style={styles.tableFooterRow}>
-                    <Text style={[styles.tableCellBold, {flex: COL.schlag + COL.nutzung}]}>
+                    <Text style={[styles.tableCellBold, {flex: COL.schlag}]}>
                         Gesamt ({project.fieldAssignments.length} Schläge)
                     </Text>
-                    <Text style={[styles.tableCellBold, {flex: COL.flaeche}]}>
-                        {formatNumDe(totalAreaHa, 1)} ha
+                    <Text style={[styles.tableCell, {flex: COL.nutzung}]} />
+                    <Text style={[styles.tableCellBold, {flex: COL.flaeche, textAlign: "right"}]}>
+                        {formatNumDe(totalAreaHa, 2)} ha
                     </Text>
-                    <View style={{flex: COL.normal, padding: 4}}>
+                    <View style={{flex: COL.normal, padding: 4, alignItems: "flex-end"}}>
                         {normalM3 ? (
                             <>
                                 {normalMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(normalMm, "mm/a")}</Text>}
@@ -142,7 +143,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                             <Text style={styles.tableCellMuted}>–</Text>
                         )}
                     </View>
-                    <View style={{flex: COL.trocken, padding: 4}}>
+                    <View style={{flex: COL.trocken, padding: 4, alignItems: "flex-end"}}>
                         {dryM3 ? (
                             <>
                                 {dryMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(dryMm, "mm/a")}</Text>}
@@ -153,8 +154,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                         )}
                     </View>
                     {showAltWasser && (
-                        <Text style={[styles.tableCellBold, {flex: COL.altWasser}]}>
-                            {formatNumDe(totalAltWasserM3, 0)} m³
+                        <Text style={[styles.tableCellBold, {flex: COL.altWasser, textAlign: "right"}]}>
+                            {formatNumDe(totalAltWasserM3, 0)} m³/a
                         </Text>
                     )}
                 </View>
@@ -188,7 +189,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             {totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryRowLabel}>– Alternative Wasserquellen</Text>
-                    <Text style={styles.summaryRowValue}>{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
+                    <Text style={styles.summaryRowAlt}>{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
                 </View>
             )}
             {nettoM3 && totalAltWasserM3 > 0 && (

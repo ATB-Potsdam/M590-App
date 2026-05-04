@@ -45,7 +45,7 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalMm, normalM3, dryMm, dryM3, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
+    const {normalM3, normalAreaHa, dryM3, dryAreaHa, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
         assignmentResults.filter((r): r is AssignmentResult => r !== null)
     );
 
@@ -67,13 +67,18 @@ export const ProjectDetailPage = () => {
     const totalAreaHa = project.fieldAssignments
         .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0);
 
-    // Netto in mm/a: derived from m³/a ÷ (totalAreaHa × 10)
-    const areaFactor = totalAreaHa > 0 ? totalAreaHa * 10 : null;
-    const nettoMm: [number, number] | null = nettoM3 && areaFactor
-        ? [Math.round(nettoM3[0] / areaFactor), Math.round(nettoM3[1] / areaFactor)]
+    // mm/a totals: derived from m³/a ÷ (contributing area × 10) — summing mm/a across fields is meaningless
+    const normalMm: [number, number] | null = normalM3 && normalAreaHa > 0
+        ? [Math.round(normalM3[0] / (normalAreaHa * 10)), Math.round(normalM3[1] / (normalAreaHa * 10))]
         : null;
-    const nettoDryMm: [number, number] | null = nettoDryM3 && areaFactor
-        ? [Math.round(nettoDryM3[0] / areaFactor), Math.round(nettoDryM3[1] / areaFactor)]
+    const dryMm: [number, number] | null = dryM3 && dryAreaHa > 0
+        ? [Math.round(dryM3[0] / (dryAreaHa * 10)), Math.round(dryM3[1] / (dryAreaHa * 10))]
+        : null;
+    const nettoMm: [number, number] | null = nettoM3 && normalAreaHa > 0
+        ? [Math.round(nettoM3[0] / (normalAreaHa * 10)), Math.round(nettoM3[1] / (normalAreaHa * 10))]
+        : null;
+    const nettoDryMm: [number, number] | null = nettoDryM3 && dryAreaHa > 0
+        ? [Math.round(nettoDryM3[0] / (dryAreaHa * 10)), Math.round(nettoDryM3[1] / (dryAreaHa * 10))]
         : null;
 
     return (
@@ -287,7 +292,7 @@ export const ProjectDetailPage = () => {
                                                 {totalAltWasserM3 > 0 && (
                                                     <td>
                                                         {result?.altWasserM3
-                                                            ? `${formatNum(result.altWasserM3, 0)} m³`
+                                                            ? `${formatNum(result.altWasserM3, 0)} m³/a`
                                                             : "–"}
                                                     </td>
                                                 )}
@@ -298,7 +303,7 @@ export const ProjectDetailPage = () => {
                                 <tfoot>
                                     <tr className="project-summary__total-row">
                                         <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} Schläge)</strong></td>
-                                        <td>{formatNum(totalAreaHa, 1)} ha</td>
+                                        <td><strong>{formatNum(totalAreaHa, 2)} ha</strong></td>
                                         <td>
                                             {normalM3 ? (
                                                 <div className="project-summary__two-line">
@@ -316,7 +321,7 @@ export const ProjectDetailPage = () => {
                                             ) : "–"}
                                         </td>
                                         {totalAltWasserM3 > 0 && (
-                                            <td>{formatNum(totalAltWasserM3, 0)} m³</td>
+                                            <td><strong>{formatNum(totalAltWasserM3, 0)} m³/a</strong></td>
                                         )}
                                     </tr>
                                 </tfoot>

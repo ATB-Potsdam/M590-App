@@ -18,6 +18,8 @@ export interface AssignmentResult {
     dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
     /** Alternative Wasserquellen in m³/a (nur Grünflächen- und Sportflächenmodule) */
     altWasserM3?: number;
+    /** Feldfläche in ha — für gewichtete mm/a-Berechnung in sumResults */
+    areaHa: number;
 }
 
 export const getAssignmentResult = (
@@ -44,7 +46,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateHauptkulturenBoth(input);
-        return {normal, dry};
+        return {normal, dry, areaHa: field.areaHa};
     }
     if (
         fa.module === "gemuese_obst" &&
@@ -66,7 +68,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateGemueseObstBoth(input);
-        return {normal, dry};
+        return {normal, dry, areaHa: field.areaHa};
     }
 
     if (
@@ -86,7 +88,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateWeinbauBoth(input);
-        return {normal, dry};
+        return {normal, dry, areaHa: field.areaHa};
     }
 
     if (
@@ -109,7 +111,7 @@ export const getAssignmentResult = (
             periodEnd: fa.fllPeriodEnd ?? 9,
         });
         // Grünflächen has no scenario differentiation — store as normal only
-        return {normal: result, altWasserM3: fa.altWasserM3};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
 
     if (
@@ -120,7 +122,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = field.climateData.precipitation
             .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
         const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result, altWasserM3: fa.altWasserM3};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
 
     if (
@@ -139,7 +141,7 @@ export const getAssignmentResult = (
             teeM2: fa.golfTeeM2,
             fairwayM2: fa.golfFairwayM2,
         });
-        return {normal: result, altWasserM3: fa.altWasserM3};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
 
     if (
@@ -152,7 +154,7 @@ export const getAssignmentResult = (
             weeks: fa.kunstrasenWeeks,
             mmPerWeek: fa.kunstrasenMmPerWeek,
         });
-        return {normal: result, altWasserM3: fa.altWasserM3};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
 
     if (
@@ -163,7 +165,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = field.climateData.precipitation
             .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
         const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result, altWasserM3: fa.altWasserM3};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
 
     return null;
@@ -173,34 +175,32 @@ export const getAssignmentResult = (
   }
 };
 
-// Summiert mm/a- und m³/a-Ranges über alle Assignments
+// Summiert m³/a-Ranges über alle Assignments (mm/a wird vom Aufrufer aus Volumen ÷ Fläche abgeleitet)
 export const sumResults = (results: AssignmentResult[]): {
-    normalMm: [number, number] | null;
     normalM3: [number, number] | null;
-    dryMm: [number, number] | null;
+    normalAreaHa: number;
     dryM3: [number, number] | null;
+    dryAreaHa: number;
     totalAltWasserM3: number;
     nettoM3: [number, number] | null;
 } => {
-    let normalMmMin = 0, normalMmMax = 0, normalM3Min = 0, normalM3Max = 0, hasNormal = false;
-    let dryMmMin = 0, dryMmMax = 0, dryM3Min = 0, dryM3Max = 0, hasDry = false;
+    let normalM3Min = 0, normalM3Max = 0, normalAreaHa = 0, hasNormal = false;
+    let dryM3Min = 0, dryM3Max = 0, dryAreaHa = 0, hasDry = false;
     let totalAltWasserM3 = 0;
 
     results.forEach((r) => {
         const normalHasValue = r.normal && (!('hasValue' in r.normal) || r.normal.hasValue);
         const dryHasValue = r.dry && (!('hasValue' in r.dry) || r.dry.hasValue);
         if (normalHasValue && r.normal) {
-            normalMmMin += r.normal.totalRangeMm[0];
-            normalMmMax += r.normal.totalRangeMm[1];
             normalM3Min += r.normal.totalRangeM3[0];
             normalM3Max += r.normal.totalRangeM3[1];
+            normalAreaHa += r.areaHa ?? 0;
             hasNormal = true;
         }
         if (dryHasValue && r.dry) {
-            dryMmMin += r.dry.totalRangeMm[0];
-            dryMmMax += r.dry.totalRangeMm[1];
             dryM3Min += r.dry.totalRangeM3[0];
             dryM3Max += r.dry.totalRangeM3[1];
+            dryAreaHa += r.areaHa ?? 0;
             hasDry = true;
         }
         if (r.altWasserM3) {
@@ -214,10 +214,10 @@ export const sumResults = (results: AssignmentResult[]): {
         : null;
 
     return {
-        normalMm: hasNormal ? [normalMmMin, normalMmMax] : null,
         normalM3: hasNormal ? [normalM3Min, normalM3Max] : null,
-        dryMm: hasDry ? [dryMmMin, dryMmMax] : null,
+        normalAreaHa,
         dryM3: hasDry ? [dryM3Min, dryM3Max] : null,
+        dryAreaHa,
         totalAltWasserM3,
         nettoM3,
     };
