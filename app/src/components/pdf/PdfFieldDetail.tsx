@@ -35,7 +35,7 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormal
     return (
         <View>
             <Text style={styles.detailTitle}>
-                {index}. {field.name} — {moduleLabel} — {field.areaHa} ha
+                {index}. {field.name} — {moduleLabel} — {formatNumDe(field.areaHa, 2)} ha
             </Text>
 
             {/* Standortdaten */}

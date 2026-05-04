@@ -112,7 +112,7 @@ export const ProjectDetailPage = () => {
                                 {/* Zeile 1: Feldname + Fläche + Klimazone – unverändert */}
                                 <div className="assignment-list__field">
                                     <strong>{field.name}</strong>
-                                    <span>{field.areaHa} ha</span>
+                                    <span>{formatNum(field.areaHa, 2)} ha</span>
                                     {field.climateClassStatus === "done" && field.climateClass && (
                                         <span className="assignment-list__climate">🌿 {field.climateClass[0]}</span>
                                     )}
@@ -213,7 +213,7 @@ export const ProjectDetailPage = () => {
                                     }}
                                 >
                                     <strong>{field.name}</strong>
-                                    <span>{field.areaHa} ha</span>
+                                    <span>{formatNum(field.areaHa, 2)} ha</span>
                                     {field.climateClassStatus === "done" && field.climateClass && (
                                         <span className="assignment-list__climate">🌿 {field.climateClass[0]}</span>
                                     )}
@@ -267,7 +267,7 @@ export const ProjectDetailPage = () => {
                                                     )}
                                                 </td>
                                                 <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
-                                                <td>{field.areaHa} ha</td>
+                                                <td>{formatNum(field.areaHa, 2)} ha</td>
                                                 <td>
                                                     {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
                                                         <div className="project-summary__two-line">

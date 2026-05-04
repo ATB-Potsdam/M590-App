@@ -29,6 +29,7 @@ import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} fro
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
+import {formatNum} from '../lib/formatNum';
 import './AssignmentPage.scss';
 
 export const AssignmentPage = () => {
@@ -281,7 +282,7 @@ export const AssignmentPage = () => {
                 </button>
                 <h1>{field.name}</h1>
                 <p className="assignment-page__meta">
-                    {field.areaHa} ha
+                    {formatNum(field.areaHa, 2)} ha
                     {field.climateClassStatus === 'done' && field.climateClass &&
                         ` · 🌿 Klimazone ${field.climateClass[0]}`}
                     {field.nFkweClass && ` · nFKWe ${field.nFkweClass}`}

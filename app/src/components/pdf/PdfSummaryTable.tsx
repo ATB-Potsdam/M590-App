@@ -81,7 +81,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                                 {fa.module ? getModuleLabel(fa.module) : "–"}
                             </Text>
                             <Text style={[styles.tableCell, {flex: COL.flaeche}]}>
-                                {field.areaHa} ha
+                                {formatNumDe(field.areaHa, 2)} ha
                             </Text>
                             <View style={{flex: COL.normal, padding: 4}}>
                                 {normalHasValue && result?.normal ? (

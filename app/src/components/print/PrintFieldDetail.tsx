@@ -58,7 +58,7 @@ export const PrintFieldDetail = ({field, assignment: fa, result, index}: Props) 
     return (
         <div className="print-detail">
             <h3 className="print-detail__title">
-                {index}. {field.name} — {moduleLabel} — {field.areaHa} ha
+                {index}. {field.name} — {moduleLabel} — {formatNum(field.areaHa, 2)} ha
             </h3>
 
             {/* Standortdaten */}
@@ -382,7 +382,7 @@ const BerechnungsBlock = ({module, result, fa, source}: {module: ModuleType; res
                 <table className="print-detail__table">
                     <thead><tr><th colSpan={2}>Berechnungsgrundlagen</th></tr></thead>
                     <tbody>
-                        <tr><td>Fläche</td><td>{r.areaHa} ha</td></tr>
+                        <tr><td>Fläche</td><td>{formatNum(r.areaHa, 2)} ha</td></tr>
                         <tr><td>Wochen/Saison</td><td>{r.weeks}</td></tr>
                         <tr><td>Intensität</td><td>{r.mmPerWeek} mm/Woche</td></tr>
                         <tr>

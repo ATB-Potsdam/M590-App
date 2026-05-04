@@ -289,7 +289,7 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                     <View style={styles.detailTableHeader}>
                         <Text style={styles.detailTableHeaderCell}>Berechnungsgrundlagen</Text>
                     </View>
-                    <DetailRow label="Fläche" value={`${r.areaHa} ha`} />
+                    <DetailRow label="Fläche" value={`${formatNumDe(r.areaHa, 2)} ha`} />
                     <DetailRow label="Wochen/Saison" value={String(r.weeks)} />
                     <DetailRow label="Intensität" value={`${r.mmPerWeek} mm/Woche`} />
                     <DetailRow
