@@ -1,5 +1,5 @@
 // src/pages/ProjectDetailPage.tsx
-import {useState} from "react";
+import {useState, useRef, useCallback, useEffect} from "react";
 import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {getModuleLabel} from "../constants/modules";
@@ -80,6 +80,27 @@ export const ProjectDetailPage = () => {
     const nettoDryMm: [number, number] | null = nettoDryM3 && dryAreaHa > 0
         ? [Math.round(nettoDryM3[0] / (dryAreaHa * 10)), Math.round(nettoDryM3[1] / (dryAreaHa * 10))]
         : null;
+
+    const tableScrollRef = useRef<HTMLDivElement>(null);
+    const tableOuterRef = useRef<HTMLDivElement>(null);
+    const updateScrollShadows = useCallback(() => {
+        const scroll = tableScrollRef.current;
+        const outer = tableOuterRef.current;
+        if (!scroll || !outer) return;
+        outer.classList.toggle("project-summary__table-wrap-outer--shadow-left", scroll.scrollLeft > 0);
+        outer.classList.toggle("project-summary__table-wrap-outer--shadow-right", scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
+    }, []);
+    const tableScrollCallbackRef = useCallback((el: HTMLDivElement | null) => {
+        tableScrollRef.current = el;
+    }, []);
+
+    useEffect(() => {
+        const el = tableScrollRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(updateScrollShadows);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [updateScrollShadows]);
 
     return (
         <div className="page">
@@ -244,7 +265,12 @@ export const ProjectDetailPage = () => {
                     {/* Detailtabelle je Schlag */}
                     <details className="project-summary__details">
                         <summary>Details je Schlag</summary>
-                        <div className="project-summary__table-wrap">
+                        <div className="project-summary__table-wrap-outer" ref={tableOuterRef}>
+                        <div
+                            className="project-summary__table-wrap"
+                            ref={tableScrollCallbackRef}
+                            onScroll={updateScrollShadows}
+                        >
                             <table className="project-summary__table">
                                 <thead>
                                     <tr>
@@ -326,6 +352,7 @@ export const ProjectDetailPage = () => {
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
                         </div>
                     </details>
 
