@@ -187,7 +187,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
-                    <Text style={styles.summaryRowLabel}>− Alternative Wasserquellen</Text>
+                    <Text style={styles.summaryRowLabel}>– Alternative Wasserquellen</Text>
                     <Text style={styles.summaryRowValue}>{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
                 </View>
             )}

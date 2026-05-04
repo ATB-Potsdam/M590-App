@@ -76,7 +76,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
                 <View style={styles.detailTableRow}>
                     <Text style={styles.detailTableLabel}>Alt. Wasserquellen</Text>
                     <Text style={styles.detailTableValue}>
-                        {"−"}{formatNumDe(result.altWasserM3, 0)} m³/a
+                        {"–"}{formatNumDe(result.altWasserM3, 0)} m³/a
                     </Text>
                 </View>
             )}
