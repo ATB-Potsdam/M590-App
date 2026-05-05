@@ -852,21 +852,23 @@ export const AssignmentPage = () => {
                             checked={altWasserMode === 'available'}
                             onChange={() => setAltWasserMode('available')}
                         />
-                        Wasserquellen vorhanden:
+                        <span className="assignment-page__radio-label-body">
+                            Wasserquellen vorhanden
+                            {altWasserMode === 'available' && (
+                                <label className="assignment-section__label">
+                                    Verfügbare Menge (m³/a)
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        step={1}
+                                        placeholder="0"
+                                        value={altWasserM3}
+                                        onChange={(e) => setAltWasserM3(e.target.value === "" ? "" : Number(e.target.value))}
+                                    />
+                                </label>
+                            )}
+                        </span>
                     </label>
-                    {altWasserMode === 'available' && (
-                        <label className="assignment-section__label">
-                            Verfügbare Menge (m³/a)
-                            <input
-                                type="number"
-                                min={0}
-                                step={1}
-                                placeholder="0"
-                                value={altWasserM3}
-                                onChange={(e) => setAltWasserM3(e.target.value === "" ? "" : Number(e.target.value))}
-                            />
-                        </label>
-                    )}
                 </section>
             )}
 

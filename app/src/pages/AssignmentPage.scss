@@ -82,8 +82,19 @@
 
     &__radio-label {
         display: flex;
-        align-items: center;
-        gap: 4px;
+        align-items: flex-start;
+        gap: 8px;
+
+        input[type="radio"] {
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+    }
+
+    &__radio-label-body {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
     }
 
     &__suggestion-btn {
@@ -168,6 +179,7 @@
             border: 1px solid var(--color-border-medium);
             border-radius: 6px;
             font-size: 14px;
+            margin: 0;
         }
     }
 }
