@@ -5,6 +5,7 @@ import {BottomNav} from './components/BottomNav';
 import {ErrorBoundary} from './components/ErrorBoundary';
 import {LogoBar} from './components/LogoBar';
 import {Messages} from './components/Messages';
+import {UpdateBanner} from './components/UpdateBanner';
 import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
 import {refreshClimateData, useFarm} from './hooks/useFarm';
@@ -127,6 +128,7 @@ const App = () => {
                 </>
             )}
             {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}
+            <UpdateBanner />
             <Messages />
         </>
     );
