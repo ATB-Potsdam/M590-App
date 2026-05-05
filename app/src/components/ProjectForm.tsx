@@ -1,4 +1,5 @@
 // src/components/ProjectForm.tsx
+import clsx from "clsx";
 import {useState, useCallback, type SubmitEvent} from "react";
 import type {Project} from "../types/project";
 import "./ProjectForm.scss";
@@ -40,8 +41,10 @@ export const ProjectForm = ({
         );
     };
 
+    const isValid = !!name.trim();
+
     return (
-        <form className="field-form" onSubmit={handleSubmit}>
+        <form className={clsx("field-form", isValid && "field-form--valid")} onSubmit={handleSubmit}>
             <table className="project-form__table">
                 <tbody>
                     <tr>

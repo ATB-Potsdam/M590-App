@@ -88,29 +88,34 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
         setNFkweSource('manual');
     };
 
-    return (
-        <form onSubmit={handleSubmit} className="field-form">
-            <label>
-                Feldname
-                <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="z. B. Nordfeld"
-                    required
-                />
-            </label>
+    const isValid = !!name && areaHaValid && !!location;
 
-            <label>
-                Fläche (ha)
-                <input
-                    type="text"
-                    inputMode="decimal"
-                    value={areaHaText}
-                    onChange={(e) => setAreaHaText(e.target.value)}
-                    placeholder="z. B. 12,5"
-                    required
-                />
-            </label>
+    return (
+        <form onSubmit={handleSubmit} className={clsx("field-form", isValid && "field-form--valid")}>
+            <div className="field-form__name-area-row">
+                <label className="field-form__name-label">
+                    Feldname
+                    <input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="z. B. Nordfeld"
+                        required
+                    />
+                </label>
+
+                <label className="field-form__area-label">
+                    Fläche (ha)
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        value={areaHaText}
+                        onChange={(e) => setAreaHaText(e.target.value)}
+                        placeholder="z. B. 12,5"
+                        size={10}
+                        required
+                    />
+                </label>
+            </div>
 
             <p className={clsx("map")}>
                 Standort wählen – auf die Karte klicken:

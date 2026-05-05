@@ -47,6 +47,8 @@ export const FarmPage = () => {
     const addMessage = useAppStore((state) => state.addMessage);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
+    const [editingName, setEditingName] = useState(!farm.name);
+    const [nameDraft, setNameDraft] = useState(farm.name);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
     const [confirmReset, setConfirmReset] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -133,15 +135,61 @@ export const FarmPage = () => {
 
             <OnboardingBanner />
 
-            <label>
-                <strong>Betriebsname</strong>
-                <input
-                    value={farm.name}
-                    onChange={(e) => updateFarmName(e.target.value)}
-                    placeholder="Name des Betriebs"
-                    className="farm-page__name-input"
-                />
-            </label>
+            <div className="farm-page__name-label">
+                <strong>Betrieb</strong>
+                {editingName || !farm.name ? (
+                    <>
+                        <input
+                            value={nameDraft}
+                            onChange={(e) => setNameDraft(e.target.value)}
+                            placeholder="Name des Betriebs"
+                            className="farm-page__name-input"
+                            autoFocus={!!farm.name}
+                        />
+                        <button
+                            type="button"
+                            className="farm-page__name-btn farm-page__name-btn--save"
+                            onClick={() => {
+                                const trimmed = nameDraft.trim();
+                                if (!trimmed) return;
+                                updateFarmName(trimmed);
+                                setEditingName(false);
+                            }}
+                            disabled={!nameDraft.trim()}
+                            title="Übernehmen"
+                        >
+                            ✓
+                        </button>
+                        <button
+                            type="button"
+                            className="farm-page__name-btn farm-page__name-btn--cancel"
+                            onClick={() => {
+                                setNameDraft(farm.name);
+                                setEditingName(false);
+                            }}
+                            disabled={!farm.name}
+                            title="Verwerfen"
+                        >
+                            ✕
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <span className="farm-page__name-display">{farm.name}</span>
+                        <button
+                            type="button"
+                            className="farm-page__name-btn"
+                            onClick={() => {
+                                setNameDraft(farm.name);
+                                setEditingName(true);
+                            }}
+                            title="Name bearbeiten"
+                        >
+                            ✏️
+                        </button>
+                    </>
+                )}
+            </div>
 
             <h2 className="farm-page__fields-heading">Felder</h2>
 
