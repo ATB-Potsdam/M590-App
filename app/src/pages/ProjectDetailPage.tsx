@@ -203,12 +203,12 @@ export const ProjectDetailPage = () => {
                                         <div className="assignment-list__result">
                                             {normalHasValue && result.normal && (
                                                 <span className="result-pill result-pill--normal">
-                                                    🌤 {formatRange(result.normal.totalRangeMm, "mm/a")} · {formatRange(result.normal.totalRangeM3, "m³/a")}
+                                                    🌤 {formatRange(result.normal.totalRangeM3, "m³/a")} · {formatRange(result.normal.totalRangeMm, "mm/a")}
                                                 </span>
                                             )}
                                             {dryHasValue && result.dry && (
                                                 <span className="result-pill result-pill--dry">
-                                                    ☀️ {formatRange(result.dry.totalRangeMm, "mm/a")} · {formatRange(result.dry.totalRangeM3, "m³/a")}
+                                                    ☀️ {formatRange(result.dry.totalRangeM3, "m³/a")} · {formatRange(result.dry.totalRangeMm, "mm/a")}
                                                 </span>
                                             )}
                                             {!normalHasValue && result.normal && (
@@ -389,8 +389,8 @@ export const ProjectDetailPage = () => {
                                 {normalCount < assignedCount && <span className="project-summary__partial"> ({normalCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
-                                {normalMm && <span className="project-summary__mma">{formatRange(normalMm, "mm/a")}</span>}
                                 <strong>{formatRange(normalM3, "m³/a")}</strong>
+                                {normalMm && <span className="project-summary__mma">{formatRange(normalMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -401,8 +401,8 @@ export const ProjectDetailPage = () => {
                                 {dryCount < assignedCount && <span className="project-summary__partial"> ({dryCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
-                                {dryMm && <span className="project-summary__mma">{formatRange(dryMm, "mm/a")}</span>}
                                 <strong>{formatRange(dryM3, "m³/a")}</strong>
+                                {dryMm && <span className="project-summary__mma">{formatRange(dryMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -416,8 +416,8 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--netto">
                             <span>🌤 Netto-Antragsmenge (Normaljahr)</span>
                             <span className="project-summary__result-value">
-                                {nettoMm && <span className="project-summary__mma">{formatRange(nettoMm, "mm/a")}</span>}
                                 <strong>{formatRange(nettoM3, "m³/a")}</strong>
+                                {nettoMm && <span className="project-summary__mma">{formatRange(nettoMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -425,8 +425,8 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--netto">
                             <span>☀️ Netto-Antragsmenge (Trockenjahr)</span>
                             <span className="project-summary__result-value">
-                                {nettoDryMm && <span className="project-summary__mma">{formatRange(nettoDryMm, "mm/a")}</span>}
                                 <strong>{formatRange(nettoDryM3, "m³/a")}</strong>
+                                {nettoDryMm && <span className="project-summary__mma">{formatRange(nettoDryMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
