@@ -51,7 +51,35 @@ export const FarmPage = () => {
     const [nameDraft, setNameDraft] = useState(farm.name);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
     const [confirmReset, setConfirmReset] = useState(false);
+    const [confirmDeleteFieldId, setConfirmDeleteFieldId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const importConfirmRef = useRef<HTMLDivElement>(null);
+    const resetConfirmRef = useRef<HTMLDivElement>(null);
+    const deleteConfirmRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (confirmImport) {
+            setTimeout(() => {
+                importConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+            }, 50);
+        }
+    }, [confirmImport]);
+
+    useEffect(() => {
+        if (confirmReset) {
+            setTimeout(() => {
+                resetConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+            }, 50);
+        }
+    }, [confirmReset]);
+
+    useEffect(() => {
+        if (confirmDeleteFieldId) {
+            setTimeout(() => {
+                deleteConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+            }, 50);
+        }
+    }, [confirmDeleteFieldId]);
     const [searchParams, setSearchParams] = useSearchParams();
 
     // Deep-Link aus ProjectDetailPage: ?edit=<fieldId> öffnet Editor + scrollt.
@@ -230,12 +258,33 @@ export const FarmPage = () => {
                             )}
                             {field.climateDataStatus === "loading" && (
                                 <small className="farm-badge farm-badge--loading">⏳ Klimadaten werden geladen…</small>
-                            )}                            <div className="farm-page__field-actions">
-                                <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
-                                <button onClick={() => { removeFieldFromAllProjects(field.id); removeField(field.id); }}>
-                                    🗑 <span className={clsx("red")}>Entfernen</span>
-                                </button>
-                            </div>
+                            )}
+                            {confirmDeleteFieldId === field.id ? (
+                                <div ref={deleteConfirmRef} className="farm-page__delete-confirm">
+                                    <strong>Schlag „{field.name}" entfernen?</strong>
+                                    <p>Der Schlag wird auch aus allen Szenarien entfernt.</p>
+                                    <div className="farm-page__import-confirm-actions">
+                                        <button
+                                            className="farm-page__reset-confirm-btn"
+                                            onClick={() => {
+                                                removeFieldFromAllProjects(field.id);
+                                                removeField(field.id);
+                                                setConfirmDeleteFieldId(null);
+                                            }}
+                                        >
+                                            Ja, entfernen
+                                        </button>
+                                        <button onClick={() => setConfirmDeleteFieldId(null)}>Abbrechen</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="farm-page__field-actions">
+                                    <button onClick={() => setEditingField(field)}>✏️ Bearbeiten</button>
+                                    <button onClick={() => setConfirmDeleteFieldId(field.id)}>
+                                        🗑 <span className={clsx("red")}>Entfernen</span>
+                                    </button>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
@@ -270,7 +319,7 @@ export const FarmPage = () => {
 
             <div className="farm-page__reset">
                 {confirmReset ? (
-                    <div className="farm-page__reset-confirm">
+                    <div ref={resetConfirmRef} className="farm-page__reset-confirm">
                         <strong>Alle Daten unwiderruflich löschen?</strong>
                         <p>Betrieb, alle Felder und Szenarien werden gelöscht und können nicht wiederhergestellt werden.</p>
                         <div className="farm-page__import-confirm-actions">
@@ -286,7 +335,7 @@ export const FarmPage = () => {
             </div>
 
             {confirmImport && (
-                <div className="farm-page__import-confirm">
+                <div ref={importConfirmRef} className="farm-page__import-confirm">
                     <strong>Achtung: Der Import ersetzt alle vorhandenen Daten.</strong>
                     <p>
                         Betrieb: {confirmImport.farm.name || "(kein Name)"},
