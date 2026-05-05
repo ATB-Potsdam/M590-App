@@ -155,6 +155,8 @@ export const FarmPage = () => {
         }
         addMessage({type: "info", message: ["Daten wurden erfolgreich importiert."]});
         setConfirmImport(null);
+        setNameDraft(confirmImport.farm.name);
+        setEditingName(!confirmImport.farm.name);
     };
 
     return (
