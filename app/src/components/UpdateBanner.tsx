@@ -2,7 +2,12 @@ import {useRegisterSW} from "virtual:pwa-register/react";
 import "./UpdateBanner.scss";
 
 export const UpdateBanner = () => {
-    const {needRefresh: [needRefresh], updateServiceWorker} = useRegisterSW();
+    const {needRefresh: [needRefresh], updateServiceWorker} = useRegisterSW({
+        onRegisteredSW(_swUrl, registration) {
+            if (!registration) return;
+            setInterval(() => registration.update(), 10 * 60 * 1000);
+        },
+    });
 
     if (!needRefresh) return null;
 
