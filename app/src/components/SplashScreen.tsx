@@ -5,10 +5,11 @@ const base = import.meta.env.BASE_URL;
 interface Props {
     state: "loading" | "ready" | "done" | "error";
     errorMessage?: string;
+    loadProgress: number;
     onDismissed: () => void;
 }
 
-export const SplashScreen = ({state, errorMessage, onDismissed}: Props) => (
+export const SplashScreen = ({state, errorMessage, loadProgress, onDismissed}: Props) => (
     <div className={`splash${state === "done" ? " splash--flying" : ""}`}>
         <div
             className="splash__logos"
@@ -21,9 +22,9 @@ export const SplashScreen = ({state, errorMessage, onDismissed}: Props) => (
                 <img src={`${base}dwa-logo.svg`} alt="DWA" className="splash__logo" />
             </a>
         </div>
-        <p className={`splash__hint${state !== "loading" ? " splash__hint--hidden" : ""}`}>
-            Daten werden geladen…
-        </p>
+        <div className={`splash__progress${state !== "loading" ? " splash__progress--hidden" : ""}`}>
+            <div className="splash__progress-bar" style={{width: `${loadProgress}%`}} />
+        </div>
         {state === "error" && errorMessage && (
             <p className="splash__error">{errorMessage}</p>
         )}

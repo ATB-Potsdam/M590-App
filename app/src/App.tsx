@@ -34,6 +34,7 @@ const App = () => {
     const [splashState, setSplashState] = useState<"loading" | "ready" | "done" | "error">("loading");
     const [splashDismissed, setSplashDismissed] = useState(false);
     const [splashError, setSplashError] = useState<string | undefined>();
+    const [loadProgress, setLoadProgress] = useState(0);
     const splashReadyRef = useRef(false);
     const timerDoneRef = useRef(false);
 
@@ -50,11 +51,16 @@ const App = () => {
                 tryFinishSplash();
             }, SPLASH_MIN_DURATION_MS);
 
+            // Weighted by file size: Klimaraeume(2.8MB)=6%, nfkwe(28.7MB)=58%, precip(9.1MB)=18%, et0(9.1MB)=18%
+            const progressSteps = [6, 64, 82, 100];
+            const track = <T,>(promise: Promise<T>, index: number): Promise<T> =>
+                promise.then((result) => { setLoadProgress(progressSteps[index]); return result; });
+
             Promise.all([
-                loadClimateLayerFromPublic(),
-                loadNfkweLayerFromPublic(),
-                createRasterLookup(precipRasterUrl),
-                createRasterLookup(et0RasterUrl),
+                track(loadClimateLayerFromPublic(), 0),
+                track(loadNfkweLayerFromPublic(), 1),
+                track(createRasterLookup(precipRasterUrl), 2),
+                track(createRasterLookup(et0RasterUrl), 3),
             ])
                 .then(([climateLayer, nfkweLayer, precipitationLookup, et0Lookup]) => {
                     useAppStore.setState({climateLayer, nfkweLayer, precipitationLookup, et0Lookup});
@@ -93,6 +99,7 @@ const App = () => {
                 <SplashScreen
                     state={splashState}
                     errorMessage={splashError}
+                    loadProgress={loadProgress}
                     onDismissed={() => setSplashDismissed(true)}
                 />
             )}
