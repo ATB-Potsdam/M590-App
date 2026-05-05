@@ -17,6 +17,11 @@
         color: var(--color-text-secondary);
     }
 
+    &__header-block {
+        display: inline-block;
+        text-align: left;
+    }
+
     &__title-row {
         display: flex;
         align-items: center;
