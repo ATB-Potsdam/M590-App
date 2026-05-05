@@ -84,3 +84,34 @@
     margin-top: 12px;
     width: 100%;
 }
+
+.project-list__delete-confirm {
+    border: 1px solid var(--color-error-border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 6px;
+    background: var(--color-error-bg);
+
+    p {
+        margin: 6px 0 10px;
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+    }
+}
+
+.project-list__delete-confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.project-list__delete-confirm-btn {
+    background: var(--color-error);
+    color: #fff;
+    border-color: var(--color-error);
+
+    &:hover {
+        background: var(--color-error-dark);
+        border-color: var(--color-error-dark);
+    }
+}
