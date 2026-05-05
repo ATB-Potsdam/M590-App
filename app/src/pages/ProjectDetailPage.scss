@@ -17,6 +17,37 @@
         color: var(--color-text-secondary);
     }
 
+    &__title-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        h1 {
+            margin: 0;
+        }
+    }
+
+    &__edit-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.5;
+        padding: 2px 4px;
+        flex-shrink: 0;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &__description {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: var(--color-text-secondary);
+        white-space: pre-line;
+    }
+
     &__empty {
         color: var(--color-text-muted);
         font-style: italic;

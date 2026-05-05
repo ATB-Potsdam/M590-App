@@ -1,0 +1,38 @@
+// src/components/ProjectForm.scss
+.project-form__table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+        padding: 4px 0;
+        vertical-align: top;
+    }
+
+    th {
+        font-weight: normal;
+        font-size: inherit;
+        color: var(--color-text);
+        white-space: nowrap;
+        padding-right: 16px;
+        width: 1%;
+        text-align: right;
+    }
+
+    td {
+        width: 100%;
+
+        input, textarea, select {
+            width: 100%;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        textarea {
+            resize: none;
+            font-family: inherit;
+            overflow-y: auto;
+            max-height: 8lh;
+            line-height: 1.3;
+        }
+    }
+}

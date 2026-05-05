@@ -6,11 +6,11 @@ import type {FieldAssignment, Project} from "../types/project";
 export const useProjects = () => {
     const [projects, setProjects] = useLocalStore((state) => state.dwa_projects);
 
-    const addProject = (name: string, year?: number) => {
+    const addProject = (name: string, description?: string) => {
         const project: Project = {
             id: uuidv4(),
             name,
-            year,
+            description,
             fieldAssignments: [],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
@@ -19,14 +19,14 @@ export const useProjects = () => {
         return project.id;
     };
 
-    const copyProject = (sourceId: string, name: string, year?: number) => {
+    const copyProject = (sourceId: string, name: string, description?: string) => {
         const source = projects.find((p) => p.id === sourceId);
         if (!source) return null;
         const project: Project = {
             ...source,
             id: uuidv4(),
             name,
-            year,
+            description,
             // Feldzuweisungen übernehmen, neue IDs vergeben
             fieldAssignments: source.fieldAssignments.map((fa) => ({
                 ...fa,

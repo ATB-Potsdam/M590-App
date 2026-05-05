@@ -9,6 +9,7 @@ import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} 
 import {formatNum, formatRange} from "../lib/formatNum";
 import {generateSummaryPdf, sharePdf} from "../lib/generateSummaryPdf";
 import {emojiToPngDataUrl, svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
+import {ProjectForm} from "../components/ProjectForm";
 import {useAppStore} from "../stores/useAppStore";
 import {boundToLabel} from "../utils/irrigationPeriod";
 import "./ProjectDetailPage.scss";
@@ -18,10 +19,11 @@ const base = import.meta.env.BASE_URL;
 export const ProjectDetailPage = () => {
     const {id} = useParams<{id: string;}>();
     const navigate = useNavigate();
-    const {projects, addFieldAssignment, removeFieldAssignment} = useProjects();
+    const {projects, addFieldAssignment, removeFieldAssignment, updateProject} = useProjects();
     const {farm} = useFarm();
 
     const [showAddField, setShowAddField] = useState(false);
+    const [showEditProject, setShowEditProject] = useState(false);
     const addMessage = useAppStore((s) => s.addMessage);
 
     const tableScrollRef = useRef<HTMLDivElement>(null);
@@ -107,9 +109,31 @@ export const ProjectDetailPage = () => {
             <button className="project-detail__back" onClick={() => navigate("/")}>
                 ← Szenarien
             </button>
-            <h1>{project.name}</h1>
-            {project.year && (
-                <span className="project-detail__meta">{project.year}</span>
+            {showEditProject ? (
+                <ProjectForm
+                    initialName={project.name}
+                    initialDescription={project.description ?? ""}
+                    submitLabel="Speichern"
+                    onSave={(name, description) => {
+                        updateProject(project.id, {name, description});
+                        setShowEditProject(false);
+                    }}
+                    onCancel={() => setShowEditProject(false)}
+                />
+            ) : (
+                <>
+                    <div className="project-detail__title-row">
+                        <h1>{project.name}</h1>
+                        <button className="project-detail__edit-btn" onClick={() => setShowEditProject(true)} title="Name/Beschreibung bearbeiten">✏️</button>
+                    </div>
+                    {project.description && (
+                        <p className="project-detail__description">
+                            {project.description.split("\n").map((line, i, arr) => (
+                                <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                            ))}
+                        </p>
+                    )}
+                </>
             )}
 
             <OnboardingBanner />

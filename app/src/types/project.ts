@@ -70,7 +70,7 @@ export interface FieldAssignment {
 export interface Project {
     id: string;
     name: string;
-    year?: number;
+    description?: string;
     fieldAssignments: FieldAssignment[];
     createdAt: string;
     updatedAt: string;

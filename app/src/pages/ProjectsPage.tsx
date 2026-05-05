@@ -18,12 +18,12 @@ export const ProjectsPage = () => {
 
     const handleSave = (
         name: string,
-        year: number | undefined,
+        description: string | undefined,
         copyFromId?: string
     ) => {
         const id = copyFromId
-            ? copyProject(copyFromId, name, year)
-            : addProject(name, year);
+            ? copyProject(copyFromId, name, description)
+            : addProject(name, description);
         setShowForm(false);
         if (id) navigate(`/projects/${id}`);
     };
@@ -57,17 +57,31 @@ export const ProjectsPage = () => {
                             className="project-list__main"
                             onClick={() => navigate(`/projects/${project.id}`)}
                         >
-                            <strong>{project.name}</strong>
-                            {project.year && <span className="project-list__year">{project.year}</span>}
-                            <small>{project.fieldAssignments.length} Feldzuweisung(en)</small>
+                            <div className="project-list__name-row">
+                                <strong>{project.name}</strong>
+                                <small className="project-list__count">
+                                    {project.fieldAssignments.length === 0
+                                        ? "ohne Feldzuweisung"
+                                        : `${project.fieldAssignments.length} ${project.fieldAssignments.length === 1 ? "Feldzuweisung" : "Feldzuweisungen"}`}
+                                </small>
+                            </div>
+                            {project.description && <span className="project-list__description">{project.description}</span>}
                             {normalM3 && (
-                                <span className="project-list__water">
-                                    🌤 {formatRange(normalM3, "m³/a")}
-                                    {dryM3 && <> · ☀️ {formatRange(dryM3, "m³/a")}</>}
-                                    {totalAltWasserM3 > 0 && nettoM3 && (
-                                        <> · Netto {formatRange(nettoM3, "m³/a")}</>
+                                <div className="project-list__water">
+                                    <span className="result-pill result-pill--normal">
+                                        🌤 {formatRange(normalM3, "m³/a")}
+                                    </span>
+                                    {dryM3 && (
+                                        <span className="result-pill result-pill--dry">
+                                            ☀️ {formatRange(dryM3, "m³/a")}
+                                        </span>
                                     )}
-                                </span>
+                                    {totalAltWasserM3 > 0 && nettoM3 && (
+                                        <span className="result-pill result-pill--normal">
+                                            Netto {formatRange(nettoM3, "m³/a")}
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </div>
                         <button

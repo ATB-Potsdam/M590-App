@@ -85,13 +85,13 @@
   color: var(--color-error);
 }
 
-input {
+input, textarea, select {
   border-radius: .3em;
   font-size: 110%;
 }
 
 label {
-  input {
+  input, textarea, select {
     margin: 0 .5em
   }
 }
