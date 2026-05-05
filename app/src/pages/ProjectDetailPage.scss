@@ -18,8 +18,8 @@
     }
 
     &__header-block {
-        display: inline-block;
-        text-align: left;
+        width: fit-content;
+        margin: 0 auto;
     }
 
     &__title-row {
@@ -72,10 +72,12 @@
 
     &__cancel-btn {
         margin-top: 8px;
+        width: 100%;
     }
 
     &__add-btn {
         margin-top: 4px;
+        width: 100%;
     }
 }
 
