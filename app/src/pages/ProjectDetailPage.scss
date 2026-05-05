@@ -310,10 +310,9 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 24px;
+            width: 0;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s;
+            transition: width 0.15s;
             z-index: 2;
         }
         &::before {
@@ -328,8 +327,8 @@
                 linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent),
                 linear-gradient(to left, var(--color-bg) 20%, transparent);
         }
-        &--shadow-left::before  { opacity: 1; }
-        &--shadow-right::after  { opacity: 1; }
+        &--shadow-left::before,
+        &--shadow-right::after  { width: 24px; }
     }
 
     &__table-wrap {
