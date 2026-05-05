@@ -18,8 +18,13 @@ export const PdfPageHeader = ({data}: Props) => {
             </View>
             <Text style={styles.headerProjectName}>{project.name}</Text>
             <Text style={styles.headerMeta}>
-                {farm.name}{project.description ? ` · ${project.description}` : ""} · Erstellt: {createdDateStr}
+                {farm.name} · Erstellt: {createdDateStr}
             </Text>
+            {project.description
+                ? project.description.split("\n").map((line, i) => (
+                    <Text key={i} style={styles.headerDescription}>{line}</Text>
+                ))
+                : null}
             <View style={styles.headerDivider} />
         </View>
     );

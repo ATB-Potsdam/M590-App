@@ -53,11 +53,17 @@ export const styles = StyleSheet.create({
     headerMeta: {
         fontSize: 9,
         color: C.textSecondary,
-        marginBottom: 6,
+        marginBottom: 2,
+    },
+    headerDescription: {
+        fontSize: 9,
+        color: C.textSecondary,
+        marginBottom: 1,
     },
     headerDivider: {
         borderBottomWidth: 1,
         borderBottomColor: C.borderMedium,
+        marginTop: 6,
         marginBottom: 10,
     },
 
