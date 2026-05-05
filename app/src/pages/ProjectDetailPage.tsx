@@ -24,6 +24,26 @@ export const ProjectDetailPage = () => {
     const [showAddField, setShowAddField] = useState(false);
     const addMessage = useAppStore((s) => s.addMessage);
 
+    const tableScrollRef = useRef<HTMLDivElement>(null);
+    const tableOuterRef = useRef<HTMLDivElement>(null);
+    const updateScrollShadows = useCallback(() => {
+        const scroll = tableScrollRef.current;
+        const outer = tableOuterRef.current;
+        if (!scroll || !outer) return;
+        outer.classList.toggle("project-summary__table-wrap-outer--shadow-left", scroll.scrollLeft > 0);
+        outer.classList.toggle("project-summary__table-wrap-outer--shadow-right", scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
+    }, []);
+    const tableScrollCallbackRef = useCallback((el: HTMLDivElement | null) => {
+        tableScrollRef.current = el;
+    }, []);
+    useEffect(() => {
+        const el = tableScrollRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(updateScrollShadows);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [updateScrollShadows]);
+
     const project = projects.find((p) => p.id === id);
 
     if (!project) {
@@ -80,27 +100,6 @@ export const ProjectDetailPage = () => {
     const nettoDryMm: [number, number] | null = nettoDryM3 && dryAreaHa > 0
         ? [Math.round(nettoDryM3[0] / (dryAreaHa * 10)), Math.round(nettoDryM3[1] / (dryAreaHa * 10))]
         : null;
-
-    const tableScrollRef = useRef<HTMLDivElement>(null);
-    const tableOuterRef = useRef<HTMLDivElement>(null);
-    const updateScrollShadows = useCallback(() => {
-        const scroll = tableScrollRef.current;
-        const outer = tableOuterRef.current;
-        if (!scroll || !outer) return;
-        outer.classList.toggle("project-summary__table-wrap-outer--shadow-left", scroll.scrollLeft > 0);
-        outer.classList.toggle("project-summary__table-wrap-outer--shadow-right", scroll.scrollLeft + scroll.clientWidth < scroll.scrollWidth - 1);
-    }, []);
-    const tableScrollCallbackRef = useCallback((el: HTMLDivElement | null) => {
-        tableScrollRef.current = el;
-    }, []);
-
-    useEffect(() => {
-        const el = tableScrollRef.current;
-        if (!el) return;
-        const ro = new ResizeObserver(updateScrollShadows);
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, [updateScrollShadows]);
 
     return (
         <div className="page">
@@ -302,16 +301,16 @@ export const ProjectDetailPage = () => {
                                                 <td>
                                                     {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
                                                         <div className="project-summary__two-line">
-                                                            <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
                                                             <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
+                                                            <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
                                                         </div>
                                                     ) : result?.normal ? "k. W." : "–"}
                                                 </td>
                                                 <td>
                                                     {result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue) ? (
                                                         <div className="project-summary__two-line">
-                                                            <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
                                                             <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
+                                                            <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
                                                         </div>
                                                     ) : result?.dry ? "k. W." : "–"}
                                                 </td>
@@ -333,16 +332,16 @@ export const ProjectDetailPage = () => {
                                         <td>
                                             {normalM3 ? (
                                                 <div className="project-summary__two-line">
-                                                    {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
                                                     <span>{formatRange(normalM3, "m³/a")}</span>
+                                                    {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
                                                 </div>
                                             ) : "–"}
                                         </td>
                                         <td>
                                             {dryM3 ? (
                                                 <div className="project-summary__two-line">
-                                                    {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
                                                     <span>{formatRange(dryM3, "m³/a")}</span>
+                                                    {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
                                                 </div>
                                             ) : "–"}
                                         </td>
@@ -363,7 +362,10 @@ export const ProjectDetailPage = () => {
                                 🌤 Brutto Normaljahr
                                 {normalCount < assignedCount && <span className="project-summary__partial"> ({normalCount}/{assignedCount} Schläge)</span>}
                             </span>
-                            <strong>{normalMm && `${formatRange(normalMm, "mm/a")} · `}{formatRange(normalM3, "m³/a")}</strong>
+                            <span>
+                                {normalMm && <span className="project-summary__mma">{formatRange(normalMm, "mm/a")} · </span>}
+                                <strong>{formatRange(normalM3, "m³/a")}</strong>
+                            </span>
                         </div>
                     )}
                     {dryM3 && (
@@ -372,7 +374,10 @@ export const ProjectDetailPage = () => {
                                 ☀️ Brutto Trockenjahr
                                 {dryCount < assignedCount && <span className="project-summary__partial"> ({dryCount}/{assignedCount} Schläge)</span>}
                             </span>
-                            <strong>{dryMm && `${formatRange(dryMm, "mm/a")} · `}{formatRange(dryM3, "m³/a")}</strong>
+                            <span>
+                                {dryMm && <span className="project-summary__mma">{formatRange(dryMm, "mm/a")} · </span>}
+                                <strong>{formatRange(dryM3, "m³/a")}</strong>
+                            </span>
                         </div>
                     )}
                     {totalAltWasserM3 > 0 && (
@@ -384,13 +389,19 @@ export const ProjectDetailPage = () => {
                     {nettoM3 && totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
                             <span>🌤 Netto-Antragsmenge (Normaljahr)</span>
-                            <strong>{nettoMm && `${formatRange(nettoMm, "mm/a")} · `}{formatRange(nettoM3, "m³/a")}</strong>
+                            <span>
+                                {nettoMm && <span className="project-summary__mma">{formatRange(nettoMm, "mm/a")} · </span>}
+                                <strong>{formatRange(nettoM3, "m³/a")}</strong>
+                            </span>
                         </div>
                     )}
                     {nettoDryM3 && totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
                             <span>☀️ Netto-Antragsmenge (Trockenjahr)</span>
-                            <strong>{nettoDryMm && `${formatRange(nettoDryMm, "mm/a")} · `}{formatRange(nettoDryM3, "m³/a")}</strong>
+                            <span>
+                                {nettoDryMm && <span className="project-summary__mma">{formatRange(nettoDryMm, "mm/a")} · </span>}
+                                <strong>{formatRange(nettoDryM3, "m³/a")}</strong>
+                            </span>
                         </div>
                     )}
                     {pendingCount > 0 && (

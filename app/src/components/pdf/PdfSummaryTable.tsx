@@ -77,20 +77,20 @@ export const PdfSummaryTable = ({data}: Props) => {
                                     </Text>
                                 )}
                             </View>
-                            <Text style={[styles.tableCell, {flex: COL.nutzung}]}>
+                            <Text style={[styles.tableCell, {flex: COL.nutzung, alignSelf: "flex-start"}]}>
                                 {fa.module ? getModuleLabel(fa.module) : "–"}
                             </Text>
-                            <Text style={[styles.tableCell, {flex: COL.flaeche, textAlign: "right"}]}>
+                            <Text style={[styles.tableCell, {flex: COL.flaeche, textAlign: "right", alignSelf: "flex-start"}]}>
                                 {formatNumDe(field.areaHa, 2)} ha
                             </Text>
                             <View style={{flex: COL.normal, padding: 4, alignItems: "flex-end"}}>
                                 {normalHasValue && result?.normal ? (
                                     <>
-                                        <Text style={styles.twoLinePrimary}>
-                                            {formatRangeDe(result.normal.totalRangeMm, "mm/a")}
-                                        </Text>
                                         <Text style={styles.twoLineSecondary}>
                                             {formatRangeDe(result.normal.totalRangeM3, "m³/a")}
+                                        </Text>
+                                        <Text style={styles.twoLinePrimary}>
+                                            {formatRangeDe(result.normal.totalRangeMm, "mm/a")}
                                         </Text>
                                     </>
                                 ) : (
@@ -102,11 +102,11 @@ export const PdfSummaryTable = ({data}: Props) => {
                             <View style={{flex: COL.trocken, padding: 4, alignItems: "flex-end"}}>
                                 {dryHasValue && result?.dry ? (
                                     <>
-                                        <Text style={styles.twoLinePrimary}>
-                                            {formatRangeDe(result.dry.totalRangeMm, "mm/a")}
-                                        </Text>
                                         <Text style={styles.twoLineSecondary}>
                                             {formatRangeDe(result.dry.totalRangeM3, "m³/a")}
+                                        </Text>
+                                        <Text style={styles.twoLinePrimary}>
+                                            {formatRangeDe(result.dry.totalRangeMm, "mm/a")}
                                         </Text>
                                     </>
                                 ) : (
@@ -136,8 +136,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                     <View style={{flex: COL.normal, padding: 4, alignItems: "flex-end"}}>
                         {normalM3 ? (
                             <>
-                                {normalMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(normalMm, "mm/a")}</Text>}
                                 <Text style={styles.twoLineSecondary}>{formatRangeDe(normalM3, "m³/a")}</Text>
+                                {normalMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(normalMm, "mm/a")}</Text>}
                             </>
                         ) : (
                             <Text style={styles.tableCellMuted}>–</Text>
@@ -146,8 +146,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                     <View style={{flex: COL.trocken, padding: 4, alignItems: "flex-end"}}>
                         {dryM3 ? (
                             <>
-                                {dryMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(dryMm, "mm/a")}</Text>}
                                 <Text style={styles.twoLineSecondary}>{formatRangeDe(dryM3, "m³/a")}</Text>
+                                {dryMm && <Text style={styles.twoLinePrimary}>{formatRangeDe(dryMm, "mm/a")}</Text>}
                             </>
                         ) : (
                             <Text style={styles.tableCellMuted}>–</Text>
@@ -168,10 +168,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                         <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
                         <Text style={styles.summaryRowLabel}>Brutto Normaljahr{normalPartial ? " *" : ""}</Text>
                     </View>
-                    <Text style={styles.summaryRowValue}>
-                        {normalMm ? `${formatRangeDe(normalMm, "mm/a")} · ` : ""}
-                        {formatRangeDe(normalM3, "m³/a")}
-                    </Text>
+                    <View style={{flexDirection: "row", alignItems: "baseline"}}>
+                        {normalMm && <Text style={styles.summaryRowMma}>{formatRangeDe(normalMm, "mm/a")} · </Text>}
+                        <Text style={styles.summaryRowValue}>{formatRangeDe(normalM3, "m³/a")}</Text>
+                    </View>
                 </View>
             )}
             {dryM3 && (
@@ -180,10 +180,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                         <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
                         <Text style={styles.summaryRowLabel}>Brutto Trockenjahr{dryPartial ? " *" : ""}</Text>
                     </View>
-                    <Text style={styles.summaryRowValue}>
-                        {dryMm ? `${formatRangeDe(dryMm, "mm/a")} · ` : ""}
-                        {formatRangeDe(dryM3, "m³/a")}
-                    </Text>
+                    <View style={{flexDirection: "row", alignItems: "baseline"}}>
+                        {dryMm && <Text style={styles.summaryRowMma}>{formatRangeDe(dryMm, "mm/a")} · </Text>}
+                        <Text style={styles.summaryRowValue}>{formatRangeDe(dryM3, "m³/a")}</Text>
+                    </View>
                 </View>
             )}
             {totalAltWasserM3 > 0 && (
@@ -198,10 +198,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                         <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
                         <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Normaljahr)</Text>
                     </View>
-                    <Text style={styles.summaryRowNetto}>
-                        {nettoMm ? `${formatRangeDe(nettoMm, "mm/a")} · ` : ""}
-                        {formatRangeDe(nettoM3, "m³/a")}
-                    </Text>
+                    <View style={{flexDirection: "row", alignItems: "baseline"}}>
+                        {nettoMm && <Text style={styles.summaryRowMma}>{formatRangeDe(nettoMm, "mm/a")} · </Text>}
+                        <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoM3, "m³/a")}</Text>
+                    </View>
                 </View>
             )}
             {nettoDryM3 && totalAltWasserM3 > 0 && (
@@ -210,10 +210,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                         <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
                         <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Trockenjahr)</Text>
                     </View>
-                    <Text style={styles.summaryRowNetto}>
-                        {nettoDryMm ? `${formatRangeDe(nettoDryMm, "mm/a")} · ` : ""}
-                        {formatRangeDe(nettoDryM3, "m³/a")}
-                    </Text>
+                    <View style={{flexDirection: "row", alignItems: "baseline"}}>
+                        {nettoDryMm && <Text style={styles.summaryRowMma}>{formatRangeDe(nettoDryMm, "mm/a")} · </Text>}
+                        <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoDryM3, "m³/a")}</Text>
+                    </View>
                 </View>
             )}
             {pendingCount > 0 && (

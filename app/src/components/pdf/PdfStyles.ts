@@ -149,6 +149,10 @@ export const styles = StyleSheet.create({
         fontSize: 9,
         color: C.textSecondary,
     },
+    summaryRowMma: {
+        fontSize: 8,
+        color: C.textSecondary,
+    },
     summaryRowValue: {
         fontSize: 9,
         fontFamily: "Helvetica-Bold",
