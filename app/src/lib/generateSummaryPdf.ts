@@ -35,6 +35,7 @@ export interface SummaryPdfData {
     // Pre-rasterized emoji icons for Normal/Dry year labels
     iconNormalDataUrl: string;
     iconDryDataUrl: string;
+    iconAltWasserDataUrl: string;
     // Formatted creation date string
     createdDateStr: string;
 }

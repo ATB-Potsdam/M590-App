@@ -417,7 +417,7 @@ export const ProjectDetailPage = () => {
                                                 {totalAltWasserM3 > 0 && (
                                                     <td>
                                                         {result?.altWasserM3
-                                                            ? `${formatNum(result.altWasserM3, 0)} m³/a`
+                                                            ? `−${formatNum(result.altWasserM3, 0)} m³/a`
                                                             : "–"}
                                                     </td>
                                                 )}
@@ -482,8 +482,8 @@ export const ProjectDetailPage = () => {
                     )}
                     {totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--alt">
-                            <span>− Alternative Wasserquellen</span>
-                            <strong>{formatNum(totalAltWasserM3, 0)} m³/a</strong>
+                            <span>💧 Alternative Wasserquellen</span>
+                            <strong>−{formatNum(totalAltWasserM3, 0)} m³/a</strong>
                         </div>
                     )}
                     {nettoM3 && totalAltWasserM3 > 0 && (
@@ -544,6 +544,7 @@ export const ProjectDetailPage = () => {
                         logoDwaDataUrl,
                         iconNormalDataUrl: emojiToPngDataUrl("🌤"),
                         iconDryDataUrl: emojiToPngDataUrl("☀️"),
+                        iconAltWasserDataUrl: emojiToPngDataUrl("💧"),
                         createdDateStr: new Date().toLocaleDateString("de-DE"),
                     }, filename))
                     .then(file => sharePdf(file))

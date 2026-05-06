@@ -10,9 +10,10 @@ interface Props {
     result: AssignmentResult;
     iconNormalDataUrl: string;
     iconDryDataUrl: string;
+    iconAltWasserDataUrl: string;
 }
 
-export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Props) => {
+export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl}: Props) => {
     const normal = result.normal;
     const dry = result.dry;
     const normalHasValue = normal && (!("hasValue" in normal) || normal.hasValue);
@@ -80,9 +81,12 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
             ) : null}
             {result.altWasserM3 != null && result.altWasserM3 > 0 && (
                 <View style={styles.detailTableRow}>
-                    <Text style={styles.detailTableLabel}>Alt. Wasserquellen</Text>
+                    <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
+                        <Image src={iconAltWasserDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
+                        <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Alternative Wasserquellen</Text>
+                    </View>
                     <Text style={styles.detailTableValue}>
-                        {"–"}{formatNumDe(result.altWasserM3, 0)} m³/a
+                        −{formatNumDe(result.altWasserM3, 0)} m³/a
                     </Text>
                 </View>
             )}

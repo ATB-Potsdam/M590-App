@@ -18,9 +18,10 @@ interface Props {
     index: number;
     iconNormalDataUrl: string;
     iconDryDataUrl: string;
+    iconAltWasserDataUrl: string;
 }
 
-export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormalDataUrl, iconDryDataUrl}: Props) => {
+export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl}: Props) => {
     if (!fa.module) return null;
 
     const moduleLabel = getModuleLabel(fa.module);
@@ -87,7 +88,7 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormal
             <PdfZuschlaegeBlock module={fa.module} result={result} />
 
             {/* Ergebnis */}
-            <PdfErgebnisBlock result={result} iconNormalDataUrl={iconNormalDataUrl} iconDryDataUrl={iconDryDataUrl} />
+            <PdfErgebnisBlock result={result} iconNormalDataUrl={iconNormalDataUrl} iconDryDataUrl={iconDryDataUrl} iconAltWasserDataUrl={iconAltWasserDataUrl} />
         </View>
     );
 };

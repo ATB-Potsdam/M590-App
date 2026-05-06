@@ -26,7 +26,7 @@ export const PdfSummaryTable = ({data}: Props) => {
         totalAltWasserM3, nettoM3, nettoMm, nettoDryM3, nettoDryMm,
         totalAreaHa, pendingCount,
         normalCount, dryCount,
-        iconNormalDataUrl, iconDryDataUrl,
+        iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl,
     } = data;
 
     const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
@@ -117,7 +117,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                             </View>
                             {showAltWasser && (
                                 <Text style={[styles.tableCell, {flex: COL.altWasser, textAlign: "right"}]}>
-                                    {result?.altWasserM3 ? `${formatNumDe(result.altWasserM3, 0)} m³/a` : "–"}
+                                    {result?.altWasserM3 ? `−${formatNumDe(result.altWasserM3, 0)} m³/a` : "–"}
                                 </Text>
                             )}
                         </View>
@@ -188,8 +188,11 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
-                    <Text style={styles.summaryRowLabel}>– Alternative Wasserquellen</Text>
-                    <Text style={styles.summaryRowAlt}>{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
+                    <View style={{flexDirection: "row", alignItems: "center"}}>
+                        <Image src={iconAltWasserDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
+                        <Text style={styles.summaryRowLabel}>Alternative Wasserquellen</Text>
+                    </View>
+                    <Text style={styles.summaryRowAlt}>−{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
                 </View>
             )}
             {nettoM3 && totalAltWasserM3 > 0 && (
