@@ -373,6 +373,13 @@
         strong {
             color: var(--color-warning);
         }
+
+        @media (max-width: 420px) {
+            strong {
+                align-self: stretch;
+                text-align: right;
+            }
+        }
     }
 
     &__row--netto {
