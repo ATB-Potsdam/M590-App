@@ -2,6 +2,7 @@
 import React from "react";
 import {pdf, type DocumentProps} from "@react-pdf/renderer";
 import {PdfDocument} from "../components/pdf/PdfDocument";
+import {registerPdfFonts} from "../components/pdf/registerPdfFonts";
 import type {JSXElementConstructor, ReactElement} from "react";
 import type {Farm} from "../types/farm";
 import type {Project} from "../types/project";
@@ -38,10 +39,12 @@ export interface SummaryPdfData {
     createdDateStr: string;
 }
 
-export const generateSummaryPdf = (data: SummaryPdfData, filename: string): Promise<File> =>
-    pdf(React.createElement(PdfDocument, {data}) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>)
+export const generateSummaryPdf = (data: SummaryPdfData, filename: string): Promise<File> => {
+    registerPdfFonts();
+    return pdf(React.createElement(PdfDocument, {data}) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>)
         .toBlob()
         .then((blob: Blob) => new File([blob], filename, {type: "application/pdf"}));
+};
 
 /** Share via native share sheet on Android/iOS, open in new tab on desktop. */
 export const sharePdf = (file: File): Promise<"shared" | "opened"> => {

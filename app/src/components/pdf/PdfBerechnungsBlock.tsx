@@ -113,7 +113,7 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                             value={d.hasValue ? formatRangeDe(d.baseRangeMm, "mm/a") : "kein Literaturwert"}
                         />
                     )}
-                    <DetailRow label="dKWB Standort" value={`${formatNumDe(r.deltaKwb, 1)} mm`} />
+                    <DetailRow label="ΔKWB Standort" value={`${formatNumDe(r.deltaKwb, 1)} mm`} />
                     <DetailRow label="Korrektur (×rFaktor)" value={`${formatNumDe(r.correctionMm, 0)} mm`} />
                     {fa.irrigationPeriod && r.monthlyRows.length > 0 && (
                         <View style={styles.detailTableRow}>
@@ -125,7 +125,7 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                                         <Text style={styles.subtableHeaderCell}><ET0 /></Text>
                                         <Text style={styles.subtableHeaderCell}>KWB</Text>
                                         <Text style={styles.subtableHeaderCell}>KWB<Sub>Ref</Sub></Text>
-                                        <Text style={styles.subtableHeaderCell}>dKWB</Text>
+                                        <Text style={styles.subtableHeaderCell}>ΔKWB</Text>
                                     </View>
                                     {r.monthlyRows.map((row) => (
                                         <View key={row.label} style={styles.subtableRow}>

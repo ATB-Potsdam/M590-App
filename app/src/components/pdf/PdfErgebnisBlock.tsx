@@ -34,7 +34,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Normaljahr</Text>
                     </View>
                     <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
-                        <Text style={{fontSize: 9, fontFamily: "Helvetica-Bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
+                        <Text style={{fontSize: 9, fontFamily: "Roboto", fontWeight: "bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
                             {formatRangeDe(normal.totalRangeM3, "m³/a")}
                         </Text>
                         <Text style={[styles.summaryRowMma, {textAlign: "left"}]}>
@@ -61,7 +61,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Trockenjahr</Text>
                     </View>
                     <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
-                        <Text style={{fontSize: 9, fontFamily: "Helvetica-Bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
+                        <Text style={{fontSize: 9, fontFamily: "Roboto", fontWeight: "bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
                             {formatRangeDe(dry.totalRangeM3, "m³/a")}
                         </Text>
                         <Text style={[styles.summaryRowMma, {textAlign: "left"}]}>

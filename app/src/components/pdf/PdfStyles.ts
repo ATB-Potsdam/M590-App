@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
         fontSize: 10,
         color: C.text,
         backgroundColor: C.white,
-        fontFamily: "Helvetica",
+        fontFamily: "Roboto",
     },
 
     // --- Page header ---
@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     },
     headerProjectName: {
         fontSize: 15,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         marginBottom: 2,
         color: C.text,
     },
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     // --- Section title ---
     sectionTitle: {
         fontSize: 13,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         marginBottom: 8,
         color: C.text,
     },
@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
     },
     tableHeaderCell: {
         fontSize: 8,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         padding: 4,
         color: C.textSecondary,
     },
@@ -113,13 +113,13 @@ export const styles = StyleSheet.create({
     tableCellBold: {
         fontSize: 9,
         padding: 4,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.text,
     },
     tableCellResult: {
         fontSize: 9,
         padding: 4,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.primary,
     },
     tableCellMuted: {
@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
     },
     twoLineSecondary: {
         fontSize: 9,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.text,
     },
 
@@ -162,24 +162,24 @@ export const styles = StyleSheet.create({
     },
     summaryRowValue: {
         fontSize: 9,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.primary,
     },
     summaryRowAlt: {
         fontSize: 9,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.warning,
     },
     summaryRowNetto: {
         fontSize: 9,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.primary,
     },
 
     // --- Detail block (per-field) ---
     detailTitle: {
         fontSize: 11,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         marginBottom: 6,
         color: C.text,
     },
@@ -199,7 +199,7 @@ export const styles = StyleSheet.create({
     },
     detailTableHeaderCell: {
         fontSize: 9,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         padding: 4,
         color: C.textSecondary,
         flex: 1,
@@ -224,7 +224,7 @@ export const styles = StyleSheet.create({
     detailTableValueBold: {
         fontSize: 9,
         padding: 4,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         color: C.primary,
         flex: 3,
     },
@@ -232,7 +232,7 @@ export const styles = StyleSheet.create({
     // --- Source citation ---
     sourceLine: {
         fontSize: 8,
-        fontFamily: "Helvetica-Oblique",
+        fontFamily: "Roboto", fontStyle: "italic",
         color: C.textMuted,
         marginBottom: 6,
         paddingHorizontal: 2,
@@ -259,7 +259,7 @@ export const styles = StyleSheet.create({
     },
     subtableHeaderCell: {
         fontSize: 8,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         padding: 3,
         color: C.textSecondary,
         flex: 1,
@@ -267,7 +267,7 @@ export const styles = StyleSheet.create({
     },
     subtableHeaderCellLeft: {
         fontSize: 8,
-        fontFamily: "Helvetica-Bold",
+        fontFamily: "Roboto", fontWeight: "bold",
         padding: 3,
         color: C.textSecondary,
         flex: 1,

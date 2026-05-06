@@ -48,11 +48,11 @@ export const PdfSummaryTable = ({data}: Props) => {
                     <Text style={[styles.tableHeaderCell, {flex: COL.flaeche, textAlign: "right"}]}>Fläche</Text>
                     <View style={[{flex: COL.normal, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
                         <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
-                        <Text style={{fontSize: 8, fontFamily: "Helvetica-Bold", color: styles.tableHeaderCell.color}}>Normaljahr</Text>
+                        <Text style={{fontSize: 8, fontFamily: "Roboto", fontWeight: "bold", color: styles.tableHeaderCell.color}}>Normaljahr</Text>
                     </View>
                     <View style={[{flex: COL.trocken, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
                         <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
-                        <Text style={{fontSize: 8, fontFamily: "Helvetica-Bold", color: styles.tableHeaderCell.color}}>Trockenjahr</Text>
+                        <Text style={{fontSize: 8, fontFamily: "Roboto", fontWeight: "bold", color: styles.tableHeaderCell.color}}>Trockenjahr</Text>
                     </View>
                     {showAltWasser && (
                         <Text style={[styles.tableHeaderCell, {flex: COL.altWasser, textAlign: "right"}]}>Alt. Wasser</Text>
@@ -70,7 +70,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                     return (
                         <View key={fa.id} style={styles.tableRow}>
                             <View style={[{flex: COL.schlag, padding: 4}]}>
-                                <Text style={{fontSize: 9, fontFamily: "Helvetica-Bold"}}>{field.name}</Text>
+                                <Text style={{fontSize: 9, fontFamily: "Roboto", fontWeight: "bold"}}>{field.name}</Text>
                                 {fa.plantKey && (
                                     <Text style={{fontSize: 8, color: "#666"}}>
                                         {fa.plantKey.split("|").slice(0, 2).join(" · ")}
