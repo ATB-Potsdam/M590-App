@@ -146,6 +146,7 @@ export const styles = StyleSheet.create({
     summaryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "flex-start",
         paddingVertical: 3,
         paddingHorizontal: 4,
         borderBottomWidth: 1,

@@ -72,16 +72,10 @@ export const PrintFieldDetail = ({field, assignment: fa, result, index}: Props) 
                         <td>{formatNum(field.location.lat, 5)}° N, {formatNum(field.location.lon, 5)}° E</td>
                     </tr>
                     {field.climateClass && (
-                        <>
-                            <tr>
-                                <td>KWBv-Zone</td>
-                                <td>{field.climateClass[0]}</td>
-                            </tr>
-                            <tr>
-                                <td>KWB (mm)</td>
-                                <td>{formatNum(field.climateClass[1], 0)}</td>
-                            </tr>
-                        </>
+                        <tr>
+                            <td>KWBv-Zone</td>
+                            <td>{field.climateClass[0]} ({formatNum(field.climateClass[1], 0)} mm)</td>
+                        </tr>
                     )}
                     {field.nFkweClass && (
                         <tr>
@@ -157,7 +151,7 @@ const NutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
 
     if (fa.module === "kunstrasen") {
         if (fa.kunstrasenWeeks != null) rows.push(["Wochen/Saison", String(fa.kunstrasenWeeks)]);
-        if (fa.kunstrasenMmPerWeek != null) rows.push(["Intensität", `${fa.kunstrasenMmPerWeek} mm/Woche`]);
+        if (fa.kunstrasenMmPerWeek != null) rows.push(["Intensität", `${formatNum(fa.kunstrasenMmPerWeek, 1)} mm/Woche`]);
     }
 
     if (rows.length === 0) return null;
@@ -300,10 +294,10 @@ const BerechnungsBlock = ({module, result, fa, source}: {module: ModuleType; res
                             <td>Ø ET₀ im Zeitraum ({MONTH_NAMES[r.periodStart - 1]}–{MONTH_NAMES[r.periodEnd - 1]})</td>
                             <td>{formatNum(r.avgDailyEt0, 2)} mm/d</td>
                         </tr>
-                        <tr><td>Faktor L (Lebensbereich)</td><td>{r.factorL}</td></tr>
-                        <tr><td>Faktor G (Vegetation)</td><td>{r.factorG}</td></tr>
-                        <tr><td>Faktor B (Bodenart)</td><td>{r.factorB}</td></tr>
-                        <tr><td>Faktor S (Sonne)</td><td>{r.factorS}</td></tr>
+                        <tr><td>Faktor L (Lebensbereich)</td><td>{formatNum(r.factorL, 1)}</td></tr>
+                        <tr><td>Faktor G (Vegetation)</td><td>{formatNum(r.factorG, 1)}</td></tr>
+                        <tr><td>Faktor B (Bodenart)</td><td>{formatNum(r.factorB, 1)}</td></tr>
+                        <tr><td>Faktor S (Sonne)</td><td>{formatNum(r.factorS, 1)}</td></tr>
                         <tr><td>Faktorprodukt (L×G×B×S)</td><td><strong>{formatNum(r.factorProduct, 3)}</strong></td></tr>
                         <tr><td>ET_t = ET₀ × {formatNum(r.factorProduct, 3)}</td><td><strong>{formatNum(r.ettMmPerDay, 2)} mm/d</strong></td></tr>
                         <tr><td>Zeitraum</td><td>{r.periodDays} Tage</td></tr>
@@ -384,10 +378,10 @@ const BerechnungsBlock = ({module, result, fa, source}: {module: ModuleType; res
                     <tbody>
                         <tr><td>Fläche</td><td>{formatNum(r.areaHa, 2)} ha</td></tr>
                         <tr><td>Wochen/Saison</td><td>{r.weeks}</td></tr>
-                        <tr><td>Intensität</td><td>{r.mmPerWeek} mm/Woche</td></tr>
+                        <tr><td>Intensität</td><td>{formatNum(r.mmPerWeek, 1)} mm/Woche</td></tr>
                         <tr>
                             <td>Formel</td>
-                            <td>{r.weeks} × {r.mmPerWeek} mm/Woche = {r.annualMm} mm/a</td>
+                            <td>{r.weeks} × {formatNum(r.mmPerWeek, 1)} mm/Woche = {formatNum(r.annualMm, 0)} mm/a</td>
                         </tr>
                     </tbody>
                 </table>

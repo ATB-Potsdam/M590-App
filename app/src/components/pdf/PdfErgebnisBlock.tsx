@@ -28,25 +28,25 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
                 </Text>
             </View>
             {normalHasValue && normal ? (
-                <View style={styles.detailTableRow}>
+                <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
                     <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
                         <Image src={iconNormalDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Normaljahr</Text>
                     </View>
-                    <View style={[{flex: 3, flexDirection: "row", alignItems: "baseline", padding: 4}]}>
-                        <Text style={styles.summaryRowMma}>
+                    <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
+                        <Text style={{fontSize: 9, fontFamily: "Helvetica-Bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
+                            {formatRangeDe(normal.totalRangeM3, "m³/a")}
+                        </Text>
+                        <Text style={[styles.summaryRowMma, {textAlign: "left"}]}>
                             {isOpenRange
                                 ? formatOpenRangeDe(normal as NaturrasenResult | TennenResult, "mm/a")
                                 : formatRangeDe(normal.totalRangeMm, "mm/a")
-                            }{" · "}
-                        </Text>
-                        <Text style={[styles.detailTableValueBold, {padding: 0}]}>
-                            {formatRangeDe(normal.totalRangeM3, "m³/a")}
+                            }
                         </Text>
                     </View>
                 </View>
             ) : normal ? (
-                <View style={styles.detailTableRow}>
+                <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
                     <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
                         <Image src={iconNormalDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Normaljahr</Text>
@@ -55,22 +55,22 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl}: Pr
                 </View>
             ) : null}
             {dryHasValue && dry ? (
-                <View style={styles.detailTableRow}>
+                <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
                     <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
                         <Image src={iconDryDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Trockenjahr</Text>
                     </View>
-                    <View style={[{flex: 3, flexDirection: "row", alignItems: "baseline", padding: 4}]}>
-                        <Text style={styles.summaryRowMma}>
-                            {formatRangeDe(dry.totalRangeMm, "mm/a")}{" · "}
-                        </Text>
-                        <Text style={[styles.detailTableValueBold, {padding: 0}]}>
+                    <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
+                        <Text style={{fontSize: 9, fontFamily: "Helvetica-Bold", color: styles.detailTableValueBold.color, textAlign: "left"}}>
                             {formatRangeDe(dry.totalRangeM3, "m³/a")}
+                        </Text>
+                        <Text style={[styles.summaryRowMma, {textAlign: "left"}]}>
+                            {formatRangeDe(dry.totalRangeMm, "mm/a")}
                         </Text>
                     </View>
                 </View>
             ) : dry ? (
-                <View style={styles.detailTableRow}>
+                <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
                     <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
                         <Image src={iconDryDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Trockenjahr</Text>

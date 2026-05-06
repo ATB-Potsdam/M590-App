@@ -42,11 +42,11 @@ export const KunstrasenResultCard = ({result, fieldName}: Props) => (
             </div>
             <div className="result-card__value-row">
                 <span>Intensität</span>
-                <span>{result.mmPerWeek} mm/Woche</span>
+                <span>{formatNum(result.mmPerWeek, 1)} mm/Woche</span>
             </div>
             <div className="result-card__value-row">
                 <span>Formel</span>
-                <span>{result.weeks} × {result.mmPerWeek} mm/Woche = {formatNum(result.annualMm, 0)} mm/a</span>
+                <span>{result.weeks} × {formatNum(result.mmPerWeek, 1)} mm/Woche = {formatNum(result.annualMm, 0)} mm/a</span>
             </div>
             <div className="result-card__value-row">
                 <span>Quelle</span>

@@ -24,7 +24,18 @@ export const ProjectDetailPage = () => {
 
     const [showAddField, setShowAddField] = useState(false);
     const [showEditProject, setShowEditProject] = useState(false);
+    const [confirmDeleteAssignmentId, setConfirmDeleteAssignmentId] = useState<string | null>(null);
+    const deleteConfirmRef = useRef<HTMLDivElement>(null);
     const addMessage = useAppStore((s) => s.addMessage);
+
+    useEffect(() => {
+        if (!confirmDeleteAssignmentId) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                deleteConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+            });
+        });
+    }, [confirmDeleteAssignmentId]);
 
     const tableScrollRef = useRef<HTMLDivElement>(null);
     const tableOuterRef = useRef<HTMLDivElement>(null);
@@ -155,7 +166,8 @@ export const ProjectDetailPage = () => {
                     if (!field) return null;
 
                     return (
-                        <li key={fa.id} className="assignment-list__item">
+                        <li key={fa.id} className="assignment-list__item-wrap">
+                            <div className="assignment-list__item">
                             <div
                                 className="assignment-list__main"
                                 onClick={() => navigate(`/projects/${project.id}/assignment/${fa.id}`)}
@@ -276,9 +288,28 @@ export const ProjectDetailPage = () => {
 
                             <button
                                 className="assignment-list__delete"
-                                onClick={() => removeFieldAssignment(project.id, fa.id)}
+                                onClick={() => setConfirmDeleteAssignmentId(fa.id)}
                                 title="Zuweisung entfernen"
                             >🗑</button>
+                            </div>
+                            {confirmDeleteAssignmentId === fa.id && (
+                                <div ref={deleteConfirmRef} className="assignment-list__delete-confirm">
+                                    <strong>Zuweisung „{field.name}" entfernen?</strong>
+                                    <p>Die Zuweisung wird aus diesem Szenario entfernt.</p>
+                                    <div className="assignment-list__delete-confirm-actions">
+                                        <button
+                                            className="assignment-list__delete-confirm-btn"
+                                            onClick={() => {
+                                                removeFieldAssignment(project.id, fa.id);
+                                                setConfirmDeleteAssignmentId(null);
+                                            }}
+                                        >
+                                            Ja, entfernen
+                                        </button>
+                                        <button onClick={() => setConfirmDeleteAssignmentId(null)}>Abbrechen</button>
+                                    </div>
+                                </div>
+                            )}
                         </li>
                     );
                 })}
@@ -429,7 +460,7 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 🌤 Brutto Normaljahr
-                                {normalCount < assignedCount && <span className="project-summary__partial"> ({normalCount}/{assignedCount} Schläge)</span>}
+                                {normalCount < assignedCount && <span className="project-summary__partial"> * ({normalCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(normalM3, "m³/a")}</strong>
@@ -441,7 +472,7 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 ☀️ Brutto Trockenjahr
-                                {dryCount < assignedCount && <span className="project-summary__partial"> ({dryCount}/{assignedCount} Schläge)</span>}
+                                {dryCount < assignedCount && <span className="project-summary__partial"> * ({dryCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(dryM3, "m³/a")}</strong>

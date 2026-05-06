@@ -45,19 +45,19 @@ export const GruenflaechenResultCard = ({result, fieldName, areaHa}: Props) => (
             </div>
             <div className="result-card__value-row">
                 <span>Faktor L (Lebensbereich)</span>
-                <span>{result.factorL}</span>
+                <span>{formatNum(result.factorL, 1)}</span>
             </div>
             <div className="result-card__value-row">
                 <span>Faktor G (Vegetation)</span>
-                <span>{result.factorG}</span>
+                <span>{formatNum(result.factorG, 1)}</span>
             </div>
             <div className="result-card__value-row">
                 <span>Faktor B (Bodenart)</span>
-                <span>{result.factorB}</span>
+                <span>{formatNum(result.factorB, 1)}</span>
             </div>
             <div className="result-card__value-row">
                 <span>Faktor S (Sonne)</span>
-                <span>{result.factorS}</span>
+                <span>{formatNum(result.factorS, 1)}</span>
             </div>
             <div className="result-card__value-row">
                 <span>Faktorprodukt (L×G×B×S)</span>

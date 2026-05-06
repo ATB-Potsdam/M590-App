@@ -184,25 +184,25 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                         label={fa.fllVegetation
                             ? `Faktor L (${MOISTURE_OPTIONS.find(o => o.value === fa.fllMoisture)?.label ?? fa.fllMoisture})`
                             : "Faktor L (Lebensbereich)"}
-                        value={String(r.factorL)}
+                        value={formatNumDe(r.factorL, 1)}
                     />
                     <DetailRow
                         label={fa.fllVegetation
                             ? `Faktor G (${VEGETATION_OPTIONS.find(o => o.value === fa.fllVegetation)?.label ?? fa.fllVegetation})`
                             : "Faktor G (Vegetation)"}
-                        value={String(r.factorG)}
+                        value={formatNumDe(r.factorG, 1)}
                     />
                     <DetailRow
                         label={fa.fllSoil
                             ? `Faktor B (${SOIL_OPTIONS.find(o => o.value === fa.fllSoil)?.label ?? fa.fllSoil})`
                             : "Faktor B (Bodenart)"}
-                        value={String(r.factorB)}
+                        value={formatNumDe(r.factorB, 1)}
                     />
                     <DetailRow
                         label={fa.fllSun
                             ? `Faktor S (${SUN_OPTIONS.find(o => o.value === fa.fllSun)?.label ?? fa.fllSun})`
                             : "Faktor S (Sonne)"}
-                        value={String(r.factorS)}
+                        value={formatNumDe(r.factorS, 1)}
                     />
                     <DetailRowBold
                         label="Faktorprodukt (L×G×B×S)"
@@ -291,10 +291,10 @@ export const PdfBerechnungsBlock = ({module, result, fa, source}: Props) => {
                     </View>
                     <DetailRow label="Fläche" value={`${formatNumDe(r.areaHa, 2)} ha`} />
                     <DetailRow label="Wochen/Saison" value={String(r.weeks)} />
-                    <DetailRow label="Intensität" value={`${r.mmPerWeek} mm/Woche`} />
+                    <DetailRow label="Intensität" value={`${formatNumDe(r.mmPerWeek, 1)} mm/Woche`} />
                     <DetailRow
                         label="Formel"
-                        value={`${r.weeks} × ${r.mmPerWeek} mm/Woche = ${r.annualMm} mm/a`}
+                        value={`${r.weeks} × ${formatNumDe(r.mmPerWeek, 1)} mm/Woche = ${formatNumDe(r.annualMm, 0)} mm/a`}
                     />
                 </View>
                 <SourceLine source={source} />

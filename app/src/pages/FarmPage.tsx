@@ -58,27 +58,30 @@ export const FarmPage = () => {
     const deleteConfirmRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (confirmImport) {
-            setTimeout(() => {
+        if (!confirmImport) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
                 importConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-            }, 50);
-        }
+            });
+        });
     }, [confirmImport]);
 
     useEffect(() => {
-        if (confirmReset) {
-            setTimeout(() => {
+        if (!confirmReset) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
                 resetConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-            }, 50);
-        }
+            });
+        });
     }, [confirmReset]);
 
     useEffect(() => {
-        if (confirmDeleteFieldId) {
-            setTimeout(() => {
+        if (!confirmDeleteFieldId) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
                 deleteConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-            }, 50);
-        }
+            });
+        });
     }, [confirmDeleteFieldId]);
     const [searchParams, setSearchParams] = useSearchParams();
 

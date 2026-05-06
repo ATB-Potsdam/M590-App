@@ -50,16 +50,12 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index, iconNormal
                     </Text>
                 </View>
                 {field.climateClass && (
-                    <>
-                        <View style={styles.detailTableRow}>
-                            <Text style={styles.detailTableLabel}>KWBv-Zone</Text>
-                            <Text style={styles.detailTableValue}>{field.climateClass[0]}</Text>
-                        </View>
-                        <View style={styles.detailTableRow}>
-                            <Text style={styles.detailTableLabel}>KWB (mm)</Text>
-                            <Text style={styles.detailTableValue}>{formatNumDe(field.climateClass[1], 0)}</Text>
-                        </View>
-                    </>
+                    <View style={styles.detailTableRow}>
+                        <Text style={styles.detailTableLabel}>KWBv-Zone</Text>
+                        <Text style={styles.detailTableValue}>
+                            {field.climateClass[0]} ({formatNumDe(field.climateClass[1], 0)} mm)
+                        </Text>
+                    </View>
                 )}
                 {field.nFkweClass && (
                     <View style={styles.detailTableRow}>
@@ -143,7 +139,7 @@ const PdfNutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
 
     if (fa.module === "kunstrasen") {
         if (fa.kunstrasenWeeks != null) rows.push(["Wochen/Saison", String(fa.kunstrasenWeeks)]);
-        if (fa.kunstrasenMmPerWeek != null) rows.push(["Intensität", `${fa.kunstrasenMmPerWeek} mm/Woche`]);
+        if (fa.kunstrasenMmPerWeek != null) rows.push(["Intensität", `${formatNumDe(fa.kunstrasenMmPerWeek, 1)} mm/Woche`]);
     }
 
     if (rows.length === 0) return null;

@@ -19,11 +19,12 @@ export const ProjectsPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (confirmDeleteId) {
-            setTimeout(() => {
+        if (!confirmDeleteId) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
                 deleteConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
-            }, 50);
-        }
+            });
+        });
     }, [confirmDeleteId]);
 
     const handleSave = (

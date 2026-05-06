@@ -56,13 +56,13 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                 <span>{result.isUserCustom ? "Benutzerdefinierter Wert" : "Basiswert Potsdam"}</span>
                 <span>
                     {result.isUserCustom
-                        ? `${result.userCustomMm} mm/a (benutzerdefiniert)`
+                        ? `${formatNum(result.userCustomMm, 0)} mm/a (benutzerdefiniert)`
                         : result.hasValue ? formatRange(result.baseRangeMm, 'mm') : "kein Literaturwert"}
                     {dryResult && (
                         <>
                             {" 🌤 / "}
                             {dryResult.isUserCustom
-                                ? `${dryResult.userCustomMm} mm/a (benutzerdefiniert)`
+                                ? `${formatNum(dryResult.userCustomMm, 0)} mm/a (benutzerdefiniert)`
                                 : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"} ☀️
                         </>
                     )}
@@ -70,11 +70,11 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             </div>
             <div className="result-card__value-row">
                 <span>ΔKWB Standort</span>
-                <span>{result.deltaKwb > 0 ? '+' : ''}{result.deltaKwb} mm</span>
+                <span>{result.deltaKwb > 0 ? '+' : ''}{formatNum(result.deltaKwb, 0)} mm</span>
             </div>
             <div className="result-card__value-row">
                 <span>Korrektur (×rFaktor)</span>
-                <span>{result.correctionMm > 0 ? '+' : ''}{result.correctionMm} mm</span>
+                <span>{result.correctionMm > 0 ? '+' : ''}{formatNum(result.correctionMm, 0)} mm</span>
             </div>
 
             <div className="result-card__value-row">
@@ -97,19 +97,19 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                 <tbody>
                     {result.monthlyRows.map((row) => (
                         <tr key={row.label}>
-                            <td>{row.label}{row.weight < 1 && <span className="result-card__weight"> ×{row.weight}</span>}</td>
-                            <td>{row.precip}</td>
-                            <td>{row.et0}</td>
-                            <td className={row.localKwb > 0 ? 'cell--positive' : 'cell--negative'}>{row.localKwb}</td>
-                            <td>{row.refKwbVal}</td>
+                            <td>{row.label}{row.weight < 1 && <span className="result-card__weight"> ×{formatNum(row.weight, 2)}</span>}</td>
+                            <td>{formatNum(row.precip, 0)}</td>
+                            <td>{formatNum(row.et0, 0)}</td>
+                            <td className={row.localKwb > 0 ? 'cell--positive' : 'cell--negative'}>{formatNum(row.localKwb, 0)}</td>
+                            <td>{formatNum(row.refKwbVal, 0)}</td>
                             <td className={row.weightedDelta > 0 ? 'cell--positive' : 'cell--negative'}>
-                                {row.weightedDelta > 0 ? '+' : ''}{row.weightedDelta}
+                                {row.weightedDelta > 0 ? '+' : ''}{formatNum(row.weightedDelta, 1)}
                             </td>
                         </tr>
                     ))}
                     <tr className="result-card__climate-table-sum">
                         <td colSpan={5}>Summe ΔKWB</td>
-                        <td>{result.deltaKwb > 0 ? '+' : ''}{result.deltaKwb} mm</td>
+                        <td>{result.deltaKwb > 0 ? '+' : ''}{formatNum(result.deltaKwb, 0)} mm</td>
                     </tr>
                 </tbody>
             </table>
@@ -118,11 +118,11 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
         {/* Block 3: Zuschläge — itemisiert */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
-                <summary>Zuschläge (+{result.totalSurchargeMm} mm)</summary>
+                <summary>Zuschläge (+{formatNum(result.totalSurchargeMm, 0)} mm)</summary>
                 {result.surchargeEmergenceMm > 0 && (
                     <div className="result-card__value-row">
                         <span>Auflaufbewässerung</span>
-                        <span>+{result.surchargeEmergenceMm} mm</span>
+                        <span>+{formatNum(result.surchargeEmergenceMm, 0)} mm</span>
                     </div>
                 )}
             </details>

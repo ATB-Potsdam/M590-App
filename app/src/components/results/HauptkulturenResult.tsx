@@ -54,7 +54,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
                 <span>{dryResult && "🌤 "}{result.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
                     {result.isUserCustom
-                        ? `${result.userCustomMm} mm/a (benutzerdefiniert)`
+                        ? `${formatNum(result.userCustomMm, 0)} mm/a (benutzerdefiniert)`
                         : result.hasValue ? formatRange(result.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>
@@ -62,7 +62,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
                 <span>☀️ {dryResult.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
                     {dryResult.isUserCustom
-                        ? `${dryResult.userCustomMm} mm/a (benutzerdefiniert)`
+                        ? `${formatNum(dryResult.userCustomMm, 0)} mm/a (benutzerdefiniert)`
                         : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, "mm/a") : "kein Literaturwert"}
                 </span>
             </div>}
@@ -75,29 +75,29 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         {/* Block 3: Zuschläge — itemisiert für Transparenz */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
-                <summary>Zuschläge (+{result.totalSurchargeMm} mm)</summary>
+                <summary>Zuschläge (+{formatNum(result.totalSurchargeMm, 0)} mm)</summary>
                 {result.autoSurchargeMm > 0 && (
                     <div className="result-card__value-row">
                         <span>{result.autoSurchargeLabel ? `Automatisch: ${result.autoSurchargeLabel}` : 'Automatisch (Kultur)'}</span>
-                        <span>+{result.autoSurchargeMm} mm</span>
+                        <span>+{formatNum(result.autoSurchargeMm, 0)} mm</span>
                     </div>
                 )}
                 {result.surchargeIntermediateMm > 0 && (
                     <div className="result-card__value-row">
                         <span>Zwischenfrucht</span>
-                        <span>+{result.surchargeIntermediateMm} mm</span>
+                        <span>+{formatNum(result.surchargeIntermediateMm, 0)} mm</span>
                     </div>
                 )}
                 {result.surchargeEmergenceMm > 0 && (
                     <div className="result-card__value-row">
                         <span>Auflaufbewässerung</span>
-                        <span>+{result.surchargeEmergenceMm} mm</span>
+                        <span>+{formatNum(result.surchargeEmergenceMm, 0)} mm</span>
                     </div>
                 )}
                 {result.surchargeHeavySoilMm > 0 && (
                     <div className="result-card__value-row">
                         <span>Schwere Böden</span>
-                        <span>+{result.surchargeHeavySoilMm} mm</span>
+                        <span>+{formatNum(result.surchargeHeavySoilMm, 0)} mm</span>
                     </div>
                 )}
             </details>
