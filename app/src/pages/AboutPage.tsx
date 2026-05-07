@@ -1,5 +1,5 @@
 import {Link} from "react-router";
-import {CONTACT_EMAIL, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
+import {CONTACT_EMAIL, COPYRIGHT, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
 import "./AboutPage.scss";
 
 export const AboutPage = () => (
@@ -19,7 +19,8 @@ export const AboutPage = () => (
         <section className="info-page__section">
             <h2>Entwickelt von</h2>
             <p>
-                <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a>
+                <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a> für{" "}
+                <a href={OPERATOR.url} target="_blank" rel="noopener noreferrer">{OPERATOR.name}</a>
             </p>
         </section>
 
@@ -86,6 +87,7 @@ export const AboutPage = () => (
         </section>
 
         <section className="info-page__section info-page__meta">
+            <p>© {COPYRIGHT.years} {COPYRIGHT.holder}. Alle Rechte vorbehalten.</p>
             <p>Version {__APP_VERSION__}</p>
             <p><Link to="/privacy">Datenschutz</Link></p>
         </section>

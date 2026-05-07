@@ -16,6 +16,12 @@ centralized in `app/src/constants/contact.ts`. The following values are
   Is ATB the controller, or runlevel3 GmbH, or jointly? Full Impressum-grade
   postal address required.
 - `DEVELOPER` — runlevel3 GmbH. Confirm legal name + URL.
+- `COPYRIGHT.holder` — currently joint notice `runlevel3 GmbH / ATB`. Confirm
+  IP ownership: work-for-hire with rights to ATB, runlevel3-retained, or
+  truly joint? Adjust string accordingly (or split into two `©` lines).
+- `COPYRIGHT.years` — start year `2025` is hard-coded; end year auto-updates
+  at build time via `__BUILD_YEAR__` (vite define). Update start year if the
+  notice should later cover an earlier or later starting point.
 
 ### `PrivacyPage.tsx`
 

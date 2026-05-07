@@ -25,3 +25,12 @@ export const MAP_TILE_SOURCE = {
     url: "https://www.openstreetmap.org",
     copyrightUrl: "https://www.openstreetmap.org/copyright",
 } as const;
+
+const COPYRIGHT_START_YEAR = 2025;
+
+export const COPYRIGHT = {
+    years: __BUILD_YEAR__ > COPYRIGHT_START_YEAR
+        ? `${COPYRIGHT_START_YEAR}–${__BUILD_YEAR__}`
+        : `${COPYRIGHT_START_YEAR}`,
+    holder: `${DEVELOPER.name} / ATB`,
+} as const;

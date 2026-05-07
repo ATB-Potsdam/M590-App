@@ -10,6 +10,7 @@ export default defineConfig(({mode}) => {
     base,
     define: {
       __APP_VERSION__: JSON.stringify(pkg.version),
+      __BUILD_YEAR__: JSON.stringify(new Date().getFullYear()),
     },
     plugins: [
       react(),
