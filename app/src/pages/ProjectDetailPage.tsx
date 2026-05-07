@@ -390,13 +390,15 @@ export const ProjectDetailPage = () => {
                                             <tr key={fa.id}>
                                                 <td>
                                                     <strong>{field.name}</strong>
+                                                </td>
+                                                <td>
+                                                    {fa.module ? getModuleLabel(fa.module) : "–"}
                                                     {fa.plantKey && (
                                                         <span className="project-summary__plant">
                                                             {fa.plantKey.split("|").slice(0, 2).join(" · ")}
                                                         </span>
                                                     )}
                                                 </td>
-                                                <td>{fa.module ? getModuleLabel(fa.module) : "–"}</td>
                                                 <td>{formatNum(field.areaHa, 2)} ha</td>
                                                 <td>
                                                     {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
@@ -446,7 +448,7 @@ export const ProjectDetailPage = () => {
                                             ) : "–"}
                                         </td>
                                         {totalAltWasserM3 > 0 && (
-                                            <td><strong>{formatNum(totalAltWasserM3, 0)} m³/a</strong></td>
+                                            <td><strong>−{formatNum(totalAltWasserM3, 0)} m³/a</strong></td>
                                         )}
                                     </tr>
                                 </tfoot>

@@ -71,15 +71,17 @@ export const PdfSummaryTable = ({data}: Props) => {
                         <View key={fa.id} style={styles.tableRow}>
                             <View style={[{flex: COL.schlag, padding: 4}]}>
                                 <Text style={{fontSize: 9, fontFamily: "Roboto", fontWeight: "bold"}}>{field.name}</Text>
+                            </View>
+                            <View style={[{flex: COL.nutzung, padding: 4}]}>
+                                <Text style={{fontSize: 9}}>
+                                    {fa.module ? getModuleLabel(fa.module) : "–"}
+                                </Text>
                                 {fa.plantKey && (
                                     <Text style={{fontSize: 8, color: "#666"}}>
                                         {fa.plantKey.split("|").slice(0, 2).join(" · ")}
                                     </Text>
                                 )}
                             </View>
-                            <Text style={[styles.tableCell, {flex: COL.nutzung, alignSelf: "flex-start"}]}>
-                                {fa.module ? getModuleLabel(fa.module) : "–"}
-                            </Text>
                             <Text style={[styles.tableCell, {flex: COL.flaeche, textAlign: "right", alignSelf: "flex-start"}]}>
                                 {formatNumDe(field.areaHa, 2)} ha
                             </Text>
@@ -155,7 +157,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                     </View>
                     {showAltWasser && (
                         <Text style={[styles.tableCellBold, {flex: COL.altWasser, textAlign: "right"}]}>
-                            {formatNumDe(totalAltWasserM3, 0)} m³/a
+                            −{formatNumDe(totalAltWasserM3, 0)} m³/a
                         </Text>
                     )}
                 </View>
