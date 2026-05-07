@@ -22,6 +22,17 @@
         width: auto;
     }
 
+    // During fly: each logo slides from its stacked position into a horizontal pair.
+    // Stacked: ATB at top (y=0), DWA below (y=+104 = 80+24 gap).
+    // Target: both at same y (midpoint), spread horizontally with ~24px gap.
+    // Approx half-width offset (100px) tuned for ATB+DWA aspect ratios.
+    &--flying &__logo:first-child {
+        animation: splash-logo-left 0.6s ease-in forwards;
+    }
+    &--flying &__logo:last-child {
+        animation: splash-logo-right 0.6s ease-in forwards;
+    }
+
     &__progress {
         width: 200px;
         height: 4px;
@@ -66,19 +77,27 @@
     50%       { opacity: 0.6; }
 }
 
-// Moves logos from their current centered position to the bottom-right strip.
-// The target position is the LogoBar: fixed bottom 64px, right 12px, height 28px.
-// We use viewport units to compute the translation:
-//   - translateY: move from vertical center to near-bottom (50vh - half logo height → bottom strip center)
-//   - translateX: move from horizontal center to right edge
+// Outer container: move from center to bottom-left LogoBar area, shrink to ~22.5%.
+// Children re-arrange from column to row via splash-logo-left/right keyframes.
 @keyframes splash-fly {
     0% {
         transform: translate(0, 0) scale(1);
         opacity: 1;
     }
     100% {
-        // Move to bottom-right corner (LogoBar area), shrink to ~22% of splash size (18px / 80px)
-        transform: translate(calc(50vw - 80px), calc(50vh - 78px)) scale(0.22);
+        transform: translate(calc(-50vw + 60px), calc(50vh - 78px)) scale(0.225);
         opacity: 0.75;
     }
+}
+
+// Top logo (ATB): slide down to vertical midpoint (+52px) and left of center (-100px).
+@keyframes splash-logo-left {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(-100px, 52px); }
+}
+
+// Bottom logo (DWA): slide up to vertical midpoint (-52px) and right of center (+100px).
+@keyframes splash-logo-right {
+    0%   { transform: translate(0, 0); }
+    100% { transform: translate(100px, -52px); }
 }

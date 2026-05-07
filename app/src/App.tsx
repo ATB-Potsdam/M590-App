@@ -12,8 +12,10 @@ import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm'
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
+import {AboutPage} from './pages/AboutPage';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
+import {PrivacyPage} from './pages/PrivacyPage';
 import {ProjectDetailPage} from './pages/ProjectDetailPage';
 import {ProjectsPage} from './pages/ProjectsPage';
 import {useAppStore} from './stores/useAppStore';
@@ -123,16 +125,16 @@ const App = () => {
                             <Route path="/farm" element={<FarmPage />} />
                             <Route path="/projects/:id" element={<ProjectDetailPage />} />
                             <Route path="/projects/:id/assignment/:assignmentId" element={<AssignmentPage />} />
+                            <Route path="/about" element={<AboutPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </ErrorBoundary>
-                    {hasFarm && (
-                        <div className="bottom-bar-wrapper">
-                            <div className={`bottom-bar-wrapper__shadow${atBottom ? " bottom-bar-wrapper__shadow--hidden" : ""}`} />
-                            <LogoBar />
-                            <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />
-                        </div>
-                    )}
+                    <div className="bottom-bar-wrapper">
+                        <div className={`bottom-bar-wrapper__shadow${atBottom ? " bottom-bar-wrapper__shadow--hidden" : ""}`} />
+                        <LogoBar />
+                        {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
+                    </div>
                 </>
             )}
             {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}
