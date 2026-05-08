@@ -23,6 +23,14 @@ import {useLocalStore} from './stores/useLocalStore';
 
 const SPLASH_MIN_DURATION_MS = 2000;
 
+const ScrollToTop = () => {
+    const {pathname} = useLocation();
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [pathname]);
+    return null;
+};
+
 const App = () => {
     const layer = useAppStore((state) => state.climateLayer);
     const precipitationLookup = useAppStore((state) => state.precipitationLookup);
@@ -116,6 +124,7 @@ const App = () => {
             )}
             {isLoaded && (
                 <>
+                    <ScrollToTop />
                     <ErrorBoundary>
                         <Routes>
                             <Route
