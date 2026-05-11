@@ -63,9 +63,14 @@ const App = () => {
             }, SPLASH_MIN_DURATION_MS);
 
             // Weighted by file size: Klimaraeume(2.8MB)=6%, nfkwe(28.7MB)=58%, precip(9.1MB)=18%, et0(9.1MB)=18%
-            const progressSteps = [6, 64, 82, 100];
+            const weights = [6, 58, 18, 18];
+            let accumulated = 0;
             const track = <T,>(promise: Promise<T>, index: number): Promise<T> =>
-                promise.then((result) => { setLoadProgress(progressSteps[index]); return result; });
+                promise.then((result) => {
+                    accumulated += weights[index];
+                    setLoadProgress(accumulated);
+                    return result;
+                });
 
             Promise.all([
                 track(loadClimateLayerFromPublic(), 0),
