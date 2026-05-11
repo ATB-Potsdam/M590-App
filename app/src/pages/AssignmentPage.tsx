@@ -27,7 +27,7 @@ import {calculateKunstrasen} from '../lib/calculations/kunstrasen';
 import {calculateTennen} from '../lib/calculations/tennen';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
-import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
+import {formatPeriod, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
 import {formatNum} from '../lib/formatNum';
 import {BackButton} from '../components/BackButton';
@@ -656,7 +656,7 @@ export const AssignmentPage = () => {
                                         checked={!!irrigationPeriod && periodToKey(irrigationPeriod) === key}
                                         onChange={() => setIrrigationPeriod(timeRange)}
                                     />
-                                    {boundToLabel(timeRange.from)} bis {boundToLabel(timeRange.to)}
+                                    {formatPeriod(timeRange)}
                                 </label>;
                             })}
                         </section>

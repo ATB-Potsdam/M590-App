@@ -52,3 +52,16 @@ export const timeRangeToPeriod = (time: Range): IrrigationPeriod => {
 export const periodToKey = (period: IrrigationPeriod): string => {
     return `${period.from.month}-${period.from.position}-${period.to.month}-${period.to.position}`;
 };
+
+export const formatPeriod = (period: IrrigationPeriod): string => {
+    const from = boundToLabel(period.from);
+    const to = boundToLabel(period.to);
+    return from === to ? from : `${from} – ${to}`;
+};
+
+// monthNames: 0-indexed array of month name strings (length 12)
+export const formatMonthRange = (start: number, end: number, monthNames: string[]): string => {
+    const from = monthNames[start - 1];
+    const to = monthNames[end - 1];
+    return from === to ? from : `${from} – ${to}`;
+};

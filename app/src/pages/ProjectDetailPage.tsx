@@ -11,7 +11,7 @@ import {generateSummaryPdf, sharePdf} from "../lib/generateSummaryPdf";
 import {emojiToPngDataUrl, svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
 import {ProjectForm} from "../components/ProjectForm";
 import {useAppStore} from "../stores/useAppStore";
-import {boundToLabel} from "../utils/irrigationPeriod";
+import {formatPeriod} from "../utils/irrigationPeriod";
 import {BackButton} from "../components/BackButton";
 import "./ProjectDetailPage.scss";
 
@@ -185,7 +185,10 @@ export const ProjectDetailPage = () => {
                                         : <span className="module-badge module-badge--empty">Nutzung wählen →</span>
                                     }
                                     {fa.plantKey && (
-                                        <span className="assignment-list__plant">
+                                        <span
+                                            className="assignment-list__plant"
+                                            title={fa.plantKey.split("|").slice(0, 2).join(" · ")}
+                                        >
                                             {fa.plantKey.split("|").slice(0, 2).join(" · ")}
                                         </span>
                                     )}
@@ -194,7 +197,7 @@ export const ProjectDetailPage = () => {
                                 {/* Zeile 3: Bewässerungszeitraum – unverändert */}
                                 {fa.irrigationPeriod && (
                                     <div className="assignment-list__period">
-                                        📅 {boundToLabel(fa.irrigationPeriod.from)} – {boundToLabel(fa.irrigationPeriod.to)}
+                                        📅 {formatPeriod(fa.irrigationPeriod)}
                                     </div>
                                 )}
 
@@ -515,7 +518,8 @@ export const ProjectDetailPage = () => {
                                 * Summe umfasst nicht alle Schläge
                                 {normalCount < assignedCount && ` (Normaljahr: ${normalCount}/${assignedCount})`}
                                 {dryCount < assignedCount && ` (Trockenjahr: ${dryCount}/${assignedCount})`}
-                                {" – nicht alle Nutzungen liefern beide Szenariowerte. Netto-Antragsmenge wird nur bei vollständigen Szenarien ausgewiesen."}
+                                {" – nicht alle Nutzungen liefern beide Szenariowerte."}
+                                {totalAltWasserM3 > 0 && " Netto-Antragsmenge wird nur bei vollständigen Szenarien ausgewiesen."}
                             </span>
                         </div>
                     )}

@@ -1,7 +1,7 @@
 // src/components/IrrigationPeriodPicker.tsx
 import {useState} from "react";
 import type {IrrigationBound, IrrigationMonth, IrrigationPeriod, MonthPosition} from "../types/project";
-import {MONTHS, POSITIONS, boundToLabel, isValidPeriod} from "../utils/irrigationPeriod";
+import {MONTHS, POSITIONS, formatPeriod, isValidPeriod} from "../utils/irrigationPeriod";
 import "./IrrigationPeriodPicker.scss";
 
 interface Props {
@@ -64,7 +64,7 @@ export const IrrigationPeriodPicker = ({value, onChange}: Props) => {
 
             {valid ? (
                 <p className="irrigation-period-picker__preview">
-                    📅 {boundToLabel(from)} – {boundToLabel(to)}
+                    📅 {formatPeriod({from, to})}
                 </p>
             ) : (
                 <p className="irrigation-period-picker__error">

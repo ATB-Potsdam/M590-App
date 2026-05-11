@@ -232,7 +232,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                     {"* Summe umfasst nicht alle Schläge"}
                     {normalPartial ? ` (Normaljahr: ${normalCount}/${assignedCount})` : ""}
                     {dryPartial ? ` (Trockenjahr: ${dryCount}/${assignedCount})` : ""}
-                    {" \u2013 nicht alle Nutzungen liefern beide Szenariowerte. Netto-Antragsmenge wird nur bei vollst\u00E4ndigen Szenarien ausgewiesen."}
+                    {" \u2013 nicht alle Nutzungen liefern beide Szenariowerte."}
+                    {totalAltWasserM3 > 0 ? " Netto-Antragsmenge wird nur bei vollst\u00E4ndigen Szenarien ausgewiesen." : ""}
                 </Text>
             )}
         </View>

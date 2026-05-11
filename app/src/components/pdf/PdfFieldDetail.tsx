@@ -101,7 +101,7 @@ import {
     SOIL_OPTIONS,
     SUN_OPTIONS,
 } from "../../lib/calculations/gruenflaechen";
-import {boundToLabel} from "../../utils/irrigationPeriod";
+import {formatMonthRange, formatPeriod} from "../../utils/irrigationPeriod";
 
 const PdfNutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
     const rows: [string, string][] = [];
@@ -113,8 +113,7 @@ const PdfNutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
     }
 
     if (fa.module === "gemuese_obst" && fa.irrigationPeriod) {
-        rows.push(["Bewässerungszeitraum",
-            `${boundToLabel(fa.irrigationPeriod.from)} – ${boundToLabel(fa.irrigationPeriod.to)}`]);
+        rows.push(["Bewässerungszeitraum", formatPeriod(fa.irrigationPeriod)]);
     }
 
     if (fa.module === "weinbau") {
@@ -127,7 +126,7 @@ const PdfNutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
         if (fa.fllSoil) rows.push(["Bodenart", SOIL_OPTIONS.find(o => o.value === fa.fllSoil)?.label ?? fa.fllSoil]);
         if (fa.fllSun) rows.push(["Sonnenexposition", SUN_OPTIONS.find(o => o.value === fa.fllSun)?.label ?? fa.fllSun]);
         if (fa.fllPeriodStart && fa.fllPeriodEnd) {
-            rows.push(["Zeitraum", `${MONTH_NAMES[fa.fllPeriodStart - 1]} – ${MONTH_NAMES[fa.fllPeriodEnd - 1]}`]);
+            rows.push(["Zeitraum", formatMonthRange(fa.fllPeriodStart, fa.fllPeriodEnd, MONTH_NAMES)]);
         }
     }
 
