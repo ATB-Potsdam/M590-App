@@ -47,6 +47,10 @@
         color: var(--color-text-muted);
     }
 
+    em {
+        font-style: italic;
+    }
+
     a {
         color: var(--color-accent);
         text-decoration: none;

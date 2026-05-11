@@ -34,4 +34,19 @@
             opacity: 1;
         }
     }
+
+    &__link-label {
+        display: none;
+        font-size: 13px;
+
+        @media (min-width: 600px) {
+            display: inline;
+        }
+    }
+
+    &__link-icon {
+        @media (min-width: 600px) {
+            display: none;
+        }
+    }
 }
