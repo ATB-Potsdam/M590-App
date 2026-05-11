@@ -8,7 +8,7 @@ import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
 import {formatNum, formatRange} from "../lib/formatNum";
 import {generateSummaryPdf, sharePdf} from "../lib/generateSummaryPdf";
-import {emojiToPngDataUrl, svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
+import {svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
 import {ProjectForm} from "../components/ProjectForm";
 import {useAppStore} from "../stores/useAppStore";
 import {formatPeriod} from "../utils/irrigationPeriod";
@@ -376,8 +376,8 @@ export const ProjectDetailPage = () => {
                                         <th>Schlag</th>
                                         <th>Nutzung</th>
                                         <th>Fläche</th>
-                                        <th>🌤 Normal</th>
-                                        <th>☀️ Trocken</th>
+                                        <th>Normal</th>
+                                        <th>Trocken</th>
                                         {totalAltWasserM3 > 0 && <th>Alt. Wasser</th>}
                                     </tr>
                                 </thead>
@@ -461,7 +461,7 @@ export const ProjectDetailPage = () => {
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>
-                                🌤 Brutto Normaljahr
+                                Brutto Normaljahr
                                 {normalCount < assignedCount && <span className="project-summary__partial"> * ({normalCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
@@ -473,7 +473,7 @@ export const ProjectDetailPage = () => {
                     {dryM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>
-                                ☀️ Brutto Trockenjahr
+                                Brutto Trockenjahr
                                 {dryCount < assignedCount && <span className="project-summary__partial"> * ({dryCount}/{assignedCount} Schläge)</span>}
                             </span>
                             <span className="project-summary__result-value">
@@ -484,13 +484,13 @@ export const ProjectDetailPage = () => {
                     )}
                     {totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--alt">
-                            <span>💧 Alternative Wasserquellen</span>
+                            <span>Alternative Wasserquellen</span>
                             <strong>−{formatNum(totalAltWasserM3, 0)} m³/a</strong>
                         </div>
                     )}
                     {nettoM3 && totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
-                            <span>🌤 Netto-Antragsmenge (Normaljahr)</span>
+                            <span>Netto-Antragsmenge (Normaljahr)</span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(nettoM3, "m³/a")}</strong>
                                 {nettoMm && <span className="project-summary__mma">{formatRange(nettoMm, "mm/a")}</span>}
@@ -499,7 +499,7 @@ export const ProjectDetailPage = () => {
                     )}
                     {nettoDryM3 && totalAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
-                            <span>☀️ Netto-Antragsmenge (Trockenjahr)</span>
+                            <span>Netto-Antragsmenge (Trockenjahr)</span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(nettoDryM3, "m³/a")}</strong>
                                 {nettoDryMm && <span className="project-summary__mma">{formatRange(nettoDryMm, "mm/a")}</span>}
@@ -545,9 +545,6 @@ export const ProjectDetailPage = () => {
                         dryCount,
                         logoAtbDataUrl,
                         logoDwaDataUrl,
-                        iconNormalDataUrl: emojiToPngDataUrl("🌤"),
-                        iconDryDataUrl: emojiToPngDataUrl("☀️"),
-                        iconAltWasserDataUrl: emojiToPngDataUrl("💧"),
                         createdDateStr: new Date().toLocaleDateString("de-DE"),
                     }, filename))
                     .then(file => sharePdf(file))

@@ -1,5 +1,5 @@
 // src/components/pdf/PdfSummaryTable.tsx
-import {Image, Text, View} from "@react-pdf/renderer";
+import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe, formatRangeDe} from "./pdfFormatNum";
 import {getModuleLabel} from "../../constants/modules";
@@ -26,7 +26,6 @@ export const PdfSummaryTable = ({data}: Props) => {
         totalAltWasserM3, nettoM3, nettoMm, nettoDryM3, nettoDryMm,
         totalAreaHa, pendingCount,
         normalCount, dryCount,
-        iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl,
     } = data;
 
     const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
@@ -46,14 +45,8 @@ export const PdfSummaryTable = ({data}: Props) => {
                     <Text style={[styles.tableHeaderCell, {flex: COL.schlag}]}>Schlag</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.nutzung}]}>Nutzung</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.flaeche, textAlign: "right"}]}>Fläche</Text>
-                    <View style={[{flex: COL.normal, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
-                        <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
-                        <Text style={{fontSize: 8, fontFamily: "Roboto", fontWeight: "bold", color: styles.tableHeaderCell.color}}>Normaljahr</Text>
-                    </View>
-                    <View style={[{flex: COL.trocken, flexDirection: "row", alignItems: "center", justifyContent: "flex-end", padding: 4}]}>
-                        <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 3}} />
-                        <Text style={{fontSize: 8, fontFamily: "Roboto", fontWeight: "bold", color: styles.tableHeaderCell.color}}>Trockenjahr</Text>
-                    </View>
+                    <Text style={[styles.tableHeaderCell, {flex: COL.normal}]}>Normaljahr</Text>
+                    <Text style={[styles.tableHeaderCell, {flex: COL.trocken}]}>Trockenjahr</Text>
                     {showAltWasser && (
                         <Text style={[styles.tableHeaderCell, {flex: COL.altWasser, textAlign: "right"}]}>Alt. Wasser</Text>
                     )}
@@ -166,10 +159,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             {/* Summary result rows */}
             {normalM3 && (
                 <View style={styles.summaryRow}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
-                        <Text style={styles.summaryRowLabel}>Brutto Normaljahr{normalPartial ? " *" : ""}</Text>
-                    </View>
+                    <Text style={styles.summaryRowLabel}>Brutto Normaljahr{normalPartial ? " *" : ""}</Text>
                     <View style={{flexDirection: "column", alignItems: "flex-end"}}>
                         <Text style={styles.summaryRowValue}>{formatRangeDe(normalM3, "m³/a")}</Text>
                         {normalMm && <Text style={styles.summaryRowMma}>{formatRangeDe(normalMm, "mm/a")}</Text>}
@@ -178,10 +168,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {dryM3 && (
                 <View style={styles.summaryRow}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
-                        <Text style={styles.summaryRowLabel}>Brutto Trockenjahr{dryPartial ? " *" : ""}</Text>
-                    </View>
+                    <Text style={styles.summaryRowLabel}>Brutto Trockenjahr{dryPartial ? " *" : ""}</Text>
                     <View style={{flexDirection: "column", alignItems: "flex-end"}}>
                         <Text style={styles.summaryRowValue}>{formatRangeDe(dryM3, "m³/a")}</Text>
                         {dryMm && <Text style={styles.summaryRowMma}>{formatRangeDe(dryMm, "mm/a")}</Text>}
@@ -190,19 +177,13 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image src={iconAltWasserDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
-                        <Text style={styles.summaryRowLabel}>Alternative Wasserquellen</Text>
-                    </View>
+                    <Text style={styles.summaryRowLabel}>Alternative Wasserquellen</Text>
                     <Text style={styles.summaryRowAlt}>−{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
                 </View>
             )}
             {nettoM3 && totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image src={iconNormalDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
-                        <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Normaljahr)</Text>
-                    </View>
+                    <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Normaljahr)</Text>
                     <View style={{flexDirection: "column", alignItems: "flex-end"}}>
                         <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoM3, "m³/a")}</Text>
                         {nettoMm && <Text style={styles.summaryRowMma}>{formatRangeDe(nettoMm, "mm/a")}</Text>}
@@ -211,10 +192,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {nettoDryM3 && totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Image src={iconDryDataUrl} style={{width: 10, height: 10, marginRight: 4}} />
-                        <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Trockenjahr)</Text>
-                    </View>
+                    <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Trockenjahr)</Text>
                     <View style={{flexDirection: "column", alignItems: "flex-end"}}>
                         <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoDryM3, "m³/a")}</Text>
                         {nettoDryMm && <Text style={styles.summaryRowMma}>{formatRangeDe(nettoDryMm, "mm/a")}</Text>}

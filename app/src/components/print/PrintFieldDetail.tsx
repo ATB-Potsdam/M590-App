@@ -447,7 +447,7 @@ const ErgebnisBlock = ({result}: {result: AssignmentResult}) => {
             <tbody>
                 {normalHasValue && normal ? (
                     <tr>
-                        <td>🌤 Normaljahr</td>
+                        <td>Normaljahr</td>
                         <td>
                             {isOpenRange
                                 ? formatOpenRange(normal as NaturrasenResult, "mm/a")
@@ -459,13 +459,13 @@ const ErgebnisBlock = ({result}: {result: AssignmentResult}) => {
                     </tr>
                 ) : normal ? (
                     <tr>
-                        <td>🌤 Normaljahr</td>
+                        <td>Normaljahr</td>
                         <td>Kein Literaturwert vorhanden</td>
                     </tr>
                 ) : null}
                 {dryHasValue && dry ? (
                     <tr>
-                        <td>☀️ Trockenjahr</td>
+                        <td>Trockenjahr</td>
                         <td>
                             {formatRange(dry.totalRangeMm, "mm/a")}
                             {" · "}
@@ -474,7 +474,7 @@ const ErgebnisBlock = ({result}: {result: AssignmentResult}) => {
                     </tr>
                 ) : dry ? (
                     <tr>
-                        <td>☀️ Trockenjahr</td>
+                        <td>Trockenjahr</td>
                         <td>Kein Literaturwert vorhanden</td>
                     </tr>
                 ) : null}

@@ -1,5 +1,5 @@
 // src/components/pdf/PdfErgebnisBlock.tsx
-import {Image, Text, View} from "@react-pdf/renderer";
+import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe, formatRangeDe, formatOpenRangeDe} from "./pdfFormatNum";
 import type {AssignmentResult} from "../../lib/calculations/getAssignmentResult";
@@ -8,12 +8,9 @@ import type {TennenResult} from "../../lib/calculations/tennen";
 
 interface Props {
     result: AssignmentResult;
-    iconNormalDataUrl: string;
-    iconDryDataUrl: string;
-    iconAltWasserDataUrl: string;
 }
 
-export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl}: Props) => {
+export const PdfErgebnisBlock = ({result}: Props) => {
     const normal = result.normal;
     const dry = result.dry;
     const normalHasValue = normal && (!("hasValue" in normal) || normal.hasValue);
@@ -30,8 +27,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, ico
             </View>
             {normalHasValue && normal ? (
                 <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
-                    <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
-                        <Image src={iconNormalDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
+                    <View style={[{flex: 2, padding: 4}]}>
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Normaljahr</Text>
                     </View>
                     <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
@@ -48,8 +44,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, ico
                 </View>
             ) : normal ? (
                 <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
-                    <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
-                        <Image src={iconNormalDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
+                    <View style={[{flex: 2, padding: 4}]}>
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Normaljahr</Text>
                     </View>
                     <Text style={styles.detailTableValue}>Kein Literaturwert vorhanden</Text>
@@ -57,8 +52,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, ico
             ) : null}
             {dryHasValue && dry ? (
                 <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
-                    <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
-                        <Image src={iconDryDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
+                    <View style={[{flex: 2, padding: 4}]}>
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Trockenjahr</Text>
                     </View>
                     <View style={[{flex: 3, flexDirection: "column", padding: 4}]}>
@@ -72,8 +66,7 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, ico
                 </View>
             ) : dry ? (
                 <View style={[styles.detailTableRow, {alignItems: "flex-start"}]}>
-                    <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
-                        <Image src={iconDryDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
+                    <View style={[{flex: 2, padding: 4}]}>
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Trockenjahr</Text>
                     </View>
                     <Text style={styles.detailTableValue}>Kein Literaturwert vorhanden</Text>
@@ -82,7 +75,6 @@ export const PdfErgebnisBlock = ({result, iconNormalDataUrl, iconDryDataUrl, ico
             {result.altWasserM3 != null && result.altWasserM3 > 0 && (
                 <View style={styles.detailTableRow}>
                     <View style={[{flex: 2, flexDirection: "row", alignItems: "center", padding: 4}]}>
-                        <Image src={iconAltWasserDataUrl} style={{width: 9, height: 9, marginRight: 3}} />
                         <Text style={{fontSize: 9, color: styles.detailTableLabel.color}}>Alternative Wasserquellen</Text>
                     </View>
                     <Text style={styles.detailTableValue}>

@@ -90,7 +90,7 @@ export const ProjectsPage = () => {
                                         )}
                                         {totalAltWasserM3 > 0 && nettoM3 && (
                                             <span className="result-pill result-pill--normal">
-                                                Netto {formatRange(nettoM3, "m³/a")}
+                                                🌤 Netto {formatRange(nettoM3, "m³/a")}
                                             </span>
                                         )}
                                     </div>

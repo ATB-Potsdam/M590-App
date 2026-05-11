@@ -30,13 +30,13 @@ export const WeinbauResultCard = ({result, dryResult, fieldName, areaHa}: Props)
                 <h4>Zusatzwasserbedarf</h4>
                 <div className="result-card__values">
                     <div className="result-card__value-row">
-                        <span>{showBothScenarios ? "🌤 Normaljahr" : "Gesamt"}</span>
+                        <span>{showBothScenarios ? "Normaljahr" : "Gesamt"}</span>
                         <strong>{formatRange(result.totalRangeMm, "mm/a")}</strong>
                         <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
                     </div>
                     {showBothScenarios && dryResult && (
                         <div className="result-card__value-row">
-                            <span>☀️ Trockenjahr</span>
+                            <span>Trockenjahr</span>
                             <strong>{formatRange(dryResult.totalRangeMm, "mm/a")}</strong>
                             <strong>{formatRange(dryResult.totalRangeM3, "m³/a")}</strong>
                         </div>

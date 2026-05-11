@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const PdfDocument = ({data}: Props) => {
-    const {project, farm, assignmentResults, iconNormalDataUrl, iconDryDataUrl, iconAltWasserDataUrl} = data;
+    const {project, farm, assignmentResults} = data;
 
     const detailItems = project.fieldAssignments
         .map((fa, i) => ({
@@ -49,9 +49,6 @@ export const PdfDocument = ({data}: Props) => {
                         assignment={fa}
                         result={result!}
                         index={index}
-                        iconNormalDataUrl={iconNormalDataUrl}
-                        iconDryDataUrl={iconDryDataUrl}
-                        iconAltWasserDataUrl={iconAltWasserDataUrl}
                     />
                     <Text
                         style={styles.pageNumber}

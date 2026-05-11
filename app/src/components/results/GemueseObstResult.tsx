@@ -28,20 +28,20 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             ) : (
                 <div className="result-card__values">
                     <div className="result-card__value-row">
-                        <span>{dryResult ? "🌤 Normaljahr" : "Gesamt"}</span>
+                        <span>{dryResult ? "Normaljahr" : "Gesamt"}</span>
                         <strong>{formatRange(result.totalRangeMm, "mm/a")}</strong>
                         <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
                     </div>
                     {dryResult && dryResult.hasValue && (
                         <div className="result-card__value-row">
-                            <span>☀️ Trockenjahr</span>
+                            <span>Trockenjahr</span>
                             <strong>{formatRange(dryResult.totalRangeMm, "mm/a")}</strong>
                             <strong>{formatRange(dryResult.totalRangeM3, "m³/a")}</strong>
                         </div>
                     )}
                     {dryResult && !dryResult.hasValue && (
                         <p className="result-card__no-value">
-                            ☀️ Trockenjahr: kein Literaturwert vorhanden.
+                            Trockenjahr: kein Literaturwert vorhanden.
                         </p>
                     )}
                 </div>
@@ -60,10 +60,10 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                         : result.hasValue ? formatRange(result.baseRangeMm, 'mm') : "kein Literaturwert"}
                     {dryResult && (
                         <>
-                            {" 🌤 / "}
+                            {" (Normal) / "}
                             {dryResult.isUserCustom
                                 ? `${formatNum(dryResult.userCustomMm, 0)} mm/a (benutzerdefiniert)`
-                                : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"} ☀️
+                                : dryResult.hasValue ? formatRange(dryResult.baseRangeMm, 'mm') : "kein Literaturwert"}{" (Trocken)"}
                         </>
                     )}
                 </span>

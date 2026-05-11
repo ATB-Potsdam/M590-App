@@ -27,20 +27,20 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             ) : (
                 <div className="result-card__values">
                     <div className="result-card__value-row">
-                        <span>{dryResult ? "🌤 Normaljahr" : "Gesamt"}</span>
+                        <span>{dryResult ? "Normaljahr" : "Gesamt"}</span>
                         <strong>{formatRange(result.totalRangeMm, "mm/a")}</strong>
                         <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
                     </div>
                     {dryResult && dryResult.hasValue && (
                         <div className="result-card__value-row">
-                            <span>☀️ Trockenjahr</span>
+                            <span>Trockenjahr</span>
                             <strong>{formatRange(dryResult.totalRangeMm, "mm/a")}</strong>
                             <strong>{formatRange(dryResult.totalRangeM3, "m³/a")}</strong>
                         </div>
                     )}
                     {dryResult && !dryResult.hasValue && (
                         <p className="result-card__no-value">
-                            ☀️ Trockenjahr: kein Literaturwert vorhanden.
+                            Trockenjahr: kein Literaturwert vorhanden.
                         </p>
                     )}
                 </div>
@@ -51,7 +51,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
-                <span>{dryResult && "🌤 "}{result.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
+                <span>{dryResult && "Normal: "}{result.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
                     {result.isUserCustom
                         ? `${formatNum(result.userCustomMm, 0)} mm/a (benutzerdefiniert)`
@@ -59,7 +59,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
                 </span>
             </div>
             {dryResult && <div className="result-card__value-row">
-                <span>☀️ {dryResult.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
+                <span>Trocken: {dryResult.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
                     {dryResult.isUserCustom
                         ? `${formatNum(dryResult.userCustomMm, 0)} mm/a (benutzerdefiniert)`

@@ -32,10 +32,6 @@ export interface SummaryPdfData {
     // Pre-rasterized logos as PNG data URIs
     logoAtbDataUrl: string;
     logoDwaDataUrl: string;
-    // Pre-rasterized emoji icons for Normal/Dry year labels
-    iconNormalDataUrl: string;
-    iconDryDataUrl: string;
-    iconAltWasserDataUrl: string;
     // Formatted creation date string
     createdDateStr: string;
 }
