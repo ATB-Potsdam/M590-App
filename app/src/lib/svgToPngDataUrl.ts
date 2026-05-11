@@ -1,22 +1,6 @@
 // src/lib/svgToPngDataUrl.ts
 
 /**
- * Render an emoji character to a PNG data URI using a canvas.
- * Useful for embedding emoji as images in react-pdf (which cannot render emoji via fonts).
- */
-export const emojiToPngDataUrl = (emoji: string, sizePx = 32): string => {
-    const canvas = document.createElement("canvas");
-    canvas.width = sizePx;
-    canvas.height = sizePx;
-    const ctx = canvas.getContext("2d")!;
-    ctx.font = `${sizePx * 0.8}px serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(emoji, sizePx / 2, sizePx / 2);
-    return canvas.toDataURL("image/png");
-};
-
-/**
  * Fetch an SVG from a URL and rasterize it to a PNG data URI.
  * @react-pdf/renderer's <Image> does not support SVG directly.
  */
