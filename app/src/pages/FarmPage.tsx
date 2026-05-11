@@ -164,12 +164,12 @@ export const FarmPage = () => {
 
     return (
         <div className="page">
-            <h1>Stammdaten</h1>
+            <h1>Mein Betrieb</h1>
 
             <OnboardingBanner />
 
             <div className="farm-page__name-label">
-                <strong>Betrieb</strong>
+                <strong>Name</strong>
                 {editingName || !farm.name ? (
                     <>
                         <input

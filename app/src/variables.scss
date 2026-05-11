@@ -65,3 +65,12 @@
     --color-link-hover: #535bf2;
     --color-disabled: #ccc;
 }
+
+// Reusable field label style
+@mixin field-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}

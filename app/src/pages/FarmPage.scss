@@ -1,4 +1,5 @@
 // src/pages/FarmPage.scss
+@use "../variables" as *;
 .farm-page {
     max-width: 720px;
     margin: 0 auto;
@@ -12,6 +13,7 @@
         margin-top: 8px;
 
         strong {
+            @include field-label;
             flex-shrink: 0;
         }
 
