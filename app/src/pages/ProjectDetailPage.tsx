@@ -64,7 +64,7 @@ export const ProjectDetailPage = () => {
         return (
             <div className="page">
                 <p>Szenario nicht gefunden.</p>
-                <BackButton onClick={() => navigate("/")}>Zurück</BackButton>
+                <BackButton onClick={() => navigate(-1)}>Zurück</BackButton>
             </div>
         );
     }
@@ -118,7 +118,7 @@ export const ProjectDetailPage = () => {
     return (
         <div className="page">
             {/* Header */}
-            <BackButton onClick={() => navigate("/")}>Szenarien</BackButton>
+            <BackButton onClick={() => navigate(-1)}>Szenarien</BackButton>
             {showEditProject ? (
                 <ProjectForm
                     initialName={project.name}

@@ -101,7 +101,7 @@ export const AssignmentPage = () => {
         return (
             <div className="page">
                 <p>Zuweisung nicht gefunden.</p>
-                <BackButton onClick={() => navigate(`/projects/${id}`)}>Zurück</BackButton>
+                <BackButton onClick={() => navigate(-1)}>Zurück</BackButton>
             </div>
         );
     }
@@ -271,14 +271,14 @@ export const AssignmentPage = () => {
                         ? altWasserM3
                         : undefined,
         });
-        navigate(`/projects/${id}`);
+        navigate(`/projects/${id}`, {replace: true});
     };
 
     return (
         <div className="page">
             {/* Header */}
             <div className="assignment-page__header">
-                <BackButton onClick={() => navigate(`/projects/${id}`)}>{project.name}</BackButton>
+                <BackButton onClick={() => navigate(-1)}>{project.name}</BackButton>
                 <h1>{field.name}</h1>
                 <p className="assignment-page__meta">
                     {formatNum(field.areaHa, 2)} ha
@@ -914,7 +914,7 @@ export const AssignmentPage = () => {
                     </button>
                     <button
                         className="assignment-page__cancel"
-                        onClick={() => navigate(`/projects/${id}`)}
+                        onClick={() => navigate(`/projects/${id}`, {replace: true})}
                     >
                         Abbrechen
                     </button>
