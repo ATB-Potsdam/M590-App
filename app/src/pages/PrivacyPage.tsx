@@ -1,10 +1,11 @@
 import {Link} from "react-router";
 import {CONTACT_EMAIL, DEVELOPER, MAP_TILE_SOURCE, OPERATOR} from "../constants/contact";
+import {BackButton} from "../components/BackButton";
 import "./AboutPage.scss";
 
 export const PrivacyPage = () => (
     <div className="info-page">
-        <Link to="/" className="info-page__back">← Zurück</Link>
+        <BackButton to="/">Zurück</BackButton>
         <h1 className="info-page__title">Datenschutz</h1>
 
         <section className="info-page__section">

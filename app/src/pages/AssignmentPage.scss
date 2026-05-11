@@ -8,13 +8,8 @@
         }
     }
 
-    &__back {
-        background: none;
-        border: none;
-        color: var(--color-accent);
-        cursor: pointer;
-        padding: 0 0 8px;
-        display: block;
+    .back-button {
+        padding-bottom: 8px;
     }
 
     &__meta {

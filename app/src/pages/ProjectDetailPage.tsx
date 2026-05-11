@@ -12,6 +12,7 @@ import {emojiToPngDataUrl, svgUrlToPngDataUrl} from "../lib/svgToPngDataUrl";
 import {ProjectForm} from "../components/ProjectForm";
 import {useAppStore} from "../stores/useAppStore";
 import {boundToLabel} from "../utils/irrigationPeriod";
+import {BackButton} from "../components/BackButton";
 import "./ProjectDetailPage.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -63,7 +64,7 @@ export const ProjectDetailPage = () => {
         return (
             <div className="page">
                 <p>Szenario nicht gefunden.</p>
-                <button onClick={() => navigate("/")}>← Zurück</button>
+                <BackButton onClick={() => navigate("/")}>Zurück</BackButton>
             </div>
         );
     }
@@ -117,9 +118,7 @@ export const ProjectDetailPage = () => {
     return (
         <div className="page">
             {/* Header */}
-            <button className="project-detail__back" onClick={() => navigate("/")}>
-                ← Szenarien
-            </button>
+            <BackButton onClick={() => navigate("/")}>Szenarien</BackButton>
             {showEditProject ? (
                 <ProjectForm
                     initialName={project.name}

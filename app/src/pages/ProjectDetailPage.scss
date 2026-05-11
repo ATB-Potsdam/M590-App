@@ -1,15 +1,9 @@
 // src/pages/ProjectDetailPage.scss
 .project-detail {
-    &__back {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        color: var(--color-accent);
-        white-space: nowrap;
-        display: block;
+    .back-button {
         margin-bottom: 8px;
         font-size: 14px;
+        white-space: nowrap;
     }
 
     &__meta {

@@ -4,16 +4,9 @@
     padding: 16px 16px 80px;
     color: var(--color-text);
 
-    &__back {
-        display: inline-block;
+    .back-button {
         margin-bottom: 8px;
         font-size: 0.95rem;
-        color: var(--color-accent);
-        text-decoration: none;
-
-        &:hover {
-            text-decoration: underline;
-        }
     }
 
     &__title {

@@ -30,6 +30,7 @@ import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project
 import {boundToLabel, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
 import {getLevel0Groups, getLevel1Options, hasVariants, parsePlantNames} from '../utils/plantNameParser';
 import {formatNum} from '../lib/formatNum';
+import {BackButton} from '../components/BackButton';
 import './AssignmentPage.scss';
 
 export const AssignmentPage = () => {
@@ -100,7 +101,7 @@ export const AssignmentPage = () => {
         return (
             <div className="page">
                 <p>Zuweisung nicht gefunden.</p>
-                <button onClick={() => navigate(`/projects/${id}`)}>← Zurück</button>
+                <BackButton onClick={() => navigate(`/projects/${id}`)}>Zurück</BackButton>
             </div>
         );
     }
@@ -277,9 +278,7 @@ export const AssignmentPage = () => {
         <div className="page">
             {/* Header */}
             <div className="assignment-page__header">
-                <button className="assignment-page__back" onClick={() => navigate(`/projects/${id}`)}>
-                    ← {project.name}
-                </button>
+                <BackButton onClick={() => navigate(`/projects/${id}`)}>{project.name}</BackButton>
                 <h1>{field.name}</h1>
                 <p className="assignment-page__meta">
                     {formatNum(field.areaHa, 2)} ha

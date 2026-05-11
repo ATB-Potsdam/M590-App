@@ -1,0 +1,21 @@
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--color-accent);
+    font-size: inherit;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+
+    &__icon {
+        flex-shrink: 0;
+        font-size: 1.1em;
+    }
+}

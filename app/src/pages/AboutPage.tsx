@@ -1,10 +1,11 @@
 import {Link} from "react-router";
 import {CONTACT_EMAIL, COPYRIGHT, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
+import {BackButton} from "../components/BackButton";
 import "./AboutPage.scss";
 
 export const AboutPage = () => (
     <div className="info-page">
-        <Link to="/" className="info-page__back">← Zurück</Link>
+        <BackButton to="/">Zurück</BackButton>
         <h1 className="info-page__title">Über die App</h1>
 
         <section className="info-page__section">
