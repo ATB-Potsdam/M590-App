@@ -132,19 +132,17 @@ export const ProjectDetailPage = () => {
                 />
             ) : (
                 <>
-                    <div className="project-detail__header-block">
-                        <div className="project-detail__title-row">
-                            <h1>{project.name}</h1>
-                            <button className="project-detail__edit-btn" onClick={() => setShowEditProject(true)} title="Name/Beschreibung bearbeiten">✏️</button>
-                        </div>
-                        {project.description && (
-                            <p className="project-detail__description">
-                                {project.description.split("\n").map((line, i, arr) => (
-                                    <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
-                                ))}
-                            </p>
-                        )}
+                    <div className="project-detail__title-row">
+                        <h1>{project.name}</h1>
+                        <button className="project-detail__edit-btn" onClick={() => setShowEditProject(true)} title="Name/Beschreibung bearbeiten">✏️</button>
                     </div>
+                    {project.description && (
+                        <p className="project-detail__description">
+                            {project.description.split("\n").map((line, i, arr) => (
+                                <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                            ))}
+                        </p>
+                    )}
                 </>
             )}
 

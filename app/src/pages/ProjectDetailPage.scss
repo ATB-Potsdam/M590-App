@@ -11,14 +11,10 @@
         color: var(--color-text-secondary);
     }
 
-    &__header-block {
-        width: fit-content;
-        margin: 0 auto;
-    }
-
     &__title-row {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
 
         h1 {
@@ -41,10 +37,12 @@
     }
 
     &__description {
-        margin: 4px 0 0;
+        margin: 4px auto 0;
         font-size: 13px;
         color: var(--color-text-secondary);
         white-space: pre-line;
+        width: fit-content;
+        text-align: left;
     }
 
     &__empty {
