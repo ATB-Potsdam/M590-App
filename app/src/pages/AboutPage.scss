@@ -40,6 +40,34 @@
         color: var(--color-text-muted);
     }
 
+    &__install-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        p {
+            align-self: stretch;
+            text-align: left;
+        }
+    }
+
+    &__install-btn {
+        background: var(--color-primary);
+        color: #fff;
+        -webkit-text-fill-color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 4px;
+
+        &:hover {
+            background: var(--color-primary-dark);
+        }
+    }
+
     em {
         font-style: italic;
     }

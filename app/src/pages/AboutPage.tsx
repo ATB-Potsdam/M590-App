@@ -1,9 +1,26 @@
+import {useState} from "react";
 import {Link} from "react-router";
 import {CONTACT_EMAIL, COPYRIGHT, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
 import {BackButton} from "../components/BackButton";
+import {IosInstallOverlay} from "../components/IosInstallOverlay";
+import {useInstallApp} from "../hooks/useInstallApp";
 import "./AboutPage.scss";
 
-export const AboutPage = () => (
+export const AboutPage = () => {
+    const {alreadyInstalled, isIOS, canPrompt, prompt} = useInstallApp();
+    const [showIosOverlay, setShowIosOverlay] = useState(false);
+
+    const showInstall = !alreadyInstalled && (canPrompt || isIOS);
+
+    const handleInstall = () => {
+        if (canPrompt) {
+            prompt();
+            return;
+        }
+        if (isIOS) setShowIosOverlay(true);
+    };
+
+    return (
     <div className="info-page">
         <BackButton to="/">Zurück</BackButton>
         <h1 className="info-page__title">Über die App</h1>
@@ -16,6 +33,18 @@ export const AboutPage = () => (
                 sowie Kultur- bzw. Nutzungsart.
             </p>
         </section>
+
+        {showInstall && (
+            <section className="info-page__section info-page__install-section">
+                <h2>App installieren</h2>
+                <p>
+                    Diese App lässt sich auf dem Startbildschirm ablegen und funktioniert dann auch offline.
+                </p>
+                <button className="info-page__install-btn" onClick={handleInstall}>
+                    {canPrompt ? "Auf Startbildschirm hinzufügen" : "Anleitung anzeigen"}
+                </button>
+            </section>
+        )}
 
         <section className="info-page__section">
             <h2>Entwickelt von</h2>
@@ -92,5 +121,8 @@ export const AboutPage = () => (
             <p>Version {__APP_VERSION__}</p>
             <p><Link to="/privacy">Datenschutz</Link></p>
         </section>
+
+        {showIosOverlay && <IosInstallOverlay onClose={() => setShowIosOverlay(false)} />}
     </div>
-);
+    );
+};
