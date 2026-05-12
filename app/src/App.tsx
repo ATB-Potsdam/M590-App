@@ -3,6 +3,7 @@ import {Navigate, Route, Routes, useLocation} from 'react-router';
 import "./App.scss";
 import {BottomNav} from './components/BottomNav';
 import {ErrorBoundary} from './components/ErrorBoundary';
+import {InstallPrompt} from './components/InstallPrompt';
 import {LogoBar} from './components/LogoBar';
 import {Messages} from './components/Messages';
 import {UpdateBanner} from './components/UpdateBanner';
@@ -153,6 +154,7 @@ const App = () => {
             )}
             {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}
             <UpdateBanner />
+            <InstallPrompt />
             <Messages />
         </>
     );

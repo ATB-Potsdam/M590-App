@@ -13,6 +13,7 @@ interface LocalStorageTypes {
     dwa_projects: Project[];
     dwa_onboarding_dismissed: boolean;
     dwa_banner_dismissed: boolean;
+    dwa_install_prompt_dismissed: boolean;
 }
 
 type LocalStoreState = {
@@ -30,6 +31,7 @@ const defaultValues: {[K in keyof LocalStorageTypes]: LocalStorageTypes[K]} = {
     dwa_projects: [],
     dwa_onboarding_dismissed: false,
     dwa_banner_dismissed: false,
+    dwa_install_prompt_dismissed: false,
 } as const;
 
 const VALID_NFKWE: string[] = ["1-2", "3a", "3b", "4", "5"];
@@ -91,7 +93,7 @@ export const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknow
                 : [],
         } as LocalStorageTypes[K];
     }
-    if (key === "dwa_onboarding_dismissed" || key === "dwa_banner_dismissed") {
+    if (key === "dwa_onboarding_dismissed" || key === "dwa_banner_dismissed" || key === "dwa_install_prompt_dismissed") {
         return (data === true) as LocalStorageTypes[K];
     }
     if (key === "dwa_projects") {
@@ -146,6 +148,7 @@ export const useLocalStore = create<LocalStoreState>()(
             dwa_projects: createStub("dwa_projects"),
             dwa_onboarding_dismissed: createStub("dwa_onboarding_dismissed"),
             dwa_banner_dismissed: createStub("dwa_banner_dismissed"),
+            dwa_install_prompt_dismissed: createStub("dwa_install_prompt_dismissed"),
         });
     })
 );

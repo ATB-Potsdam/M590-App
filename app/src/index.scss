@@ -45,6 +45,8 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
+  color: var(--color-text);
+  -webkit-text-fill-color: var(--color-text);
   background-color: var(--color-bg-button);
   cursor: pointer;
   transition: border-color 0.25s;
@@ -53,6 +55,12 @@ button {
     border-color: var(--color-link);
   }
 
+  &:disabled {
+    color: var(--color-text-muted);
+    -webkit-text-fill-color: var(--color-text-muted);
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
 }
 
 :focus-visible {
