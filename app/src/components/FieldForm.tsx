@@ -147,7 +147,11 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                 {geoNFkweClass && <p>Die ermittelte Bodenklasse an diesem Ort ist <b>{geoNFkweClass}</b>.</p>}
                 <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
-                        <label key={cls}>
+                        <label
+                            key={cls}
+                            className={clsx(cls === geoNFkweClass && "field-form__nfkwe-geo")}
+                            title={cls === geoNFkweClass ? "Aus Karte ermittelt" : undefined}
+                        >
                             <input
                                 type="radio"
                                 name="nFkweClass"
@@ -156,9 +160,22 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                                 onChange={() => handleNfkweChange(cls)}
                             />
                             {cls}
+                            {cls === geoNFkweClass && <span className="field-form__nfkwe-geo-marker" aria-hidden>📍</span>}
                         </label>
                     ))}
                 </div>
+                {geoNFkweClass && nFkweSource === "manual" && manualNFkweClass !== geoNFkweClass && (
+                    <p className="field-form__nfkwe-reset">
+                        Manuelle Auswahl weicht von Kartenwert ab.{" "}
+                        <button
+                            type="button"
+                            className="field-form__nfkwe-reset-btn"
+                            onClick={() => setNFkweSource("geo")}
+                        >
+                            ↻ Auf Kartenwert ({geoNFkweClass}) zurücksetzen
+                        </button>
+                    </p>
+                )}
             </fieldset>
 
             <div className="field-form__actions">
