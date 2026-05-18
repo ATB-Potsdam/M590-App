@@ -14,9 +14,10 @@ function seoPlugin(appUrl: string, indexableRoutes: string[]): Plugin {
   return {
     name: 'seo-files',
     generateBundle() {
+      const basePath = new URL(appUrl).pathname;
       const robotsLines = [
         'User-agent: *',
-        'Allow: /',
+        `Allow: ${basePath}`,
         ...indexableRoutes.map(r => `Allow: ${pathname(r)}`),
         `Sitemap: ${new URL('sitemap.xml', appUrl).href}`,
       ];
