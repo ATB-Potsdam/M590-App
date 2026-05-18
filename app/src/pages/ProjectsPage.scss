@@ -108,6 +108,7 @@
 .project-list__delete-confirm-btn {
     background: var(--color-error);
     color: #fff;
+    -webkit-text-fill-color: #fff;
     border-color: var(--color-error);
 
     &:hover {
