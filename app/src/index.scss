@@ -46,7 +46,10 @@ button {
   font-weight: 500;
   font-family: inherit;
   color: var(--color-text);
-  -webkit-text-fill-color: var(--color-text);
+  // iOS Safari overrides plain `color` on form controls with its own system
+  // tint. -webkit-text-fill-color wins. Tying it to currentColor means any
+  // child rule that sets `color:` will automatically be respected too.
+  -webkit-text-fill-color: currentColor;
   background-color: var(--color-bg-button);
   cursor: pointer;
   transition: border-color 0.25s;
@@ -57,10 +60,18 @@ button {
 
   &:disabled {
     color: var(--color-text-muted);
-    -webkit-text-fill-color: var(--color-text-muted);
     opacity: 0.7;
     cursor: not-allowed;
   }
+}
+
+// Same fix for inputs/selects/textareas — iOS Safari paints disabled and
+// some valid-state controls with a system color otherwise.
+input,
+select,
+textarea {
+  color: var(--color-text);
+  -webkit-text-fill-color: currentColor;
 }
 
 :focus-visible {

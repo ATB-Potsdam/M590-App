@@ -175,6 +175,18 @@ export const FarmPage = () => {
                         <input
                             value={nameDraft}
                             onChange={(e) => setNameDraft(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const trimmed = nameDraft.trim();
+                                    if (!trimmed) return;
+                                    updateFarmName(trimmed);
+                                    setEditingName(false);
+                                } else if (e.key === "Escape") {
+                                    setNameDraft(farm.name);
+                                    setEditingName(false);
+                                }
+                            }}
                             placeholder="Name des Betriebs"
                             className="farm-page__name-input"
                             autoFocus={!!farm.name}
