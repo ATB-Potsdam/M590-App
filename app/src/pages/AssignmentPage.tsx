@@ -809,7 +809,7 @@ export const AssignmentPage = () => {
                     <h2>Benutzerdefinierte Zusatzbewässerung</h2>
                     <p className="assignment-section__hint">
                         Für diese Kultur liegt kein Literaturwert vor. Sie können hier optional einen eigenen
-                        Schätzwert (mm/a) eingeben. Das Ergebnis wird klar als „benutzerdefiniert" markiert.
+                        Schätzwert (mm/a) eingeben. Das Ergebnis wird klar als „benutzerdefiniert“ markiert.
                     </p>
                     <label className="assignment-section__label">
                         Benutzerdefinierter Bedarf (mm/a)

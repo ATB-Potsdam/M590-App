@@ -37,14 +37,14 @@ export const PrivacyPage = () => (
             <p>
                 Beim Deinstallieren der App oder Löschen der Browserdaten gehen diese Informationen
                 verloren. Eine Export- und Importfunktion zur lokalen Sicherung steht im Bereich
-                „Betrieb" zur Verfügung.
+                „Betrieb“ zur Verfügung.
             </p>
         </section>
 
         <section className="info-page__section">
             <h2>Standortdaten</h2>
             <p>
-                Bei Nutzung der Funktion „Aktuelle Position übernehmen" wird die Geolokalisierungs-API
+                Bei Nutzung der Funktion „Aktuelle Position übernehmen“ wird die Geolokalisierungs-API
                 Ihres Geräts angefragt. Die ermittelten Koordinaten werden ausschließlich lokal
                 verarbeitet und nicht an Dritte übermittelt. Die Freigabe erfordert Ihre
                 ausdrückliche Zustimmung im Browser bzw. Betriebssystem.

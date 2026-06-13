@@ -22,7 +22,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             <h4>Zusatzwasserbedarf{result.isUserCustom && <span className="result-card__custom-tag"> · benutzerdefiniert</span>}</h4>
             {!result.hasValue ? (
                 <p className="result-card__no-value">
-                    Kein Literaturwert vorhanden. Leere Felder bedeuten fehlende Literaturwerte, nicht „kein Bedarf".
+                    Kein Literaturwert vorhanden. Leere Felder bedeuten fehlende Literaturwerte, nicht „kein Bedarf“.
                 </p>
             ) : (
                 <div className="result-card__values">

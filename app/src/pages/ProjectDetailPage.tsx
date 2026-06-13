@@ -153,7 +153,7 @@ export const ProjectDetailPage = () => {
 
             {project.fieldAssignments.length === 0 && (
                 <p className="project-detail__empty">
-                    Noch keine Felder zugewiesen. Fügen Sie mit „+ Schlag hinzufügen" einen Schlag hinzu und weisen Sie ihm eine Nutzung zu.
+                    Noch keine Felder zugewiesen. Fügen Sie mit „+ Schlag hinzufügen“ einen Schlag hinzu und weisen Sie ihm eine Nutzung zu.
                 </p>
             )}
 
@@ -212,7 +212,7 @@ export const ProjectDetailPage = () => {
                                     const dryHasValue = result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue);
 
                                     // Selbstheilende Lookups: wenn nur Klima/Klimadaten gerade noch nicht
-                                    // geladen sind, zeigen wir „wird ermittelt…" statt einer Fehler-/Link-Liste.
+                                    // geladen sind, zeigen wir „wird ermittelt…“ statt einer Fehler-/Link-Liste.
                                     const climateLoading = !result && fa.module && (
                                         field.climateClassStatus === "loading" ||
                                         field.climateClassStatus === "idle" ||
@@ -294,7 +294,7 @@ export const ProjectDetailPage = () => {
                             </div>
                             {confirmDeleteAssignmentId === fa.id && (
                                 <div ref={deleteConfirmRef} className="assignment-list__delete-confirm">
-                                    <strong>Zuweisung „{field.name}" entfernen?</strong>
+                                    <strong>Zuweisung „{field.name}“ entfernen?</strong>
                                     <p>Die Zuweisung wird aus diesem Szenario entfernt.</p>
                                     <div className="assignment-list__delete-confirm-actions">
                                         <button
