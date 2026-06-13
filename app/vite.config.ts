@@ -47,7 +47,7 @@ export default defineConfig(({mode}) => {
       seoPlugin(appUrl, ['/about', '/privacy']),
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         base,
         manifest: {
           name: 'DWA-App (M 590)',
