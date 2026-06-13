@@ -116,6 +116,19 @@ export const AboutPage = () => {
             </p>
         </section>
 
+        <section className="info-page__section">
+            <h2>Lizenz</h2>
+            <p>
+                Der Quellcode dieser App steht unter der{" "}
+                <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">
+                    Apache License 2.0
+                </a>. Bei wissenschaftlicher Nutzung bitten wir um Zitation gemäß der{" "}
+                <a href="https://github.com/ATB-Potsdam/M590-App/blob/main/CITATION.cff" target="_blank" rel="noopener noreferrer">
+                    CITATION.cff
+                </a>{" "}im Repository.
+            </p>
+        </section>
+
         <section className="info-page__section info-page__meta">
             <p>© {COPYRIGHT.years} {COPYRIGHT.holder}. Alle Rechte vorbehalten.</p>
             <p>Version {__APP_VERSION__}</p>
