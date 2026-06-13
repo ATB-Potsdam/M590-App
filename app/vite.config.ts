@@ -49,6 +49,11 @@ export default defineConfig(({mode}) => {
       VitePWA({
         registerType: 'prompt',
         base,
+        // One-shot recovery: SW_KILL=1 builds a self-destroying SW that
+        // unregisters itself and purges all caches. Deploy this once to free
+        // users whose old SW is still serving stale assets, then drop the
+        // flag for the next deploy.
+        selfDestroying: process.env.SW_KILL === '1',
         manifest: {
           name: 'DWA-App (M 590)',
           short_name: 'M 590',
@@ -66,6 +71,9 @@ export default defineConfig(({mode}) => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,wasm,json}'],
           globIgnores: ['data/**'],
+          // On first install (no SW controlling yet) take control immediately
+          // so the page doesn't need a reload to be served from cache.
+          clientsClaim: true,
         },
       }),
     ],
