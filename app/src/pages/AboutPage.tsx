@@ -4,11 +4,16 @@ import {CONTACT_EMAIL, COPYRIGHT, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD
 import {BackButton} from "../components/BackButton";
 import {IosInstallOverlay} from "../components/IosInstallOverlay";
 import {useInstallApp} from "../hooks/useInstallApp";
+import {isNative} from "../lib/nativeShare";
+import {getSwRegistration} from "../lib/swRegistration";
 import "./AboutPage.scss";
+
+type UpdateCheckState = "idle" | "checking" | "uptodate" | "found" | "error";
 
 export const AboutPage = () => {
     const {alreadyInstalled, isIOS, canPrompt, prompt} = useInstallApp();
     const [showIosOverlay, setShowIosOverlay] = useState(false);
+    const [updateState, setUpdateState] = useState<UpdateCheckState>("idle");
 
     const showInstall = !alreadyInstalled && (canPrompt || isIOS);
 
@@ -18,6 +23,24 @@ export const AboutPage = () => {
             return;
         }
         if (isIOS) setShowIosOverlay(true);
+    };
+
+    const handleCheckUpdate = () => {
+        const reg = getSwRegistration();
+        if (!reg) {
+            setUpdateState("error");
+            return;
+        }
+        setUpdateState("checking");
+        reg.update()
+            .then(() => {
+                if (reg.waiting || reg.installing) {
+                    setUpdateState("found");
+                } else {
+                    setUpdateState("uptodate");
+                }
+            })
+            .catch(() => setUpdateState("error"));
     };
 
     return (
@@ -43,6 +66,31 @@ export const AboutPage = () => {
                 <button className="info-page__install-btn" onClick={handleInstall}>
                     {canPrompt ? "Auf Startbildschirm hinzufügen" : "Anleitung anzeigen"}
                 </button>
+            </section>
+        )}
+
+        {!isNative() && (
+            <section className="info-page__section info-page__install-section">
+                <h2>Auf Updates prüfen</h2>
+                <p>
+                    Wenn Sie vermuten, dass eine neuere Version verfügbar ist, können Sie hier manuell danach suchen.
+                </p>
+                <button
+                    className="info-page__install-btn"
+                    onClick={handleCheckUpdate}
+                    disabled={updateState === "checking"}
+                >
+                    {updateState === "checking" ? "Prüfe …" : "Jetzt prüfen"}
+                </button>
+                {updateState === "uptodate" && (
+                    <p className="info-page__update-status">✓ Sie verwenden bereits die aktuelle Version.</p>
+                )}
+                {updateState === "found" && (
+                    <p className="info-page__update-status">Ein Update wurde gefunden. Die Aktualisierungsleiste oben führt Sie durch das Neuladen.</p>
+                )}
+                {updateState === "error" && (
+                    <p className="info-page__update-status">Prüfung fehlgeschlagen. Bitte später erneut versuchen.</p>
+                )}
             </section>
         )}
 
