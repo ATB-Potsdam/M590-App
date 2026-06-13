@@ -14,10 +14,10 @@ export const IosInstallOverlay = ({onClose}: Props) => (
                     <span className="install-prompt-overlay__icon" aria-hidden> ⬆️</span>
                 </li>
                 <li>
-                    <strong>„Zum Home-Bildschirm"</strong> wählen
+                    <strong>„Zum Home-Bildschirm“</strong> wählen
                     <span className="install-prompt-overlay__icon" aria-hidden> ➕</span>
                 </li>
-                <li>Mit <strong>„Hinzufügen"</strong> bestätigen</li>
+                <li>Mit <strong>„Hinzufügen“</strong> bestätigen</li>
             </ol>
             <button
                 className="install-prompt-overlay__close"

@@ -240,7 +240,7 @@ export const FarmPage = () => {
 
             {farm.fields.length === 0 && (
                 <p className="farm-page__empty-hint">
-                    Noch keine Felder angelegt. Klicken Sie auf „+ Feld hinzufügen", um Ihren ersten Schlag mit Standort und Bodenklasse zu erfassen.
+                    Noch keine Felder angelegt. Klicken Sie auf „+ Feld hinzufügen“, um Ihren ersten Schlag mit Standort und Bodenklasse zu erfassen.
                 </p>
             )}
 
@@ -278,7 +278,7 @@ export const FarmPage = () => {
                             )}
                             {confirmDeleteFieldId === field.id ? (
                                 <div ref={deleteConfirmRef} className="farm-page__delete-confirm">
-                                    <strong>Schlag „{field.name}" entfernen?</strong>
+                                    <strong>Schlag „{field.name}“ entfernen?</strong>
                                     <p>Der Schlag wird auch aus allen Szenarien entfernt.</p>
                                     <div className="farm-page__import-confirm-actions">
                                         <button

@@ -118,7 +118,7 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         totalRangeMm,
         totalRangeM3,
         scenario,
-        // hasValue=true heißt „Bedarfsangabe vorhanden" — auch via Anwenderwert
+        // hasValue=true heißt „Bedarfsangabe vorhanden“ — auch via Anwenderwert
         hasValue: hasLiteratureValue || isUserCustom,
         isUserCustom,
         userCustomMm: isUserCustom ? userCustomMm! : 0,

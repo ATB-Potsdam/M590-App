@@ -100,7 +100,7 @@ const App = () => {
     }, [precipitationLookup, et0Lookup]);
 
     // Klimazone (KWBv-Klasse) selbstheilend nachladen sobald WASM-Layer bereit ist.
-    // Verhindert „Klimazone fehlt"-Fehlermeldungen direkt nach App-Start.
+    // Verhindert „Klimazone fehlt“-Fehlermeldungen direkt nach App-Start.
     useEffect(() => {
         if (!layer) return;
         const [farm, setFarm] = useLocalStore.getState().dwa_farm;
@@ -111,10 +111,34 @@ const App = () => {
     const atBottom = useIsScrolledToBottom(location.pathname, splashDismissed);
     const showOverlay = splashDismissed && (!onboardingDismissed || overlayForcedOpen);
 
+    // Pushing a dummy history entry while the onboarding overlay is open
+    // makes Android's back gesture (and browser back) close the overlay
+    // instead of navigating away from the page underneath. A ref tracks
+    // whether the back was already triggered by popstate, so the close
+    // handler knows whether it still needs to pop our entry off the stack.
+    const onboardingPushedRef = useRef(false);
+
     const handleCloseOverlay = () => {
         setOverlayForcedOpen(false);
         setOnboardingDismissed(true);
+        if (onboardingPushedRef.current) {
+            onboardingPushedRef.current = false;
+            window.history.back();
+        }
     };
+
+    useEffect(() => {
+        if (!showOverlay) return;
+        window.history.pushState({onboarding: true}, "");
+        onboardingPushedRef.current = true;
+        const onPop = () => {
+            onboardingPushedRef.current = false;
+            setOverlayForcedOpen(false);
+            setOnboardingDismissed(true);
+        };
+        window.addEventListener("popstate", onPop);
+        return () => window.removeEventListener("popstate", onPop);
+    }, [showOverlay, setOnboardingDismissed]);
 
     const isLoaded = !!(layer && precipitationLookup && et0Lookup);
 

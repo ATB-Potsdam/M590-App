@@ -47,7 +47,7 @@ export const ProjectsPage = () => {
 
             {projects.length === 0 && !showForm && (
                 <p className="projects-page__empty">
-                    Noch keine Szenarien vorhanden. Legen Sie mit „+ Neues Szenario" Ihr erstes Bewässerungsszenario an.
+                    Noch keine Szenarien vorhanden. Legen Sie mit „+ Neues Szenario“ Ihr erstes Bewässerungsszenario an.
                 </p>
             )}
 
@@ -106,7 +106,7 @@ export const ProjectsPage = () => {
                         </div>
                         {confirmDeleteId === project.id && (
                             <div ref={deleteConfirmRef} className="project-list__delete-confirm">
-                                <strong>Szenario „{project.name}" löschen?</strong>
+                                <strong>Szenario „{project.name}“ löschen?</strong>
                                 <p>Alle Feldzuweisungen dieses Szenarios gehen verloren.</p>
                                 <div className="project-list__delete-confirm-actions">
                                     <button

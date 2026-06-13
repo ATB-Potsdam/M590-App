@@ -68,7 +68,7 @@ export const IrrigationPeriodPicker = ({value, onChange}: Props) => {
                 </p>
             ) : (
                 <p className="irrigation-period-picker__error">
-                    ⚠️ „Bis" muss nach „Von" liegen
+                    ⚠️ „Bis“ muss nach „Von“ liegen
                 </p>
             )}
         </div>
