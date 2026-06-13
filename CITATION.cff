@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "DWA-App (M 590)"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Hantigk
+    given-names: Stephan
+    affiliation: "runlevel3 GmbH"
+    website: "https://www.runlevel3.de"
+  - name: "Leibniz-Institut für Agrartechnik und Bioökonomie e.V. (ATB)"
+    website: "https://www.atb-potsdam.de"
+abstract: >
+  An irrigation water demand calculator for agricultural fields
+  implementing the DWA-M 590 standard (Deutsche Vereinigung für
+  Wasserwirtschaft, Abwasser und Abfall e.V.). Computes water demand
+  based on climate data, soil properties (nFKWe class), and crop or
+  land use type.
+keywords:
+  - irrigation
+  - agriculture
+  - water demand
+  - DWA-M 590
+  - climate data
+  - hydrology
+license: Apache-2.0
+repository-code: "https://github.com/ATB-Potsdam/M590-App"
+url: "https://dwa.runlevel3.de"
