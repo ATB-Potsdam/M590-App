@@ -16,7 +16,7 @@
     "build:ios": "yarn build && yarn cap:sync:ios && yarn cap:ios",
     "cap:android": "CAPACITOR_ANDROID_STUDIO_PATH=/usr/bin/android-studio cap open android",
     "bump": "node scripts/bump-version.cjs",
-    "build:android": "yarn bump && yarn build --mode android && yarn cap:sync:android && yarn cap:android"
+    "build:android": "yarn build --mode android && yarn cap:sync:android && yarn cap:android"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.0",
