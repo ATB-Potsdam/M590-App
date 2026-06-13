@@ -51,6 +51,14 @@
         }
     }
 
+    &__update-status {
+        margin-top: 8px !important;
+        font-size: 0.9rem;
+        color: var(--color-text-secondary);
+        align-self: stretch;
+        text-align: left;
+    }
+
     &__install-btn {
         background: var(--color-primary);
         color: #fff;
