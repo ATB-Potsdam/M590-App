@@ -64,6 +64,7 @@ export const FarmPage = () => {
     const importConfirmRef = useRef<HTMLDivElement>(null);
     const resetConfirmRef = useRef<HTMLDivElement>(null);
     const deleteConfirmRef = useRef<HTMLDivElement>(null);
+    const demoConfirmRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!confirmImport) return;
@@ -82,6 +83,15 @@ export const FarmPage = () => {
             });
         });
     }, [confirmReset]);
+
+    useEffect(() => {
+        if (!confirmLoadDemo) return;
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                demoConfirmRef.current?.scrollIntoView({behavior: "smooth", block: "center"});
+            });
+        });
+    }, [confirmLoadDemo]);
 
     useEffect(() => {
         if (!confirmDeleteFieldId) return;
@@ -375,7 +385,7 @@ export const FarmPage = () => {
 
             <div className="farm-page__demo-load">
                 {confirmLoadDemo ? (
-                    <div className="farm-page__reset-confirm">
+                    <div ref={demoConfirmRef} className="farm-page__reset-confirm">
                         <strong>Beispieldaten laden?</strong>
                         <p>Der aktuelle Betrieb und alle Szenarien werden durch das Beispiel (Kartoffel-Acker + Golfplatz) ersetzt.</p>
                         <div className="farm-page__import-confirm-actions">
