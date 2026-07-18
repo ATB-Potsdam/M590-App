@@ -5,6 +5,7 @@ import {getCurrentLatLon} from "../lib/location";
 import {latLonToClimateClass, latLonToNfkweClass} from "../lib/tools";
 import type {ClimateClassType} from "../types";
 import {nFkweClassNames, type NFkweClassName} from "../types/dataTypes";
+import {nFkweClasses} from "../constants/soilConstants";
 import {formatNum} from "../lib/formatNum";
 import type {FieldInput, GeoPoint} from "../types/farm";
 import "./FieldForm.scss";
@@ -16,6 +17,23 @@ interface Props {
     onSave: (field: FieldInput) => void;
     onCancel: () => void;
 }
+
+// Kurzbeschreibung + Bodenzahl-Bereich (BZ) je nFKWe-Klasse — hilft Anwendern
+// ohne bodenkundlichen Hintergrund (z.B. Golfplatzplaner) bei der Einordnung.
+const NFKWE_CLASS_DESC: Record<NFkweClassName, string> = {
+    "1-2": "vorwiegend sandige Böden",
+    "3a": "schwach lehmige Sande",
+    "3b": "lehmige Böden",
+    "4": "stark lehmige / schluffige Böden",
+    "5": "tiefgründige Löss- / Lehmböden",
+};
+
+const bzRangeLabel = (cls: NFkweClassName): string => {
+    const [min, max] = nFkweClasses[cls][1];
+    if (min <= 0) return `BZ <${max}`;
+    if (!Number.isFinite(max)) return `BZ >${min}`;
+    return `BZ ${min}–${max}`;
+};
 
 export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
@@ -145,6 +163,16 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                     Böden können lokal variieren – bitte bestätigen oder anpassen.
                 </p>
                 {geoNFkweClass && <p>Die ermittelte Bodenklasse an diesem Ort ist <b>{geoNFkweClass}</b>.</p>}
+                <details className="field-form__nfkwe-help">
+                    <summary>Was bedeuten die Bodenklassen?</summary>
+                    <ul>
+                        {nFkweClassNames.map((cls) => (
+                            <li key={cls}>
+                                <b>Klasse {cls}</b>: {NFKWE_CLASS_DESC[cls]} ({bzRangeLabel(cls)})
+                            </li>
+                        ))}
+                    </ul>
+                </details>
                 <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
                         <label

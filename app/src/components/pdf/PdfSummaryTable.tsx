@@ -2,7 +2,7 @@
 import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe, formatRangeDe} from "./pdfFormatNum";
-import {getModuleLabel} from "../../constants/modules";
+import {getModuleLabel, fieldTerm} from "../../constants/modules";
 import type {SummaryPdfData} from "../../lib/generateSummaryPdf";
 
 interface Props {
@@ -32,6 +32,11 @@ export const PdfSummaryTable = ({data}: Props) => {
     const normalPartial = normalCount < assignedCount;
     const dryPartial = dryCount < assignedCount;
 
+    // Terminologie an Projektkontext anpassen (reine Golf-/Sport-Projekte: "Fläche")
+    const projectModules = project.fieldAssignments.map((fa) => fa.module);
+    const term = fieldTerm(projectModules);
+    const termPlural = fieldTerm(projectModules, true);
+
     const showAltWasser = totalAltWasserM3 > 0;
 
     return (
@@ -42,7 +47,7 @@ export const PdfSummaryTable = ({data}: Props) => {
             <View style={styles.table}>
                 {/* Header row */}
                 <View style={styles.tableHeaderRow}>
-                    <Text style={[styles.tableHeaderCell, {flex: COL.schlag}]}>Schlag</Text>
+                    <Text style={[styles.tableHeaderCell, {flex: COL.schlag}]}>{term}</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.nutzung}]}>Nutzung</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.flaeche, textAlign: "right"}]}>Fläche</Text>
                     <Text style={[styles.tableHeaderCell, {flex: COL.normal}]}>Normaljahr</Text>
@@ -122,7 +127,7 @@ export const PdfSummaryTable = ({data}: Props) => {
                 {/* Footer row */}
                 <View style={styles.tableFooterRow}>
                     <Text style={[styles.tableCellBold, {flex: COL.schlag}]}>
-                        Gesamt ({project.fieldAssignments.length} Schläge)
+                        Gesamt ({project.fieldAssignments.length} {termPlural})
                     </Text>
                     <Text style={[styles.tableCell, {flex: COL.nutzung}]} />
                     <Text style={[styles.tableCellBold, {flex: COL.flaeche, textAlign: "right"}]}>
@@ -202,12 +207,12 @@ export const PdfSummaryTable = ({data}: Props) => {
             {pendingCount > 0 && (
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryRowLabel}>Ohne Nutzung</Text>
-                    <Text style={styles.summaryRowValue}>{pendingCount} Schlag/Schläge</Text>
+                    <Text style={styles.summaryRowValue}>{pendingCount} {pendingCount === 1 ? term : termPlural}</Text>
                 </View>
             )}
             {(normalPartial || dryPartial) && (
                 <Text style={[styles.sourceLine, {marginTop: 4}]}>
-                    {"* Summe umfasst nicht alle Schläge"}
+                    {`* Summe umfasst nicht alle ${termPlural}`}
                     {normalPartial ? ` (Normaljahr: ${normalCount}/${assignedCount})` : ""}
                     {dryPartial ? ` (Trockenjahr: ${dryCount}/${assignedCount})` : ""}
                     {" \u2013 nicht alle Nutzungen liefern beide Szenariowerte."}
