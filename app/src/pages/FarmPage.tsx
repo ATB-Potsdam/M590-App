@@ -48,7 +48,11 @@ export const FarmPage = () => {
     const addMessage = useAppStore((state) => state.addMessage);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
-    const [editingName, setEditingName] = useState(!farm.name);
+    // editingName startet false: fehlt der Name, zeigt das Render-Gate
+    // (editingName || !farm.name) trotzdem das Eingabefeld. So bleibt kein
+    // veralteter „im Bearbeiten“-Zustand hängen, wenn der Name von aussen
+    // gesetzt wird (Demo laden, Import).
+    const [editingName, setEditingName] = useState(false);
     const [nameDraft, setNameDraft] = useState(farm.name);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
     const [confirmReset, setConfirmReset] = useState(false);
@@ -176,6 +180,15 @@ export const FarmPage = () => {
                         <input
                             value={nameDraft}
                             onChange={(e) => setNameDraft(e.target.value)}
+                            onBlur={() => {
+                                // Name beim Verlassen des Feldes übernehmen, damit der
+                                // Haken nicht extra geklickt werden muss. Leere Eingabe
+                                // ignorieren (Feld bleibt im Bearbeiten-Modus).
+                                const trimmed = nameDraft.trim();
+                                if (!trimmed) return;
+                                updateFarmName(trimmed);
+                                setEditingName(false);
+                            }}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter") {
                                     e.preventDefault();
@@ -209,7 +222,10 @@ export const FarmPage = () => {
                         <button
                             type="button"
                             className="farm-page__name-btn farm-page__name-btn--cancel"
-                            onClick={() => {
+                            // onMouseDown feuert vor dem input-onBlur, damit „Verwerfen“
+                            // nicht durch das Speichern-bei-Blur überschrieben wird.
+                            onMouseDown={(e) => {
+                                e.preventDefault();
                                 setNameDraft(farm.name);
                                 setEditingName(false);
                             }}
