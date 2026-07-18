@@ -117,9 +117,11 @@ Every module exports:
   // Crop modules
   plantCategory?, plantKey?, irrigationPeriod?,
   // Surcharges (hauptkulturen/gemuese_obst only)
-  surchargeIntermediate: boolean,  // +10 mm
-  surchargeEmergence: number,      // 0–20 mm
+  surchargeIntermediate: boolean,  // +10 mm (Zwischenfrucht)
+  surchargeEmergence: number,      // 0–20 mm (Auflaufbewässerung)
   surchargeHeavySoil: number,      // 0–20 mm, Kartoffeln only — reset when crop changes
+  isTablePotato?: boolean,         // Speisekartoffeln — gates the +20 mm auto-surcharge (Kartoffeln). undefined = true (old projects keep the surcharge)
+  isSummerCereal?: boolean,        // Sommergetreide flag for "sonst. Getreide" — unlocks the optional surcharges. undefined = false
   // Weinbau
   isJunganlage?: boolean,          // overrides nFKWe to class 1-2
   // Grünflächen FLL factors
@@ -217,6 +219,9 @@ In the assignment list pills: `k. W.` shown instead of values when `hasValue ===
 - Open ranges (e.g. "> 250 mm/a") use `isOpenRange: boolean` + `max === null` in table definitions; display with `>` prefix.
 - Precipitation classes shared across naturrasen/golf/tennen: `NaturrasenPrecipClass` from `naturrasen.ts`, helper `toNaturrasenPrecipClass()`.
 - **No async/await**: Prefer `Promise.then()/catch()/finally()` chains over `async/await` syntax.
+- **Merkblatt references use "Kapitel N", never "§ N"** — DWA-M 590 is a worksheet, not a statute. Match the spec's wording.
+- **Crop surcharge rules** (`hauptkulturen.ts`): `cropAllowsOptionalSurcharge(crop, isSummerCereal)` decides whether Zwischenfrucht/Auflaufbewässerung apply. Winter crops (`Winterraps`, `Winterweizen`) never; `sonst. Getreide` only if `isSummerCereal`. The calc zeroes suppressed surcharges even if the UI leaks a stale value — keep this rule the single source, don't re-inline `&&` checks in components. The `Kartoffeln` +20 mm auto-surcharge is gated by `isTablePotato !== false`.
+- **Field terminology** (`modules.ts` `fieldTerm(modules, plural?)`): pure sport/golf projects say "Fläche(n)", agricultural projects say "Feld/Felder". Derive from the project's assignment modules; used in `ProjectDetailPage` + `PdfSummaryTable`. Domain model keeps `Field`/`fieldId`/"Schlag" — this is UI labelling only.
 
 ---
 
