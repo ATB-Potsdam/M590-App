@@ -55,7 +55,8 @@ Two stores, both using `subscribeWithSelector`:
 
 - `components/InfoHint.tsx` — reusable "Warum fragen wir das?" collapsible (`<details>`, no tooltip lib). Use for contextual explanations; place near the control it explains.
 - `components/AssignmentSteps.tsx` — macro-phase progress header on AssignmentPage (Nutzung → Details → Ergebnis), derived from `module`/`result` state. Informational, not clickable.
-- `lib/demoData.ts` — `seedDemoData(setFarm, setProjects, precip, et0)` seeds a demo farm (Kartoffel-Acker + Golfplatz) + demo project and enriches climate class/data inline (the App climate effects don't re-fire after seeding). Only offered when no farm exists (`OnboardingOverlay`). Demo records are normal + user-deletable.
+- `lib/demoData.ts` — `seedDemoData(setFarm, setProjects, precip, et0)` **replaces** farm + projects with a demo (Kartoffel-Acker + Golfplatz + one scenario) and enriches climate class/data inline (the App climate effects don't re-fire after seeding). Replacing (not appending) means repeated loads don't duplicate. The demo project is tagged `Project.isDemo`. Triggered from two places: the welcome dialog (`OnboardingOverlay`, only when no farm) and a "🎬 Beispiel laden" button on FarmPage (with confirm, since it overwrites). After the FarmPage load it scrolls to top so the hint is visible.
+- `components/DemoHint.tsx` — guidance shown while a demo project exists (`project.isDemo`). Collapsible `<details>` (not dismissible — it stays available). Two variants: `variant="farm"` on FarmPage (points to the scenario, "Weiter zum Szenario") and `variant="project"` on ProjectDetailPage (walk-through: open a Zuweisung, Zusammenfassung/PDF, tabs). Its "Beispiel löschen" link jumps to the FarmPage "Alle Daten löschen" block (`id="farm-reset"`) — deleting the demo means clearing all data, since the demo is the only data.
 
 ### Language
 
