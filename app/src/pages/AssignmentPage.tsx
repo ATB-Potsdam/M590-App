@@ -1,6 +1,8 @@
 // src/pages/AssignmentPage.tsx
 import {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router';
+import {AssignmentSteps} from '../components/AssignmentSteps';
+import {InfoHint} from '../components/InfoHint';
 import {GemueseObstResultCard} from '../components/results/GemueseObstResult';
 import {HauptkulturenResultCard} from '../components/results/HauptkulturenResult';
 import {WeinbauResultCard} from '../components/results/WeinbauResult';
@@ -303,9 +305,17 @@ export const AssignmentPage = () => {
                 </p>
             </div>
 
+            <AssignmentSteps current={!module ? 'module' : result ? 'result' : 'details'} />
+
             {/* Schritt 1: Modul */}
             <section className="assignment-section">
                 <h2>1. Nutzungsmodul</h2>
+                <InfoHint>
+                    Das Nutzungsmodul bestimmt die Berechnungsmethode nach DWA-M 590.
+                    Landwirtschaft (Hauptkulturen, Gemüse/Obst, Weinbau) nutzt Tabellenwerte
+                    je Kultur; Sport- und Grünflächen (Golf, Rasen, Kunstrasen) rechnen nach
+                    Fläche und Niederschlag. Wählen Sie die Nutzung, die zu dieser Fläche passt.
+                </InfoHint>
                 <div className="module-grid">
                     {MODULES.map((m) => (
                         <button
