@@ -7,6 +7,8 @@ import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {InfoHint} from "../components/InfoHint";
+import {DemoHint} from "../components/DemoHint";
+import {seedDemoData} from "../lib/demoData";
 import {refreshClimateData, useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {exportData, parseImportFile} from "../lib/exportImport";
@@ -56,6 +58,7 @@ export const FarmPage = () => {
     const [nameDraft, setNameDraft] = useState(farm.name);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
     const [confirmReset, setConfirmReset] = useState(false);
+    const [confirmLoadDemo, setConfirmLoadDemo] = useState(false);
     const [confirmDeleteFieldId, setConfirmDeleteFieldId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const importConfirmRef = useRef<HTMLDivElement>(null);
@@ -117,6 +120,16 @@ export const FarmPage = () => {
         window.location.reload();
     };
 
+    const handleLoadDemo = () => {
+        const {precipitationLookup, et0Lookup} = useAppStore.getState();
+        const [, setFarm] = useLocalStore.getState().dwa_farm;
+        const [, setProjects] = useLocalStore.getState().dwa_projects;
+        seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
+        setConfirmLoadDemo(false);
+        // Nach oben scrollen, damit der Demo-Hinweis und der Betrieb sichtbar sind.
+        window.scrollTo({top: 0, behavior: "smooth"});
+    };
+
     const handleExport = async () => {
         try {
             const result = await exportData(farm, projects);
@@ -167,11 +180,14 @@ export const FarmPage = () => {
         setEditingName(!confirmImport.farm.name);
     };
 
+    const demoProject = projects.find((p) => p.isDemo);
+
     return (
         <div className="page">
             <h1>Mein Betrieb</h1>
 
             <OnboardingBanner />
+            {demoProject && <DemoHint variant="farm" demoProjectId={demoProject.id} />}
 
             <div className="farm-page__name-label">
                 <strong>Name</strong>
@@ -357,7 +373,24 @@ export const FarmPage = () => {
                 />
             </div>
 
-            <div className="farm-page__reset">
+            <div className="farm-page__demo-load">
+                {confirmLoadDemo ? (
+                    <div className="farm-page__reset-confirm">
+                        <strong>Beispieldaten laden?</strong>
+                        <p>Der aktuelle Betrieb und alle Szenarien werden durch das Beispiel (Kartoffel-Acker + Golfplatz) ersetzt.</p>
+                        <div className="farm-page__import-confirm-actions">
+                            <button className="farm-page__demo-load-confirm-btn" onClick={handleLoadDemo}>Ja, Beispiel laden</button>
+                            <button onClick={() => setConfirmLoadDemo(false)}>Abbrechen</button>
+                        </div>
+                    </div>
+                ) : (
+                    <button className="farm-page__demo-load-btn" onClick={() => setConfirmLoadDemo(true)}>
+                        🎬 Beispiel laden
+                    </button>
+                )}
+            </div>
+
+            <div id="farm-reset" className="farm-page__reset">
                 {confirmReset ? (
                     <div ref={resetConfirmRef} className="farm-page__reset-confirm">
                         <strong>Alle Daten unwiderruflich löschen?</strong>

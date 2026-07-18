@@ -2,6 +2,7 @@
 import {useState, useRef, useCallback, useEffect} from "react";
 import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
+import {DemoHint} from "../components/DemoHint";
 import {getModuleLabel, fieldTerm} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
@@ -153,6 +154,7 @@ export const ProjectDetailPage = () => {
             )}
 
             <OnboardingBanner />
+            {project.isDemo && <DemoHint variant="project" />}
 
             {/* Feld-/Flächenzuweisungen */}
             <h2>{term === 'Feld' ? 'Feldzuweisungen' : 'Flächenzuweisungen'}</h2>

@@ -25,8 +25,11 @@ export const OnboardingOverlay = ({onClose}: Props) => {
     };
 
     const loadDemo = () => {
-        const projectId = seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
-        goTo(`/projects/${projectId}`);
+        seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
+        // Overlay schliessen und auf der Betriebsseite bleiben – das Overlay wird
+        // ohne Betrieb ohnehin über /farm angezeigt. Dort erscheint der Demo-Hinweis
+        // mit „Weiter zum Szenario“. Der Anwender sieht zuerst seinen Betrieb.
+        onClose();
     };
 
     return (

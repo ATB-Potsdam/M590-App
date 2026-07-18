@@ -78,4 +78,6 @@ export interface Project {
     fieldAssignments: FieldAssignment[];
     createdAt: string;
     updatedAt: string;
+    /** true für das automatisch erzeugte Beispiel-Szenario (steuert den Demo-Hinweis). */
+    isDemo?: boolean;
 }

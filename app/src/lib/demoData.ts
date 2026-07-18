@@ -75,6 +75,7 @@ export const createDemoData = (): {farm: Farm; project: Project} => {
         fieldAssignments: [ackerAssignment, golfAssignment],
         createdAt: now(),
         updatedAt: now(),
+        isDemo: true,
     };
 
     return {farm, project};
@@ -83,12 +84,12 @@ export const createDemoData = (): {farm: Farm; project: Project} => {
 /**
  * Seedet Demo-Betrieb + Demo-Szenario in den Store und ergänzt Klimazone/-daten
  * direkt (die App-Effekte feuern nach dem Seeden nicht erneut). Gibt die Projekt-ID
- * für die anschließende Navigation zurück. Überschreibt nur, wenn kein Betrieb
- * existiert — der Aufrufer stellt das sicher.
+ * für die anschließende Navigation zurück. Ersetzt Betrieb UND Szenarien komplett
+ * durch die Demo — mehrfaches Laden erzeugt daher keine Duplikate.
  */
 export const seedDemoData = (
     setFarm: (farm: Farm) => void,
-    setProjects: (fn: (prev: Project[]) => Project[]) => void,
+    setProjects: (projects: Project[]) => void,
     precipitationLookup: RasterLookup | null | undefined,
     et0Lookup: RasterLookup | null | undefined,
 ): string => {
@@ -120,6 +121,6 @@ export const seedDemoData = (
     const enrichedFields = farm.fields.map(enrichField);
 
     setFarm({...farm, fields: enrichedFields});
-    setProjects((prev) => [...prev, project]);
+    setProjects([project]);
     return project.id;
 };
