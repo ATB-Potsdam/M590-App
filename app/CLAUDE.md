@@ -49,6 +49,14 @@ Two stores, both using `subscribeWithSelector`:
 
 **Future idea — Dashboard page:** A cross-project overview could be added later at `/` (moving projects to `/projects`). Potential content: aggregated water demand across all projects (normal + dry totals), assignment completeness status, per-field summary across projects, nFKWe class distribution. Icon: 🌾.
 
+**Future idea — module-first quick-start (onboarding):** Tester feedback (2026-07-18) said the entry is unintuitive: the app forces the farm→field→project→assignment sequence before any result, which is ag-framed and confusing for e.g. golf-course planners. Idea: on first entry let the user pick a use-case (Golf / Landwirtschaft / Sportplatz …) and route them straight to the minimal inputs for that path, hiding irrelevant steps; keep the current flow as fallback. This is the real fix for the "holpriger Einstieg" but reshapes routing/entry, so it was deferred pending user confirmation. Interim mitigations already shipped: `InfoHint` popovers, `AssignmentSteps` progress header, and a loadable demo project (see below).
+
+### Onboarding helpers
+
+- `components/InfoHint.tsx` — reusable "Warum fragen wir das?" collapsible (`<details>`, no tooltip lib). Use for contextual explanations; place near the control it explains.
+- `components/AssignmentSteps.tsx` — macro-phase progress header on AssignmentPage (Nutzung → Details → Ergebnis), derived from `module`/`result` state. Informational, not clickable.
+- `lib/demoData.ts` — `seedDemoData(setFarm, setProjects, precip, et0)` seeds a demo farm (Kartoffel-Acker + Golfplatz) + demo project and enriches climate class/data inline (the App climate effects don't re-fire after seeding). Only offered when no farm exists (`OnboardingOverlay`). Demo records are normal + user-deletable.
+
 ### Language
 
 Domain terminology and code comments are in **German** (agricultural/hydrological terms). UI text is German. Variable names and code structure use English.
