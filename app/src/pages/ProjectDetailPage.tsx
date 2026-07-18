@@ -2,7 +2,7 @@
 import {useState, useRef, useCallback, useEffect} from "react";
 import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
-import {getModuleLabel} from "../constants/modules";
+import {getModuleLabel, fieldTerm} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
@@ -91,6 +91,12 @@ export const ProjectDetailPage = () => {
     ).length;
     const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
 
+    // Terminologie an den Projektkontext anpassen: reine Sport-/Golf-Projekte
+    // sagen "Fläche" statt "Schlag"/"Feld".
+    const projectModules = project.fieldAssignments.map((fa) => fa.module);
+    const term = fieldTerm(projectModules);
+    const termPlural = fieldTerm(projectModules, true);
+
     // Only show netto deduction when ALL assigned fields contribute to that scenario
     const nettoM3: [number, number] | null = normalCount === assignedCount ? nettoM3Raw : null;
     const nettoDryM3: [number, number] | null = dryM3 && totalAltWasserM3 > 0 && dryCount === assignedCount
@@ -148,12 +154,12 @@ export const ProjectDetailPage = () => {
 
             <OnboardingBanner />
 
-            {/* Feldzuweisungen */}
-            <h2>Feldzuweisungen</h2>
+            {/* Feld-/Flächenzuweisungen */}
+            <h2>{term === 'Feld' ? 'Feldzuweisungen' : 'Flächenzuweisungen'}</h2>
 
             {project.fieldAssignments.length === 0 && (
                 <p className="project-detail__empty">
-                    Noch keine Felder zugewiesen. Fügen Sie mit „+ Schlag hinzufügen“ einen Schlag hinzu und weisen Sie ihm eine Nutzung zu.
+                    Noch keine {termPlural} zugewiesen. Fügen Sie mit „+ {term} hinzufügen“ {term === 'Feld' ? 'ein Feld' : 'eine Fläche'} hinzu und weisen Sie ihm eine Nutzung zu.
                 </p>
             )}
 
@@ -315,15 +321,15 @@ export const ProjectDetailPage = () => {
                 })}
             </ul>
 
-            {/* Schlag hinzufügen */}
+            {/* Feld/Fläche hinzufügen */}
             {showAddField ? (
                 <div className="project-detail__add-field">
-                    <p className="project-detail__add-field-label">Schlag auswählen:</p>
+                    <p className="project-detail__add-field-label">{term} auswählen:</p>
                     {availableFields.length === 0 ? (
                         <p className="project-detail__empty">
-                            Alle Felder bereits zugewiesen.{" "}
+                            Alle {termPlural} bereits zugewiesen.{" "}
                             <button className="link-btn" onClick={() => navigate("/farm")}>
-                                Neue Felder anlegen →
+                                Neue {termPlural} anlegen →
                             </button>
                         </p>
                     ) : (
@@ -352,7 +358,7 @@ export const ProjectDetailPage = () => {
                 </div>
             ) : (
                 <button onClick={() => setShowAddField(true)} className="project-detail__add-btn">
-                    + Schlag hinzufügen
+                    + {term} hinzufügen
                 </button>
             )}
 
@@ -361,9 +367,9 @@ export const ProjectDetailPage = () => {
                 <section className="project-summary">
                     <h2>Zusammenfassung</h2>
 
-                    {/* Detailtabelle je Schlag */}
+                    {/* Detailtabelle je Feld/Fläche */}
                     <details className="project-summary__details">
-                        <summary>Details je Schlag</summary>
+                        <summary>Details je {term}</summary>
                         <div className="project-summary__table-wrap-outer" ref={tableOuterRef}>
                         <div
                             className="project-summary__table-wrap"
@@ -373,7 +379,7 @@ export const ProjectDetailPage = () => {
                             <table className="project-summary__table">
                                 <thead>
                                     <tr>
-                                        <th>Schlag</th>
+                                        <th>{term}</th>
                                         <th>Nutzung</th>
                                         <th>Fläche</th>
                                         <th>Normal</th>
@@ -429,7 +435,7 @@ export const ProjectDetailPage = () => {
                                 </tbody>
                                 <tfoot>
                                     <tr className="project-summary__total-row">
-                                        <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} Schläge)</strong></td>
+                                        <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} {termPlural})</strong></td>
                                         <td><strong>{formatNum(totalAreaHa, 2)} ha</strong></td>
                                         <td>
                                             {normalM3 ? (
@@ -462,7 +468,7 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 Brutto Normaljahr
-                                {normalCount < assignedCount && <span className="project-summary__partial"> * ({normalCount}/{assignedCount} Schläge)</span>}
+                                {normalCount < assignedCount && <span className="project-summary__partial"> * ({normalCount}/{assignedCount} {termPlural})</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(normalM3, "m³/a")}</strong>
@@ -474,7 +480,7 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 Brutto Trockenjahr
-                                {dryCount < assignedCount && <span className="project-summary__partial"> * ({dryCount}/{assignedCount} Schläge)</span>}
+                                {dryCount < assignedCount && <span className="project-summary__partial"> * ({dryCount}/{assignedCount} {termPlural})</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(dryM3, "m³/a")}</strong>
@@ -509,13 +515,13 @@ export const ProjectDetailPage = () => {
                     {pendingCount > 0 && (
                         <div className="project-summary__row project-summary__row--pending">
                             <span>⚠️ Ohne Nutzung</span>
-                            <span>{pendingCount} Schlag/Schläge</span>
+                            <span>{pendingCount} {pendingCount === 1 ? term : termPlural}</span>
                         </div>
                     )}
                     {(normalCount < assignedCount || dryCount < assignedCount) && (
                         <div className="project-summary__row project-summary__row--footnote">
                             <span>
-                                * Summe umfasst nicht alle Schläge
+                                * Summe umfasst nicht alle {termPlural}
                                 {normalCount < assignedCount && ` (Normaljahr: ${normalCount}/${assignedCount})`}
                                 {dryCount < assignedCount && ` (Trockenjahr: ${dryCount}/${assignedCount})`}
                                 {" – nicht alle Nutzungen liefern beide Szenariowerte."}
