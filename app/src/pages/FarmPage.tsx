@@ -6,6 +6,7 @@ import {useSearchParams} from "react-router";
 import {ClimateBarChart} from "../components/ClimateBarChart";
 import {FieldForm} from "../components/FieldForm";
 import {OnboardingBanner} from "../components/OnboardingBanner";
+import {InfoHint} from "../components/InfoHint";
 import {refreshClimateData, useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {exportData, parseImportFile} from "../lib/exportImport";
@@ -237,6 +238,12 @@ export const FarmPage = () => {
             </div>
 
             <h2 className="farm-page__fields-heading">Felder</h2>
+            <InfoHint>
+                Ein Feld (bzw. Schlag) ist eine zusammenhängende Fläche mit Standort und
+                Bodenklasse. Legen Sie es einmal an – Klimadaten und Bodenzahl werden
+                automatisch aus dem Standort ermittelt. In einem Szenario weisen Sie ihm
+                dann eine Nutzung (z. B. Hauptkulturen oder Golf) zu und erhalten den Bedarf.
+            </InfoHint>
 
             {farm.fields.length === 0 && (
                 <p className="farm-page__empty-hint">

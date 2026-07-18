@@ -84,20 +84,9 @@
         }
     }
 
-    &__nfkwe-help {
-        margin-top: 6px;
-        font-size: 12px;
-        color: var(--color-text-secondary);
-
-        summary {
-            cursor: pointer;
-            color: var(--color-link);
-        }
-
-        ul {
-            margin: 6px 0 0;
-            padding-left: 18px;
-        }
+    &__nfkwe-help-list {
+        margin: 6px 0 0;
+        padding-left: 18px;
 
         li {
             margin-bottom: 2px;

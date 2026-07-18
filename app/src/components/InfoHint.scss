@@ -1,0 +1,41 @@
+.info-hint {
+    margin-top: 6px;
+    font-size: 13px;
+
+    &__summary {
+        cursor: pointer;
+        color: var(--color-link);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &:hover {
+            color: var(--color-link-hover);
+        }
+    }
+
+    &__icon {
+        font-size: 12px;
+    }
+
+    &__body {
+        margin-top: 6px;
+        padding: 8px 12px;
+        color: var(--color-text-secondary);
+        background: var(--color-bg-surface);
+        border-radius: 6px;
+
+        p {
+            margin: 0 0 6px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}

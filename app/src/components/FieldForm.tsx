@@ -10,6 +10,7 @@ import {formatNum} from "../lib/formatNum";
 import type {FieldInput, GeoPoint} from "../types/farm";
 import "./FieldForm.scss";
 import {LocationPicker, type LocationPickerHandle} from "./LocationPicker";
+import {InfoHint} from "./InfoHint";
 
 interface Props {
     initialValues?: FieldInput;
@@ -163,16 +164,20 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                     Böden können lokal variieren – bitte bestätigen oder anpassen.
                 </p>
                 {geoNFkweClass && <p>Die ermittelte Bodenklasse an diesem Ort ist <b>{geoNFkweClass}</b>.</p>}
-                <details className="field-form__nfkwe-help">
-                    <summary>Was bedeuten die Bodenklassen?</summary>
-                    <ul>
+                <InfoHint summary="Was bedeuten die Bodenklassen?">
+                    <p>
+                        Die nFKWe-Klasse beschreibt, wie viel Wasser der Boden pflanzenverfügbar
+                        speichert – ein zentraler Eingangswert für den Zusatzwasserbedarf.
+                        Sie wird automatisch aus dem Standort ermittelt und kann angepasst werden.
+                    </p>
+                    <ul className="field-form__nfkwe-help-list">
                         {nFkweClassNames.map((cls) => (
                             <li key={cls}>
                                 <b>Klasse {cls}</b>: {NFKWE_CLASS_DESC[cls]} ({bzRangeLabel(cls)})
                             </li>
                         ))}
                     </ul>
-                </details>
+                </InfoHint>
                 <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
                         <label
