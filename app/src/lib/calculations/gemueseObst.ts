@@ -18,7 +18,7 @@ export interface GemueseObstInput {
     // Standort-Klimadaten (aus Field)
     precipitation: MonthValueType;
     et0: MonthValueType;
-    // Zuschläge (Spec § 4.3 erlaubt nur Auflaufbewässerung A/J — kein Zwischenfrucht-Zuschlag)
+    // Zuschläge (Spec Kapitel 4.3 erlaubt nur Auflaufbewässerung A/J — kein Zwischenfrucht-Zuschlag)
     surchargeEmergence: number;
     // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
     userCustomMm?: number;
@@ -122,7 +122,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     // AJ-Vorschlag aus Konstante (nur Gemüse)
     const ajSuggestedMm = (rawVegetableDataAj as Record<string, number | null>)[plant] ?? null;
 
-    // Optionale Zuschläge (nur Auflaufbewässerung — Spec § 4.3)
+    // Optionale Zuschläge (nur Auflaufbewässerung — Spec Kapitel 4.3)
     const surchargeEmergenceMm = surchargeEmergence;
     const optionalSurchargeMm = surchargeEmergenceMm;
 
