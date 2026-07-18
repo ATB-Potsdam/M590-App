@@ -1,6 +1,8 @@
 // src/components/OnboardingOverlay.tsx
 import {useNavigate} from "react-router";
-import {useFarm} from "../hooks/useFarm";
+import {useLocalStore} from "../stores/useLocalStore";
+import {useAppStore} from "../stores/useAppStore";
+import {seedDemoData} from "../lib/demoData";
 import "./OnboardingOverlay.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -11,12 +13,20 @@ interface Props {
 
 export const OnboardingOverlay = ({onClose}: Props) => {
     const navigate = useNavigate();
-    const {farm} = useFarm();
+    const [farm, setFarm] = useLocalStore((s) => s.dwa_farm);
+    const [, setProjects] = useLocalStore((s) => s.dwa_projects);
+    const precipitationLookup = useAppStore((s) => s.precipitationLookup);
+    const et0Lookup = useAppStore((s) => s.et0Lookup);
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
 
     const goTo = (path: string) => {
         onClose();
         navigate(path);
+    };
+
+    const loadDemo = () => {
+        const projectId = seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
+        goTo(`/projects/${projectId}`);
     };
 
     return (
@@ -27,6 +37,18 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                     Diese App unterstützt Sie bei der Berechnung des Bewässerungsbedarfs
                     landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
                 </p>
+
+                {!hasFarm && (
+                    <div className="onboarding-overlay__demo">
+                        <p className="onboarding-overlay__demo-text">
+                            Lieber erst ausprobieren? Laden Sie ein Beispiel mit fertigen
+                            Ergebnissen (Kartoffel-Acker + Golfplatz) – jederzeit löschbar.
+                        </p>
+                        <button className="onboarding-overlay__demo-btn" onClick={loadDemo}>
+                            Beispiel laden →
+                        </button>
+                    </div>
+                )}
 
                 <p className="onboarding-overlay__steps-heading">In drei Schritten zum Ergebnis:</p>
 
@@ -64,6 +86,7 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                         </div>
                     </li>
                 </ol>
+
                 <button className="onboarding-overlay__dismiss" onClick={onClose}>
                     Verstanden
                 </button>
