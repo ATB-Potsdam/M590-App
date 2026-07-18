@@ -17,7 +17,7 @@ import {allOtherPlants} from '../constants/soilConstants';
 import {useFarm} from '../hooks/useFarm';
 import {useProjects} from '../hooks/useProjects';
 import {calculateGemueseObstBoth} from '../lib/calculations/gemueseObst';
-import {calculateHauptkulturenBoth} from '../lib/calculations/hauptkulturen';
+import {calculateHauptkulturenBoth, cropAllowsOptionalSurcharge} from '../lib/calculations/hauptkulturen';
 import {calculateGruenflaechen, VEGETATION_OPTIONS, MOISTURE_OPTIONS, SOIL_OPTIONS, SUN_OPTIONS} from '../lib/calculations/gruenflaechen';
 import type {FllVegetation, FllMoisture, FllSoil, FllSun} from '../lib/calculations/gruenflaechen';
 import {calculateWeinbauBoth} from '../lib/calculations/weinbau';
@@ -55,6 +55,9 @@ export const AssignmentPage = () => {
     const [surchargeIntermediate, setSurchargeIntermediate] = useState(assignment?.surchargeIntermediate ?? false);
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
     const [surchargeHeavySoil, setSurchargeHeavySoil] = useState(assignment?.surchargeHeavySoil ?? 0);
+    // Speisekartoffeln: undefined bei Altprojekten → true (bisheriges Verhalten beibehalten)
+    const [isTablePotato, setIsTablePotato] = useState(assignment?.isTablePotato ?? true);
+    const [isSummerCereal, setIsSummerCereal] = useState(assignment?.isSummerCereal ?? false);
     const [userCustomMm, setUserCustomMm] = useState<number | "">(assignment?.userCustomMm ?? "");
     const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
     // Grünflächen FLL factors
@@ -151,6 +154,14 @@ export const AssignmentPage = () => {
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
     const showSurcharges = !!plantKey || (!!selectedLevel0 && !hasVariants(currentNames, selectedLevel0));
 
+    // Hauptkulturen-spezifische Kultur-Flags für bedingte Zuschlags-UI
+    const cropForRules = (plantKey ?? selectedLevel0) as CropName | undefined;
+    const isPotato = plantKey?.startsWith('Kartoffel') || selectedLevel0?.startsWith('Kartoffel');
+    const isOtherCereal = cropForRules === 'sonst. Getreide';
+    // Zwischenfrucht/Auflaufbewässerung nur für sinnvolle Kulturen (keine Winterkulturen;
+    // "sonst. Getreide" nur wenn Sommergetreide gewählt).
+    const optionalSurchargeAllowed = cropAllowsOptionalSurcharge(cropForRules, isSummerCereal);
+
     // Ergebnis live berechnen
     const result = (() => {
         if (module === 'hauptkulturen' && plantKey && field.climateClassStatus === 'done' && field.climateClass && field.nFkweClass) {
@@ -162,6 +173,8 @@ export const AssignmentPage = () => {
                 surchargeIntermediate,
                 surchargeEmergence,
                 surchargeHeavySoil,
+                isTablePotato,
+                isSummerCereal,
                 userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             };
             const {normal, dry} = calculateHauptkulturenBoth(input);
@@ -250,6 +263,8 @@ export const AssignmentPage = () => {
             surchargeIntermediate,
             surchargeEmergence,
             surchargeHeavySoil,
+            isTablePotato,
+            isSummerCereal,
             userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             isJunganlage,
             fllVegetation,
@@ -303,6 +318,8 @@ export const AssignmentPage = () => {
                                 setPlantKey(undefined);
                                 setSurchargeEmergence(0);
                                 setSurchargeHeavySoil(0);
+                                setIsTablePotato(true);
+                                setIsSummerCereal(false);
                                 setUserCustomMm("");
                                 setShowSaveHint(false);
                                 setSearchTerm('');
@@ -380,7 +397,7 @@ export const AssignmentPage = () => {
                     <h2>{plantCategory === 'futter' ? 'Schnitte zur Samennutzung wählen' : 'Variante wählen'}</h2>
                     {selectedLevel0 === 'Silomais' && (
                         <p className="assignment-page__hint">
-                            Körnermais benötigt im Vergleich zu Silomais generell einen Zuschlag von +20 mm/a (Merkblatt § 4.2.2).
+                            Körnermais benötigt im Vergleich zu Silomais generell einen Zuschlag von +20 mm/a (Merkblatt Kapitel 4.2.2).
                         </p>
                     )}
                     <div className="option-list">
@@ -414,6 +431,8 @@ export const AssignmentPage = () => {
                             setIrrigationPeriod(undefined);
                             setSurchargeEmergence(0);
                             setSurchargeHeavySoil(0);
+                            setIsTablePotato(true);
+                            setIsSummerCereal(false);
                             setUserCustomMm("");
                         }}
                     >
@@ -575,7 +594,9 @@ export const AssignmentPage = () => {
                     <section className="assignment-section">
                         <h2>2. Flächeneingabe</h2>
                         <p className="assignment-page__hint">
-                            Die Teilflächen sind nötig, weil je Bereich verschiedene Zusatzwasserbedarfe gelten.
+                            Jede Golfanlage unterscheidet zwischen Grüns, Abschlägen und Fairways –
+                            für jeden dieser Bereiche gilt ein eigener Zusatzwasserbedarf. Geben Sie
+                            daher gleich die jeweiligen Flächenanteile an (m² oder Standardwerte).
                         </p>
                         <div className="option-list">
                             <button
@@ -640,7 +661,7 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Bewässerungszeitraum + Zuschläge — nur für hauptkulturen / gemuese_obst (Spec § 4.2.2 / § 4.3) */}
+            {/* Bewässerungszeitraum + Zuschläge — nur für hauptkulturen / gemuese_obst (Spec Kapitel 4.2.2 / 4.3) */}
             {showSurcharges && (module === 'hauptkulturen' || module === 'gemuese_obst') && (
                 <>
                     {needsIrrigationSelection && plantKey && availablePeriods.length > 0 && (
@@ -662,7 +683,8 @@ export const AssignmentPage = () => {
                         </section>
                     )}
 
-                    {(module === 'hauptkulturen' || (module === 'gemuese_obst' && ajSuggested !== null)) && (
+                    {((module === 'hauptkulturen' && (isPotato || isOtherCereal || optionalSurchargeAllowed))
+                        || (module === 'gemuese_obst' && ajSuggested !== null)) && (
                     <section className="assignment-section">
                         <h2>Zuschläge</h2>
 
@@ -692,7 +714,29 @@ export const AssignmentPage = () => {
                             </label>
                         )}
 
-                        {module === 'hauptkulturen' && (
+                        {module === 'hauptkulturen' && isPotato && (
+                            <label className="surcharge-row">
+                                <input
+                                    type="checkbox"
+                                    checked={isTablePotato}
+                                    onChange={(e) => setIsTablePotato(e.target.checked)}
+                                />
+                                Speisekartoffeln <span className="surcharge-hint">+20 mm</span>
+                            </label>
+                        )}
+
+                        {module === 'hauptkulturen' && isOtherCereal && (
+                            <label className="surcharge-row">
+                                <input
+                                    type="checkbox"
+                                    checked={isSummerCereal}
+                                    onChange={(e) => setIsSummerCereal(e.target.checked)}
+                                />
+                                Sommergetreide <span className="surcharge-hint">z.B. Sommerhafer</span>
+                            </label>
+                        )}
+
+                        {module === 'hauptkulturen' && optionalSurchargeAllowed && (
                             <label className="surcharge-row">
                                 <input
                                     type="checkbox"
@@ -703,7 +747,7 @@ export const AssignmentPage = () => {
                             </label>
                         )}
 
-                        {module === 'hauptkulturen' && (
+                        {module === 'hauptkulturen' && optionalSurchargeAllowed && (
                             <label className="surcharge-row">
                                 <span>
                                     Auflaufbewässerung
@@ -718,7 +762,7 @@ export const AssignmentPage = () => {
                             </label>
                         )}
 
-                        {(plantKey?.startsWith('Kartoffel') || selectedLevel0?.startsWith('Kartoffel')) && (
+                        {isPotato && (
                             <label className="surcharge-row">
                                 Schwere Böden (Kartoffel)
                                 <span className="surcharge-hint">0–20 mm</span>

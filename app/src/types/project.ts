@@ -41,6 +41,10 @@ export interface FieldAssignment {
     surchargeIntermediate: boolean;
     surchargeEmergence: number;
     surchargeHeavySoil: number;
+    /** Speisekartoffeln — aktiviert den automatischen +20-mm-Zuschlag (nur Kartoffeln). undefined = true. */
+    isTablePotato?: boolean;
+    /** Sommergetreide (z.B. Sommerhafer) bei "sonst. Getreide" — schaltet Zwischenfrucht/Auflaufbewässerung frei. undefined = false. */
+    isSummerCereal?: boolean;
     /**
      * Benutzerdefinierte Zusatzbewässerung (mm/a) für Kulturen ohne Literaturwert.
      * Ersetzt fehlende Tabellenwerte durch Anwender-geschätzten Bedarf.

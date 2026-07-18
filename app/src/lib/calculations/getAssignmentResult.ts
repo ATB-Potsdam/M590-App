@@ -42,6 +42,8 @@ export const getAssignmentResult = (
             surchargeIntermediate: fa.surchargeIntermediate,
             surchargeEmergence: fa.surchargeEmergence,
             surchargeHeavySoil: fa.surchargeHeavySoil,
+            isTablePotato: fa.isTablePotato,
+            isSummerCereal: fa.isSummerCereal,
             userCustomMm: fa.userCustomMm,
         };
 

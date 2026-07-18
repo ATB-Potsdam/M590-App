@@ -12,6 +12,12 @@ export interface HauptkulturenInput {
     surchargeIntermediate: boolean;  // +10 mm
     surchargeEmergence: number;      // 0–20 mm
     surchargeHeavySoil: number;      // 0–20 mm (nur Kartoffeln)
+    // Speisekartoffeln: aktiviert den automatischen +20-mm-Zuschlag (nur Kartoffeln).
+    // undefined = true (Rückwärtskompatibilität mit gespeicherten Projekten).
+    isTablePotato?: boolean;
+    // Sommergetreide (z.B. Sommerhafer) bei "sonst. Getreide" — schaltet die
+    // optionalen Zuschläge frei. undefined = false.
+    isSummerCereal?: boolean;
     // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
     userCustomMm?: number;
 }
@@ -45,7 +51,7 @@ export interface HauptkulturenResult {
     userCustomMm: number;
 }
 
-// Automatischer Zuschlag je Kultur (Spec § 4.2.2):
+// Automatischer Zuschlag je Kultur (Spec Kapitel 4.2.2):
 // - Speisekartoffeln: +20 mm/a
 // - Körnermais (vs. Silomais): +20 mm/a
 const AUTO_SURCHARGE_MM: Partial<Record<CropName, number>> = {
@@ -56,6 +62,22 @@ const AUTO_SURCHARGE_MM: Partial<Record<CropName, number>> = {
 const AUTO_SURCHARGE_LABEL: Partial<Record<CropName, string>> = {
     "Kartoffeln": "Speisekartoffeln",
     "Silomais|Körnermais": "Körnermais",
+};
+
+// Kulturen mit Winteransaat: Zwischenfrucht- und Auflaufbewässerungs-Zuschläge
+// sind agronomisch nicht sinnvoll und werden ausgeblendet.
+const WINTER_CROPS: readonly CropName[] = ["Winterraps", "Winterweizen"];
+
+// Ob die optionalen Zuschläge (Zwischenfrucht / Auflaufbewässerung) für eine
+// Kultur zulässig sind. "sonst. Getreide" nur, wenn es Sommergetreide ist.
+export const cropAllowsOptionalSurcharge = (
+    crop: CropName | undefined,
+    isSummerCereal: boolean,
+): boolean => {
+    if (!crop) return false;
+    if (WINTER_CROPS.includes(crop)) return false;
+    if (crop === "sonst. Getreide") return isSummerCereal;
+    return true;
 };
 
 const getTableValue = (
@@ -71,7 +93,8 @@ const getTableValue = (
 
 export const calculateHauptkulturen = (input: HauptkulturenInput): HauptkulturenResult => {
     const {crop, nFkweClass, kwbZone, areaHa, scenario,
-        surchargeIntermediate, surchargeEmergence, surchargeHeavySoil, userCustomMm} = input;
+        surchargeIntermediate, surchargeEmergence, surchargeHeavySoil,
+        isTablePotato, isSummerCereal, userCustomMm} = input;
 
     const baseRangeMmRaw = getTableValue(kwbZone, crop, nFkweClass, scenario);
     const hasLiteratureValue = baseRangeMmRaw !== null;
@@ -83,13 +106,17 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
             ? [userCustomMm!, userCustomMm!]
             : [0, 0];
 
-    // Automatischer Zuschlag
-    const autoSurchargeMm = AUTO_SURCHARGE_MM[crop] ?? 0;
-    const autoSurchargeLabel = AUTO_SURCHARGE_LABEL[crop];
+    // Automatischer Zuschlag. Bei Kartoffeln nur, wenn Speisekartoffeln
+    // (isTablePotato); undefined = true (Rückwärtskompatibilität).
+    const potatoSurchargeActive = crop !== "Kartoffeln" || isTablePotato !== false;
+    const autoSurchargeMm = potatoSurchargeActive ? (AUTO_SURCHARGE_MM[crop] ?? 0) : 0;
+    const autoSurchargeLabel = potatoSurchargeActive ? AUTO_SURCHARGE_LABEL[crop] : undefined;
 
-    // Optionale Zuschläge — itemisiert für transparente Ausgabe
-    const surchargeIntermediateMm = surchargeIntermediate ? 10 : 0;
-    const surchargeEmergenceMm = surchargeEmergence;
+    // Optionale Zuschläge — itemisiert für transparente Ausgabe. Für Kulturen ohne
+    // sinnvolle Zwischenfrucht-/Auflaufbewässerung werden sie hart auf 0 gesetzt.
+    const allowOptional = cropAllowsOptionalSurcharge(crop, isSummerCereal ?? false);
+    const surchargeIntermediateMm = allowOptional && surchargeIntermediate ? 10 : 0;
+    const surchargeEmergenceMm = allowOptional ? surchargeEmergence : 0;
     const surchargeHeavySoilMm = surchargeHeavySoil;
     const optionalSurchargeMm = surchargeIntermediateMm + surchargeEmergenceMm + surchargeHeavySoilMm;
 
