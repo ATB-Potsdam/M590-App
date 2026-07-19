@@ -48,7 +48,7 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                             Ergebnissen (Kartoffel-Acker + Golfplatz) – jederzeit löschbar.
                         </p>
                         <button className="onboarding-overlay__demo-btn" onClick={loadDemo}>
-                            Beispiel laden →
+                            Beispiel laden ➔
                         </button>
                     </div>
                 )}
@@ -62,7 +62,7 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                             <strong>Betrieb einrichten</strong>
                             <p>Geben Sie Ihren Betriebsnamen ein und legen Sie Ihre Schläge mit Standort und Bodenklasse an.</p>
                             <button className="onboarding-overlay__step-btn" onClick={() => goTo("/farm")}>
-                                Jetzt einrichten →
+                                Jetzt einrichten ➔
                             </button>
                         </div>
                     </li>
@@ -77,7 +77,7 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                                 disabled={!hasFarm}
                                 title={!hasFarm ? "Zuerst Betrieb einrichten" : undefined}
                             >
-                                Jetzt anlegen →
+                                Jetzt anlegen ➔
                             </button>
                         </div>
                     </li>

@@ -46,7 +46,7 @@ export const DemoHint = ({variant, demoProjectId}: Props) => {
                                     : navigate("/")
                             }
                         >
-                            Weiter zum Szenario „Beispiel-Szenario“ →
+                            Weiter zum Szenario „Beispiel-Szenario“ ➔
                         </button>
                         <p className="demo-hint__note">
                             Sie erreichen Ihre Szenarien jederzeit über den Tab
@@ -82,7 +82,7 @@ export const DemoHint = ({variant, demoProjectId}: Props) => {
                     >
                         Beispiel löschen
                     </button>{" "}
-                    können Sie jederzeit (Betrieb → „Alle Daten löschen“) und dann mit eigenen
+                    können Sie jederzeit (Betrieb ➔ „Alle Daten löschen“) und dann mit eigenen
                     Feldern neu starten.
                 </p>
             </div>

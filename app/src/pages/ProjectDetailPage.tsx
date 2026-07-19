@@ -190,7 +190,7 @@ export const ProjectDetailPage = () => {
                                 <div className="assignment-list__module">
                                     {fa.module
                                         ? <span className="module-badge module-badge--set">{getModuleLabel(fa.module)}</span>
-                                        : <span className="module-badge module-badge--empty">Nutzung wählen →</span>
+                                        : <span className="module-badge module-badge--empty">Nutzung wählen ➔</span>
                                     }
                                     {fa.plantKey && (
                                         <span
@@ -282,7 +282,7 @@ export const ProjectDetailPage = () => {
                                                             }}
                                                             title={isField ? "Auf Farm-Seite bearbeiten" : "In Zuweisung öffnen"}
                                                         >
-                                                            {m} →
+                                                            {m} ➔
                                                         </button>
                                                     );
                                                 })}
@@ -331,7 +331,7 @@ export const ProjectDetailPage = () => {
                         <p className="project-detail__empty">
                             Alle {termPlural} bereits zugewiesen.{" "}
                             <button className="link-btn" onClick={() => navigate("/farm")}>
-                                Neue {termPlural} anlegen →
+                                Neue {termPlural} anlegen ➔
                             </button>
                         </p>
                     ) : (
