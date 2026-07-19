@@ -2,6 +2,7 @@
 import {useLocation, useNavigate} from "react-router";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
+import {useAppStore} from "../stores/useAppStore";
 import {useLocalStore} from "../stores/useLocalStore";
 import "./OnboardingBanner.scss";
 
@@ -9,10 +10,14 @@ export const OnboardingBanner = () => {
     const {farm} = useFarm();
     const {projects} = useProjects();
     const [bannerDismissed, setBannerDismissed] = useLocalStore((s) => s.dwa_banner_dismissed);
+    const tourActive = useAppStore((s) => s.tourActive);
     const navigate = useNavigate();
     const {pathname} = useLocation();
 
     if (bannerDismissed) return null;
+    // Während des geführten Rundgangs ausblenden – der Rundgang übernimmt die
+    // Wegweisung und der Banner würde nur mit dem Spotlight konkurrieren.
+    if (tourActive) return null;
 
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
     const hasProject = projects.length > 0;

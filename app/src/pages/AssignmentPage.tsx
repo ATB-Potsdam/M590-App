@@ -955,6 +955,7 @@ export const AssignmentPage = () => {
                         </p>
                     )}
                     <button
+                        data-tour="assignment-save"
                         className={`assignment-page__save${isDisabled ? ' assignment-page__save--disabled' : ''}`}
                         onClick={() => {
                             if (isDisabled) {

@@ -1,0 +1,95 @@
+@use "../../variables" as *;
+
+.tour-overlay {
+    // Kein eigener Backdrop – der Dimmer steckt im box-shadow des Spotlights,
+    // damit das hervorgehobene Ziel klickbar bleibt.
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    pointer-events: none;
+
+    &__spotlight {
+        position: fixed;
+        border-radius: 8px;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+        // Ziel bleibt klickbar: der Dimmer selbst fängt keine Klicks ab.
+        pointer-events: none;
+        transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+    }
+
+    &__tooltip {
+        pointer-events: auto;
+        max-width: min(320px, calc(100vw - 24px));
+        background: var(--color-bg);
+        border: 1px solid var(--color-primary-border);
+        border-radius: 10px;
+        padding: 0.85rem 1rem 0.9rem;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        z-index: 1501;
+    }
+
+    &__arrow {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: var(--color-bg);
+        border-left: 1px solid var(--color-primary-border);
+        border-top: 1px solid var(--color-primary-border);
+        transform: rotate(45deg);
+    }
+
+    &__step-count {
+        font-size: 0.72rem;
+        color: var(--color-text-muted);
+        margin-bottom: 0.2rem;
+    }
+
+    &__title {
+        margin: 0 0 0.35rem;
+        font-size: 1rem;
+        color: var(--color-primary-dark);
+    }
+
+    &__body {
+        margin: 0 0 0.75rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: var(--color-text);
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    &__skip {
+        background: none;
+        border: none;
+        padding: 0.25rem 0;
+        font-size: 0.85rem;
+        color: var(--color-text-muted);
+        cursor: pointer;
+
+        &:hover {
+            color: var(--color-text);
+            text-decoration: underline;
+        }
+    }
+
+    &__next {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 0.45rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-primary-dark);
+        }
+    }
+}

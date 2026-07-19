@@ -67,6 +67,7 @@ export const ProjectsPage = () => {
                         <div className="project-list__item">
                             <div
                                 className="project-list__main"
+                                data-tour={project.isDemo ? "project-row" : undefined}
                                 onClick={() => navigate(`/projects/${project.id}`)}
                             >
                                 <div className="project-list__name-row">
@@ -127,17 +128,19 @@ export const ProjectsPage = () => {
                 })}
             </ul>
 
-            {showForm ? (
-                <ProjectForm
-                    existingProjects={projects}
-                    onSave={handleSave}
-                    onCancel={() => setShowForm(false)}
-                />
-            ) : (
-                <button onClick={() => setShowForm(true)} className="projects-page__add-btn">
-                    + Neues Szenario
-                </button>
-            )}
+            <div data-tour="add-scenario">
+                {showForm ? (
+                    <ProjectForm
+                        existingProjects={projects}
+                        onSave={handleSave}
+                        onCancel={() => setShowForm(false)}
+                    />
+                ) : (
+                    <button onClick={() => setShowForm(true)} className="projects-page__add-btn">
+                        + Neues Szenario
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

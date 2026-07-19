@@ -106,6 +106,55 @@
         justify-content: center;
     }
 
+    &__tour-offer {
+        margin: 12px 0;
+        padding: 12px 14px;
+        background: var(--color-primary-bg);
+        border: 1px solid var(--color-primary-border);
+        border-radius: 10px;
+    }
+
+    &__tour-offer-text {
+        margin: 0 0 10px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: var(--color-text);
+    }
+
+    &__tour-offer-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    &__tour-offer-start {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-primary-dark);
+        }
+    }
+
+    &__tour-offer-later {
+        background: none;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--color-text);
+            text-decoration: underline;
+        }
+    }
+
     &__demo-load-btn {
         background: none;
         border: 1px solid var(--color-primary-border);

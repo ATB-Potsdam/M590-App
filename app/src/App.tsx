@@ -9,6 +9,7 @@ import {Messages} from './components/Messages';
 import {UpdateBanner} from './components/UpdateBanner';
 import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
+import {TourOverlay} from './components/tour/TourOverlay';
 import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm';
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
@@ -39,6 +40,9 @@ const App = () => {
     const addMessage = useAppStore((state) => state.addMessage);
     const {farm} = useFarm();
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
+    const [projects] = useLocalStore((s) => s.dwa_projects);
+    const demoProjectId = projects.find((p) => p.isDemo)?.id;
+    const startTour = useAppStore((s) => s.startTour);
 
     const [onboardingDismissed, setOnboardingDismissed] = useLocalStore((s) => s.dwa_onboarding_dismissed);
     const [overlayForcedOpen, setOverlayForcedOpen] = useState(false);
@@ -174,9 +178,16 @@ const App = () => {
                         <LogoBar />
                         {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
                     </div>
+                    <TourOverlay demoProjectId={demoProjectId} />
                 </>
             )}
-            {showOverlay && <OnboardingOverlay onClose={handleCloseOverlay} />}
+            {showOverlay && (
+                <OnboardingOverlay
+                    onClose={handleCloseOverlay}
+                    onStartTour={(variant) => {handleCloseOverlay(); startTour(variant);}}
+                    hasDemo={!!demoProjectId}
+                />
+            )}
             <UpdateBanner />
             <InstallPrompt />
             <Messages />

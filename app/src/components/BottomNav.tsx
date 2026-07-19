@@ -26,6 +26,7 @@ export const BottomNav = ({onShowHelp}: Props) => {
             {NAV_ITEMS.map((item) => (
                 <button
                     key={item.path}
+                    data-tour={item.path === "/" ? "nav-scenarios" : undefined}
                     className={`bottom-nav__item ${isActive(item, location.pathname) ? "bottom-nav__item--active" : ""}`}
                     onClick={() => navigate(item.path)}
                 >

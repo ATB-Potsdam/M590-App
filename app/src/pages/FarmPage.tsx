@@ -48,6 +48,9 @@ export const FarmPage = () => {
     const {farm, updateFarmName, addField, editField, removeField} = useFarm();
     const {projects, removeFieldFromAllProjects} = useProjects();
     const addMessage = useAppStore((state) => state.addMessage);
+    const startTour = useAppStore((state) => state.startTour);
+    const tourActive = useAppStore((state) => state.tourActive);
+    const [tourCompleted, setTourCompleted] = useLocalStore((s) => s.dwa_tour_completed);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
     // editingName startet false: fehlt der Name, zeigt das Render-Gate
@@ -197,9 +200,33 @@ export const FarmPage = () => {
             <h1>Mein Betrieb</h1>
 
             <OnboardingBanner />
-            {demoProject && <DemoHint variant="farm" demoProjectId={demoProject.id} />}
+            {demoProject && <DemoHint variant="farm" />}
+            {demoProject && !tourCompleted && !tourActive && (
+                <div className="farm-page__tour-offer">
+                    <p className="farm-page__tour-offer-text">
+                        🧭 Neu hier? Ein kurzer Rundgang zeigt Ihnen die App von den Feldern
+                        bis zur fertigen Antragsmenge.
+                    </p>
+                    <div className="farm-page__tour-offer-actions">
+                        <button
+                            type="button"
+                            className="farm-page__tour-offer-start"
+                            onClick={() => startTour("demo")}
+                        >
+                            Rundgang starten ➔
+                        </button>
+                        <button
+                            type="button"
+                            className="farm-page__tour-offer-later"
+                            onClick={() => setTourCompleted(true)}
+                        >
+                            Später
+                        </button>
+                    </div>
+                </div>
+            )}
 
-            <div className="farm-page__name-label">
+            <div className="farm-page__name-label" data-tour="farm-name">
                 <strong>Name</strong>
                 {editingName || !farm.name ? (
                     <>
@@ -279,7 +306,7 @@ export const FarmPage = () => {
                 )}
             </div>
 
-            <h2 className="farm-page__fields-heading">Felder</h2>
+            <h2 className="farm-page__fields-heading" data-tour="farm-fields">Felder</h2>
             <InfoHint>
                 Ein Feld (bzw. Schlag) ist eine zusammenhängende Fläche mit Standort und
                 Bodenklasse. Legen Sie es einmal an – Klimadaten und Bodenzahl werden
@@ -357,17 +384,19 @@ export const FarmPage = () => {
             ))}
 
             {!editingField && (
-                showAddField ? (
-                    <FieldForm
-                        existingLocations={farm.fields.map((f) => ({...f.location, name: f.name}))}
-                        onSave={(f) => {addField(f); setShowAddField(false);}}
-                        onCancel={() => setShowAddField(false)}
-                    />
-                ) : (
-                    <button onClick={() => setShowAddField(true)} className="farm-page__add-btn">
-                        + Feld hinzufügen
-                    </button>
-                )
+                <div data-tour="add-field">
+                    {showAddField ? (
+                        <FieldForm
+                            existingLocations={farm.fields.map((f) => ({...f.location, name: f.name}))}
+                            onSave={(f) => {addField(f); setShowAddField(false);}}
+                            onCancel={() => setShowAddField(false)}
+                        />
+                    ) : (
+                        <button onClick={() => setShowAddField(true)} className="farm-page__add-btn">
+                            + Feld hinzufügen
+                        </button>
+                    )}
+                </div>
             )}
 
             <h2 className="farm-page__fields-heading">Daten exportieren / importieren</h2>

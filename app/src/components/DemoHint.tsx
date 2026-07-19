@@ -3,18 +3,18 @@ import {useNavigate} from "react-router";
 import "./DemoHint.scss";
 
 interface Props {
-    /** "farm" = auf der Betriebsseite (weiter zu Szenarien), "project" = im Szenario. */
+    /** "farm" = auf der Betriebsseite, "project" = im Szenario. */
     variant: "farm" | "project";
-    /** Ziel-Szenario für den „Weiter“-Button (nur variant="farm"). */
-    demoProjectId?: string;
 }
 
 /**
- * Wegweisung nach dem Laden des Beispiel-Szenarios. Zeigt je nach Seite, was als
- * Nächstes zu tun ist. Nicht schliessbar, nur einklappbar (<details>) – der
- * Hinweis bleibt verfügbar, solange das Beispiel existiert.
+ * Kurzer Hinweis, dass gerade Beispieldaten geladen sind, mit einem Link zum
+ * Löschen. Die eigentliche Wegweisung übernimmt der geführte Rundgang
+ * (components/tour) – deshalb ist dieser Hinweis bewusst knapp gehalten.
+ * Nicht schliessbar, nur einklappbar (<details>); bleibt verfügbar, solange
+ * das Beispiel existiert.
  */
-export const DemoHint = ({variant, demoProjectId}: Props) => {
+export const DemoHint = ({variant}: Props) => {
     const navigate = useNavigate();
 
     // Zum „Alle Daten löschen“-Bereich auf der Betriebsseite springen und dorthin
@@ -30,60 +30,23 @@ export const DemoHint = ({variant, demoProjectId}: Props) => {
 
     return (
         <details className="demo-hint" open>
-            <summary className="demo-hint__summary">👋 Beispiel geladen</summary>
+            <summary className="demo-hint__summary">👋 Beispieldaten</summary>
             <div className="demo-hint__content">
-                {variant === "farm" ? (
-                    <>
-                        <p className="demo-hint__text">
-                            Ihr Beispielbetrieb mit zwei Feldern (Kartoffel-Acker + Golfplatz) ist
-                            angelegt. Der berechnete Wasserbedarf steckt im Beispiel-Szenario.
-                        </p>
-                        <button
-                            className="demo-hint__cta"
-                            onClick={() =>
-                                demoProjectId
-                                    ? navigate(`/projects/${demoProjectId}`)
-                                    : navigate("/")
-                            }
-                        >
-                            Weiter zum Szenario „Beispiel-Szenario“ ➔
-                        </button>
-                        <p className="demo-hint__note">
-                            Sie erreichen Ihre Szenarien jederzeit über den Tab
-                            {" "}<strong>Szenarien</strong> unten.
-                        </p>
-                    </>
-                ) : (
-                    <>
-                        <p className="demo-hint__text">So geht es weiter:</p>
-                        <ol className="demo-hint__steps">
-                            <li>
-                                Öffnen Sie unten eine <strong>Zuweisung</strong> (Kartoffel-Acker
-                                oder Golfplatz), um die Berechnung und die Zuschläge im Detail zu
-                                sehen.
-                            </li>
-                            <li>
-                                In der <strong>Zusammenfassung</strong> weiter unten finden Sie den
-                                Gesamtbedarf und können das <strong>PDF</strong> erzeugen.
-                            </li>
-                            <li>
-                                Über die Tabs <strong>Szenarien</strong> und <strong>Betrieb</strong>
-                                {" "}(unten) wechseln Sie zwischen Projekten und Feldern.
-                            </li>
-                        </ol>
-                    </>
-                )}
+                <p className="demo-hint__text">
+                    {variant === "farm"
+                        ? "Ihr Beispielbetrieb mit zwei Flächen (Kartoffel-Acker + Golfplatz) ist angelegt, der Wasserbedarf steckt im Beispiel-Szenario."
+                        : "Dies ist das Beispiel-Szenario mit fertigen Ergebnissen zum Ausprobieren."}
+                </p>
                 <p className="demo-hint__note">
-                    Alles hier sind normale Daten.{" "}
+                    Alles hier sind ganz normale Daten. Wenn Sie mit eigenen Feldern starten
+                    möchten, wählen Sie unter Betrieb ➔{" "}
                     <button
                         type="button"
                         className="demo-hint__link"
                         onClick={goToDelete}
                     >
-                        Beispiel löschen
-                    </button>{" "}
-                    können Sie jederzeit (Betrieb ➔ „Alle Daten löschen“) und dann mit eigenen
-                    Feldern neu starten.
+                        „Alle Daten löschen“
+                    </button>.
                 </p>
             </div>
         </details>

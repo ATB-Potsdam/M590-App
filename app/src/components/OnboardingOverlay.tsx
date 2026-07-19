@@ -9,9 +9,13 @@ const base = import.meta.env.BASE_URL;
 
 interface Props {
     onClose: () => void;
+    /** Geführten Rundgang starten. "demo" tourt Beispieldaten, "empty" leitet beim Anlegen an. */
+    onStartTour: (variant: "demo" | "empty") => void;
+    /** Ob bereits ein Demo-Szenario existiert (dann Rundgang durch die Beispieldaten). */
+    hasDemo: boolean;
 }
 
-export const OnboardingOverlay = ({onClose}: Props) => {
+export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
     const navigate = useNavigate();
     const [farm, setFarm] = useLocalStore((s) => s.dwa_farm);
     const [, setProjects] = useLocalStore((s) => s.dwa_projects);
@@ -89,6 +93,15 @@ export const OnboardingOverlay = ({onClose}: Props) => {
                         </div>
                     </li>
                 </ol>
+
+                <button
+                    className="onboarding-overlay__tour-btn"
+                    onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
+                >
+                    {hasDemo
+                        ? "🧭 Rundgang durch die Beispieldaten"
+                        : "🧭 Schritt für Schritt anlegen (geführt)"}
+                </button>
 
                 <button className="onboarding-overlay__dismiss" onClick={onClose}>
                     Verstanden

@@ -175,6 +175,7 @@ export const ProjectDetailPage = () => {
                             <div className="assignment-list__item">
                             <div
                                 className="assignment-list__main"
+                                data-tour={i === 0 ? "assignment-row" : undefined}
                                 onClick={() => navigate(`/projects/${project.id}/assignment/${fa.id}`)}
                             >
                                 {/* Zeile 1: Feldname + Fläche + Klimazone – unverändert */}
@@ -324,6 +325,7 @@ export const ProjectDetailPage = () => {
             </ul>
 
             {/* Feld/Fläche hinzufügen */}
+            <div data-tour="add-assignment">
             {showAddField ? (
                 <div className="project-detail__add-field">
                     <p className="project-detail__add-field-label">{term} auswählen:</p>
@@ -363,10 +365,11 @@ export const ProjectDetailPage = () => {
                     + {term} hinzufügen
                 </button>
             )}
+            </div>
 
             {/* Zusammenfassung */}
             {project.fieldAssignments.length > 0 && (
-                <section className="project-summary">
+                <section className="project-summary" data-tour="project-summary">
                     <h2>Zusammenfassung</h2>
 
                     {/* Detailtabelle je Feld/Fläche */}
