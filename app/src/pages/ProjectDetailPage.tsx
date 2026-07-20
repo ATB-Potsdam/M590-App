@@ -369,7 +369,11 @@ export const ProjectDetailPage = () => {
 
             {/* Zusammenfassung */}
             {project.fieldAssignments.length > 0 && (
-                <section className="project-summary" data-tour="project-summary">
+                // Rundgang-Ziel umschließt Zusammenfassung UND den PDF-Export-Button
+                // (der Button ist eine Schwester der <section>) – sonst bliebe er im
+                // letzten Schritt „Zusammenfassung & PDF“ außerhalb des Spotlights.
+                <div data-tour="project-summary" className="project-summary-tour-wrap">
+                <section className="project-summary">
                     <h2>Zusammenfassung</h2>
 
                     {/* Detailtabelle je Feld/Fläche */}
@@ -536,8 +540,6 @@ export const ProjectDetailPage = () => {
                     )}
 
                 </section>
-            )}
-            {project.fieldAssignments.length > 0 && (
                 <button className="project-summary__print-btn" onClick={() => {
                     const filename = `${project.name}-zusammenfassung.pdf`;
                     Promise.all([
@@ -565,6 +567,7 @@ export const ProjectDetailPage = () => {
                 }}>
                     PDF Export
                 </button>
+                </div>
             )}
         </div>
     );

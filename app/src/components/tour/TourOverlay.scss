@@ -62,6 +62,11 @@
         justify-content: space-between;
         align-items: center;
         gap: 0.75rem;
+
+        // Endschritt: nur „Fertig“ – rechtsbündig statt links kleben.
+        &--end {
+            justify-content: flex-end;
+        }
     }
 
     &__skip {

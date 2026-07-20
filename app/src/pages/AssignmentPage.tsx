@@ -791,7 +791,7 @@ export const AssignmentPage = () => {
 
             {/* Ergebnis */}
             {result && (
-                <section className="assignment-section">
+                <section className="assignment-section" data-tour="assignment-result">
                     <h2>Ergebnis</h2>
                     {result.type === 'hauptkulturen' && (
                         <HauptkulturenResultCard

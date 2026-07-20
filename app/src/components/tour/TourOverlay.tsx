@@ -146,6 +146,14 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         const steps = tourStepsFor("demo");
         const cur = steps[tourStep];
         if (!cur || cur.advanceOn !== "route") return;
+        // Sonderfall „open-assignment“: der nächste Schritt (assignment-detail)
+        // liegt auf der TIEFEREN Zuweisungs-Seite, deren ID der Rundgang nicht
+        // kennt. Darum per Präfix erkennen, dass eine Zuweisung geöffnet wurde.
+        if (cur.id === "open-assignment") {
+            const projectRoute = `/projects/${demoProjectId ?? ""}`;
+            if (location.pathname.startsWith(`${projectRoute}/assignment/`)) nextTourStep();
+            return;
+        }
         const next = steps[tourStep + 1];
         if (!next) return;
         const wanted = resolveRoute(next.route, demoProjectId ?? "");
@@ -178,10 +186,13 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     const showNextButton = active.terminal || active.demoButton;
 
     const actions = (
-        <div className="tour-overlay__actions">
-            <button type="button" className="tour-overlay__skip" onClick={suspend}>
-                Tour pausieren
-            </button>
+        <div className={`tour-overlay__actions${active.terminal ? " tour-overlay__actions--end" : ""}`}>
+            {/* Im Endschritt ergibt „Tour pausieren“ keinen Sinn – nur „Fertig“. */}
+            {!active.terminal && (
+                <button type="button" className="tour-overlay__skip" onClick={suspend}>
+                    Tour pausieren
+                </button>
+            )}
             {showNextButton && (
                 <button type="button" className="tour-overlay__next" onClick={onNext}>
                     {active.terminal ? "Fertig" : "Weiter ➔"}

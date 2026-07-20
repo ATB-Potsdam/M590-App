@@ -102,8 +102,21 @@ export const demoSteps: TourStep[] = [
         route: (id) => `/projects/${id}`,
         target: "assignment-row",
         title: "Zuweisungen",
-        body: "Jede Zeile ist eine Zuweisung: eine Fläche mit ihrer Nutzung und dem berechneten Bedarf. Ein Klick öffnet später die Details mit Berechnung und Zuschlägen.",
+        body: "Jede Zeile ist eine Zuweisung: eine Fläche mit ihrer Nutzung und dem berechneten Bedarf. Öffnen Sie die Zuweisung mit einem Klick, um die Details zu sehen.",
         placement: "bottom",
+        // Anwender klickt die Zuweisung → Wechsel auf die Zuweisungs-Seite rückt vor.
+        advanceOn: "route",
+    },
+    {
+        id: "assignment-detail",
+        // Elternroute (Szenario-Seite): die Auto-Navigation lässt den Anwender auf
+        // der tieferen Zuweisungs-Seite in Ruhe (here.startsWith(route + "/")),
+        // sodass der Spotlight das Ergebnis auf der Zuweisungs-Seite treffen kann.
+        route: (id) => `/projects/${id}`,
+        target: "assignment-result",
+        title: "Berechnung & Ergebnis",
+        body: "Hier legen Sie Nutzung und Angaben fest; die App berechnet den Wasserbedarf (Normal- und Trockenjahr) samt Zuschlägen. Mit „Weiter“ geht es zurück zur Übersicht.",
+        placement: "top",
         advanceOn: "button",
     },
     {
