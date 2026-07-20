@@ -124,16 +124,19 @@ export const TourOverlay = ({demoProjectId}: Props) => {
 
     // Bei Bedarf zur Ziel-Route des aktuellen Schritts navigieren (z. B. Rundgang
     // aus dem ?-Dialog auf einer anderen Seite gestartet). Leere Projekt-Route
-    // (kein Projekt) auslassen. WICHTIG: nicht navigieren, wenn der Anwender bereits
-    // TIEFER ist (Unterseite der Ziel-Route) – sonst zieht der Rundgang ihn beim
-    // Öffnen einer Zuweisung sofort zur Szenario-Seite zurück (Endlosschleife,
-    // „Nutzung wählen“ scheint wirkungslos). Ziele auf der Zuweisungs-Seite werden
-    // von useTourTarget ohnehin erst dort aufgelöst.
+    // (kein Projekt) auslassen. WICHTIG: bei NICHT-Endschritten nicht navigieren,
+    // wenn der Anwender bereits TIEFER ist (Unterseite der Ziel-Route) – sonst
+    // zieht der Rundgang ihn beim Öffnen einer Zuweisung sofort zur Szenario-Seite
+    // zurück (Endlosschleife, „Nutzung wählen“ scheint wirkungslos). Ausnahme:
+    // der Endschritt (Zusammenfassung) hat auf einer Unterseite (Zuweisungs-Maske)
+    // KEIN Ziel – startet der Anwender den Rundgang dort mit bereits vollständigen
+    // Daten, bliebe der Banner sonst unsichtbar. Darum für den Endschritt auch aus
+    // einer Unterseite heraus zur Ziel-Route hochnavigieren.
     useEffect(() => {
         if (!active || !active.route || active.route.endsWith("/projects/")) return;
         const here = location.pathname;
         if (here === active.route) return;
-        if (here.startsWith(active.route + "/")) return; // bereits tiefer → in Ruhe lassen
+        if (!active.terminal && here.startsWith(active.route + "/")) return; // bereits tiefer → in Ruhe lassen
         navigate(active.route);
     }, [active, location.pathname, navigate]);
 
