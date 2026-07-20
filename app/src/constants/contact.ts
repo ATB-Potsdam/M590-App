@@ -23,6 +23,17 @@ export const IMPRINT = {
     imprintUrl: "https://www.atb-potsdam.de/de/impressum",
 } as const;
 
+// Datenschutz-Angaben. Kontakt der/des Datenschutzbeauftragten und die
+// vollständige Datenschutzerklärung liegen beim ATB; hier wird darauf verwiesen.
+// TODO(ATB): Zuständigkeit der Aufsichtsbehörde bestätigen (Sitz Potsdam →
+// voraussichtlich LDA Brandenburg).
+export const PRIVACY = {
+    dpoEmail: "datenschutz@atb-potsdam.de",
+    policyUrl: "https://www.atb-potsdam.de/de/datenschutz",
+    supervisoryAuthority: "Die Landesbeauftragte für den Datenschutz und für das Recht auf Akteneinsicht Brandenburg (LDA Brandenburg)",
+    supervisoryAuthorityUrl: "https://www.lda.brandenburg.de",
+} as const;
+
 export const STANDARD = {
     name: "DWA-M 590",
     publisher: "Deutsche Vereinigung für Wasserwirtschaft, Abwasser und Abfall e.V. (DWA)",

@@ -1,5 +1,5 @@
 import {Link} from "react-router";
-import {DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR} from "../constants/contact";
+import {DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR, PRIVACY} from "../constants/contact";
 import {BackButton} from "../components/BackButton";
 import "./AboutPage.scss";
 
@@ -24,6 +24,10 @@ export const PrivacyPage = () => (
             </p>
             <p>
                 Technische Umsetzung: <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a>
+            </p>
+            <p>
+                Datenschutzbeauftragte(r) des ATB:{" "}
+                <a href={`mailto:${PRIVACY.dpoEmail}`}>{PRIVACY.dpoEmail}</a>
             </p>
         </section>
 
@@ -86,10 +90,33 @@ export const PrivacyPage = () => (
         <section className="info-page__section">
             <h2>Ihre Rechte</h2>
             <p>
-                Da keine personenbezogenen Daten an die Betreiber übermittelt werden, entstehen
-                hieraus keine Auskunfts- oder Löschpflichten unsererseits. Lokal gespeicherte Daten
-                können Sie jederzeit selbst über die Einstellungen Ihres Geräts oder Browsers
-                löschen.
+                Da über diese App keine personenbezogenen Daten an die Betreiber übermittelt werden,
+                entstehen hieraus keine Auskunfts- oder Löschpflichten unsererseits. Lokal
+                gespeicherte Daten können Sie jederzeit selbst über die Einstellungen Ihres Geräts
+                oder Browsers löschen.
+            </p>
+            <p>
+                Soweit dennoch eine Verarbeitung personenbezogener Daten stattfindet (z. B.
+                Übertragung Ihrer IP-Adresse beim Laden der Kartenkacheln), stehen Ihnen die Rechte
+                auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Widerspruch und
+                Datenübertragbarkeit nach Art. 15–21 DSGVO zu. Wenden Sie sich hierzu an den oben
+                genannten Verantwortlichen.
+            </p>
+            <p>
+                Ihnen steht zudem ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu
+                (Art. 77 DSGVO). Zuständig ist:{" "}
+                <a href={PRIVACY.supervisoryAuthorityUrl} target="_blank" rel="noopener noreferrer">
+                    {PRIVACY.supervisoryAuthority}
+                </a>.
+            </p>
+        </section>
+
+        <section className="info-page__section info-page__meta">
+            <p>
+                Die vollständige Datenschutzerklärung des Betreibers finden Sie unter{" "}
+                <a href={PRIVACY.policyUrl} target="_blank" rel="noopener noreferrer">
+                    Datenschutzerklärung des {OPERATOR.name}
+                </a>.
             </p>
         </section>
 
