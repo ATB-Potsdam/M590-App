@@ -11,9 +11,18 @@ export interface TourContext {
     pathname: string;
 }
 
+/**
+ * ID des Szenarios, das der (lineare) Rundgang öffnet: das erste vom Anwender
+ * angelegte (nicht-Demo), sonst das erste überhaupt. Der Spotlight-Anker
+ * `data-tour="project-row"` MUSS auf genau diese Zeile gesetzt werden, sonst
+ * findet der Schritt „Szenario öffnen“ kein Ziel und der Rundgang bleibt hängen.
+ */
+export const tourProjectId = (projects: Project[]): string | undefined =>
+    projects.find((p) => !p.isDemo)?.id ?? projects[0]?.id;
+
 /** ID des vom Anwender angelegten (nicht-Demo) Szenarios – für Ziel-Routen. */
 export const currentProjectId = (ctx: TourContext): string | undefined =>
-    ctx.projects.find((p) => !p.isDemo)?.id ?? ctx.projects[0]?.id;
+    tourProjectId(ctx.projects);
 
 /**
  * Ein Schritt des geführten Rundgangs. Der Anwender führt die echte Aktion selbst
@@ -92,8 +101,8 @@ export const demoSteps: TourStep[] = [
         id: "open-project",
         route: "/",
         target: "project-row",
-        title: "Beispiel-Szenario öffnen",
-        body: "Öffnen Sie das Beispiel-Szenario ➔, um die zugewiesenen Flächen und Ergebnisse zu sehen.",
+        title: "Szenario öffnen",
+        body: "Öffnen Sie ein Szenario ➔, um die zugewiesenen Flächen und ihre Ergebnisse zu sehen.",
         placement: "bottom",
         advanceOn: "route",
     },
@@ -253,6 +262,23 @@ export const currentEmptyStep = (ctx: TourContext): EmptyStep | undefined => {
  */
 export const allEmptyStepsDone = (ctx: TourContext): boolean =>
     emptySteps.every((step) => step.terminal || step.done(ctx));
+
+/**
+ * True, wenn der (lineare) Rundgang mit den vorhandenen Daten vollständig
+ * durchlaufbar ist – d. h. Betrieb, Feld und das vom Rundgang geöffnete Szenario
+ * (currentProjectId) hat mindestens eine Zuweisung, deren Feld existiert. Nur
+ * dann funktionieren die klick-/routenbasierten Schritte (Szenario öffnen →
+ * Zuweisung öffnen). Damit lässt sich der Rundgang als neutrale „Kurzeinführung“
+ * auch ohne Beispieldaten anbieten – aber nur, wenn er nicht auf halbem Weg
+ * mangels anklickbarer Zeile stehen bliebe.
+ */
+export const isTourWalkable = (ctx: TourContext): boolean => {
+    if (!hasFarmName(ctx) || !hasField(ctx)) return false;
+    const pid = currentProjectId(ctx);
+    const project = ctx.projects.find((p) => p.id === pid);
+    if (!project) return false;
+    return project.fieldAssignments.some((fa) => ctx.farm.fields.some((f) => f.id === fa.fieldId));
+};
 
 export const tourStepsFor = (variant: "demo" | "empty"): TourStep[] =>
     variant === "empty" ? [] : demoSteps;

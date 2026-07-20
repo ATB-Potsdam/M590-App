@@ -3,7 +3,7 @@ import {useLocation, useNavigate} from "react-router";
 import {useLocalStore} from "../stores/useLocalStore";
 import {useAppStore} from "../stores/useAppStore";
 import {seedDemoData} from "../lib/demoData";
-import {allEmptyStepsDone, currentProjectId} from "./tour/tourSteps";
+import {allEmptyStepsDone, currentProjectId, isTourWalkable} from "./tour/tourSteps";
 import "./OnboardingOverlay.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -26,13 +26,29 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
     const et0Lookup = useAppStore((s) => s.et0Lookup);
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
 
-    // Rundgang nur anbieten, wenn er noch etwas leitet: bei geladenen Beispieldaten
-    // (Demo-Rundgang) oder solange der Anlege-Rundgang noch offene Schritte hat.
-    // Bei vollständigen Eigendaten würde der Leerzustand-Rundgang nur auf die
-    // Zusammenfassung springen – dann Button ausblenden, stattdessen FAQ nutzen.
+    // Rundgang-Angebot – drei Fälle, in dieser Reihenfolge:
+    //  1. Beispieldaten geladen  → Demo-Rundgang ("… durch die Beispieldaten").
+    //  2. Eigendaten unvollständig → geführtes Anlegen (Leerzustand-Rundgang).
+    //  3. Eigendaten vollständig & durchlaufbar → neutrale "Kurzeinführung"
+    //     (derselbe lineare Rundgang wie Demo, führt zu den wichtigsten Stellen –
+    //     zum Auffrischen nach längerer Pause).
+    // Ist bei vollständigen Daten der Rundgang nicht durchlaufbar (keine
+    // anklickbare Zuweisung), wird kein Button gezeigt – dann greift die FAQ.
     const tourCtx = {farm, projects, pathname};
-    const showTour = hasDemo || !allEmptyStepsDone(tourCtx);
+    const setupIncomplete = !allEmptyStepsDone(tourCtx);
+    const tourMode: "demo" | "empty" | "orientation" | null =
+        hasDemo ? "demo"
+            : setupIncomplete ? "empty"
+                : isTourWalkable(tourCtx) ? "orientation"
+                    : null;
     const ownProjectId = currentProjectId(tourCtx);
+
+    // Orientierungs-Rundgang nutzt denselben (linearen) Ablauf wie der Demo-Rundgang.
+    const tourVariant = tourMode === "empty" ? "empty" : "demo";
+    const tourLabel =
+        tourMode === "demo" ? "🧭 Rundgang durch die Beispieldaten"
+            : tourMode === "empty" ? "🧭 Schritt für Schritt anlegen (geführt)"
+                : "🧭 Kurzeinführung: die wichtigsten Stellen";
 
     const goTo = (path: string) => {
         onClose();
@@ -58,14 +74,12 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
                     landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
                 </p>
 
-                {showTour && (
+                {tourMode && (
                     <button
                         className="onboarding-overlay__tour-btn"
-                        onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
+                        onClick={() => onStartTour(tourVariant)}
                     >
-                        {hasDemo
-                            ? "🧭 Rundgang durch die Beispieldaten"
-                            : "🧭 Schritt für Schritt anlegen (geführt)"}
+                        {tourLabel}
                     </button>
                 )}
 

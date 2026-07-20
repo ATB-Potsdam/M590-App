@@ -7,12 +7,16 @@ import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, sumResults} from "../lib/calculations/getAssignmentResult";
 import type {AssignmentResult} from "../lib/calculations/getAssignmentResult";
+import {tourProjectId} from "../components/tour/tourSteps";
 import {formatRange} from "../lib/formatNum";
 import "./ProjectsPage.scss";
 
 export const ProjectsPage = () => {
     const {projects, addProject, copyProject, removeProject} = useProjects();
     const {farm} = useFarm();
+    // Zeile, die der Rundgang-Schritt „Szenario öffnen“ hervorhebt – dieselbe,
+    // die currentProjectId für die Folge-Routen nutzt (nicht nur die Demo-Zeile).
+    const tourRowId = tourProjectId(projects);
     const [showForm, setShowForm] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
     const deleteConfirmRef = useRef<HTMLDivElement>(null);
@@ -67,7 +71,7 @@ export const ProjectsPage = () => {
                         <div className="project-list__item">
                             <div
                                 className="project-list__main"
-                                data-tour={project.isDemo ? "project-row" : undefined}
+                                data-tour={project.id === tourRowId ? "project-row" : undefined}
                                 onClick={() => navigate(`/projects/${project.id}`)}
                             >
                                 <div className="project-list__name-row">

@@ -12,7 +12,7 @@ import {
 } from "@floating-ui/react";
 import {useAppStore} from "../../stores/useAppStore";
 import {useLocalStore} from "../../stores/useLocalStore";
-import {currentEmptyStep, tourStepsFor} from "./tourSteps";
+import {currentEmptyStep, currentProjectId, tourStepsFor} from "./tourSteps";
 import type {TourContext} from "./tourSteps";
 import {useTourTarget} from "./useTourTarget";
 import "./TourOverlay.scss";
@@ -62,6 +62,12 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         [farm, projects, demoProjectId, location.pathname],
     );
 
+    // Projekt-ID, mit der der lineare Rundgang seine Routen auflöst. Für den
+    // Demo-Rundgang ist das die Demo-ID, für die „Kurzeinführung“ auf Eigendaten
+    // das erste (nicht-Demo) Szenario – currentProjectId liefert beides. NICHT
+    // hart demoProjectId nehmen, sonst zeigen die Routen bei Eigendaten ins Leere.
+    const tourPid = currentProjectId(ctx) ?? demoProjectId ?? "";
+
     // Aktuellen Schritt bestimmen – zustandsgesteuert (empty) bzw. linear (demo).
     const active: ActiveStep | undefined = useMemo(() => {
         if (!tourActive) return undefined;
@@ -79,11 +85,11 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         if (!s) return undefined;
         return {
             id: s.id, target: s.target, title: s.title, body: s.body,
-            placement: s.placement ?? "bottom", route: resolveRoute(s.route, demoProjectId ?? ""),
+            placement: s.placement ?? "bottom", route: resolveRoute(s.route, tourPid),
             terminal: tourStep === steps.length - 1,
             demoButton: s.advanceOn === "button", banner: false,
         };
-    }, [tourActive, tourVariant, ctx, tourStep, demoProjectId]);
+    }, [tourActive, tourVariant, ctx, tourStep, tourPid]);
 
     const rect = useTourTarget(active && !active.banner ? active.target : null);
 
@@ -136,9 +142,21 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         if (!active || !active.route || active.route.endsWith("/projects/")) return;
         const here = location.pathname;
         if (here === active.route) return;
-        if (!active.terminal && here.startsWith(active.route + "/")) return; // bereits tiefer → in Ruhe lassen
+        // Nicht zurückreißen, wenn der Anwender sich VORWÄRTS geklickt hat – also
+        // bereits auf der Route des nächsten Schritts (oder tiefer) ist; der
+        // Advance-Effekt rückt dann gleich vor. Nur diese Vorwärts-Route zählt als
+        // „in Ruhe lassen“, NICHT jeder beliebige tiefere Pfad: sonst würde bei
+        // route "/" auch /farm als Nachfahre gelten und der Schritt „Szenario
+        // öffnen“ könnte nie zur Szenarien-Seite navigieren. Beim Klick auf ein
+        // Szenario (/projects/x) ist genau das die Route des nächsten Schritts.
+        if (!active.terminal && tourVariant === "demo") {
+            const steps = tourStepsFor("demo");
+            const next = steps[tourStep + 1];
+            const nextRoute = next ? resolveRoute(next.route, tourPid) : "";
+            if (nextRoute && nextRoute !== "/" && (here === nextRoute || here.startsWith(nextRoute + "/"))) return;
+        }
         navigate(active.route);
-    }, [active, location.pathname, navigate]);
+    }, [active, location.pathname, navigate, tourVariant, tourStep, tourPid]);
 
     // Demo-Rundgang: routenbasiertes Vorrücken (Anwender navigiert selbst).
     useEffect(() => {
@@ -150,15 +168,15 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         // liegt auf der TIEFEREN Zuweisungs-Seite, deren ID der Rundgang nicht
         // kennt. Darum per Präfix erkennen, dass eine Zuweisung geöffnet wurde.
         if (cur.id === "open-assignment") {
-            const projectRoute = `/projects/${demoProjectId ?? ""}`;
+            const projectRoute = `/projects/${tourPid}`;
             if (location.pathname.startsWith(`${projectRoute}/assignment/`)) nextTourStep();
             return;
         }
         const next = steps[tourStep + 1];
         if (!next) return;
-        const wanted = resolveRoute(next.route, demoProjectId ?? "");
+        const wanted = resolveRoute(next.route, tourPid);
         if (location.pathname === wanted) nextTourStep();
-    }, [active, tourVariant, location.pathname, tourStep, demoProjectId, nextTourStep]);
+    }, [active, tourVariant, location.pathname, tourStep, tourPid, nextTourStep]);
 
     // empty-Rundgang: fertig, sobald kein Schritt mehr offen ist.
     useEffect(() => {

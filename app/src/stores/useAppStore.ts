@@ -32,6 +32,7 @@ type AppState = {
     tourStep: number;                    // nur für den (linearen) Demo-Rundgang
     tourSuspended: boolean;              // pausiert (per „Überspringen“) → fortsetzbar
     startTour: (variant: "demo" | "empty") => void;
+    resumeTour: () => void;              // pausierten Rundgang fortsetzen (tourStep bleibt)
     nextTourStep: () => void;            // Demo-Rundgang: einen Schritt weiter
     suspendTour: () => void;             // pausieren, fortsetzbar über Floating-Button
     endTour: () => void;
@@ -72,6 +73,9 @@ export const useAppStore = create<AppState>()(
         tourStep: 0,
         tourSuspended: false,
         startTour: (variant) => set({tourActive: true, tourVariant: variant, tourStep: 0, tourSuspended: false}),
+        // Fortsetzen ohne tourStep zurückzusetzen – der Demo-Rundgang ist
+        // index-basiert und würde sonst wieder von vorn beginnen.
+        resumeTour: () => set({tourActive: true, tourSuspended: false}),
         nextTourStep: () => set((state) => ({tourStep: state.tourStep + 1})),
         suspendTour: () => set({tourActive: false, tourSuspended: true}),
         endTour: () => set({tourActive: false, tourStep: 0, tourSuspended: false}),

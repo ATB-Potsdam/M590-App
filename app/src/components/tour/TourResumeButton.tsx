@@ -10,8 +10,7 @@ import "./TourResumeButton.scss";
 export const TourResumeButton = () => {
     const tourActive = useAppStore((s) => s.tourActive);
     const tourSuspended = useAppStore((s) => s.tourSuspended);
-    const tourVariant = useAppStore((s) => s.tourVariant);
-    const startTour = useAppStore((s) => s.startTour);
+    const resumeTour = useAppStore((s) => s.resumeTour);
     const endTour = useAppStore((s) => s.endTour);
 
     if (tourActive || !tourSuspended) return null;
@@ -21,7 +20,7 @@ export const TourResumeButton = () => {
             <button
                 type="button"
                 className="tour-resume__btn"
-                onClick={() => startTour(tourVariant)}
+                onClick={resumeTour}
             >
                 🧭 Rundgang fortsetzen
             </button>
