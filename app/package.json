@@ -1,7 +1,7 @@
 {
   "name": "m590-dwa-app",
   "private": true,
-  "version": "0.1.35",
+  "version": "0.1.36",
   "type": "module",
   "packageManager": "yarn@4.13.0",
   "scripts": {
