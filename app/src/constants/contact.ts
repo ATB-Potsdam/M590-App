@@ -1,7 +1,4 @@
-// Kontakt- und Verantwortlichkeitsdaten.
-// TODO: Werte vor Veröffentlichung bestätigen — siehe TODO.md.
-
-export const CONTACT_EMAIL = "info@runlevel3.de";
+// Kontakt- und Verantwortlichkeitsdaten. ATB ist Betreiber der App.
 
 export const DEVELOPER = {
     name: "runlevel3 GmbH",
@@ -12,6 +9,18 @@ export const OPERATOR = {
     name: "Leibniz-Institut für Agrartechnik und Bioökonomie e.V. (ATB)",
     address: "Max-Eyth-Allee 100, 14469 Potsdam, Deutschland",
     url: "https://www.atb-potsdam.de",
+} as const;
+
+// Impressum-Angaben (§ 5 DDG). ATB ist Betreiber der App; die vollständige
+// Anbieterkennzeichnung (vertretungsberechtigte Personen, Vereinsregister,
+// USt-IdNr.) wird auf die ATB-Impressumsseite verlinkt statt hier dupliziert,
+// damit sie nicht driftet.
+export const IMPRINT = {
+    provider: OPERATOR.name,
+    address: OPERATOR.address,
+    contactEmail: "atb@atb-potsdam.de",
+    contactPhone: "+49 (0)331 5699-0",
+    imprintUrl: "https://www.atb-potsdam.de/de/impressum",
 } as const;
 
 export const STANDARD = {

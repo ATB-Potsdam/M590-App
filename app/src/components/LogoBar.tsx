@@ -16,6 +16,10 @@ export const LogoBar = () => (
             <span className="logo-bar__link-icon">©</span>
             <span className="logo-bar__link-label">Über die App</span>
         </Link>
+        <Link to="/about#impressum" className="logo-bar__link" title="Impressum" aria-label="Impressum">
+            <span className="logo-bar__link-icon">§</span>
+            <span className="logo-bar__link-label">Impressum</span>
+        </Link>
         <Link to="/privacy" className="logo-bar__link" title="Datenschutz" aria-label="Datenschutz">
             <span className="logo-bar__link-icon">🔒</span>
             <span className="logo-bar__link-label">Datenschutz</span>

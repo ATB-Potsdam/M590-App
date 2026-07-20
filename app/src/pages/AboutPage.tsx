@@ -1,6 +1,6 @@
-import {useState} from "react";
-import {Link} from "react-router";
-import {CONTACT_EMAIL, COPYRIGHT, DEVELOPER, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
+import {useEffect, useState} from "react";
+import {Link, useLocation} from "react-router";
+import {COPYRIGHT, DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
 import {BackButton} from "../components/BackButton";
 import {IosInstallOverlay} from "../components/IosInstallOverlay";
 import {useInstallApp} from "../hooks/useInstallApp";
@@ -14,6 +14,13 @@ export const AboutPage = () => {
     const {alreadyInstalled, isIOS, canPrompt, prompt} = useInstallApp();
     const [showIosOverlay, setShowIosOverlay] = useState(false);
     const [updateState, setUpdateState] = useState<UpdateCheckState>("idle");
+
+    // Bei Aufruf mit Anker (z. B. /about#impressum) zur Zielsektion scrollen.
+    const {hash} = useLocation();
+    useEffect(() => {
+        if (!hash) return;
+        document.getElementById(hash.slice(1))?.scrollIntoView({behavior: "smooth", block: "start"});
+    }, [hash]);
 
     const showInstall = !alreadyInstalled && (canPrompt || isIOS);
 
@@ -160,10 +167,43 @@ export const AboutPage = () => {
             </p>
         </section>
 
-        <section className="info-page__section">
-            <h2>Kontakt</h2>
+        <section className="info-page__section" id="impressum">
+            <h2>Impressum</h2>
             <p>
-                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+                Betreiber dieser App im Sinne des § 5 DDG:
+            </p>
+            <p>
+                {IMPRINT.provider}<br />
+                {IMPRINT.address}<br />
+                E-Mail: <a href={`mailto:${IMPRINT.contactEmail}`}>{IMPRINT.contactEmail}</a><br />
+                Telefon: {IMPRINT.contactPhone}
+            </p>
+            <p>
+                Vollständige Anbieterkennzeichnung (vertretungsberechtigte Personen,
+                Vereinsregister, USt-IdNr.):{" "}
+                <a href={IMPRINT.imprintUrl} target="_blank" rel="noopener noreferrer">
+                    Impressum des {IMPRINT.provider}
+                </a>.
+            </p>
+            <p>
+                Technische Umsetzung:{" "}
+                <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a>
+            </p>
+            <p className="info-page__meta">
+                Datenschutzhinweise finden Sie unter <Link to="/privacy">Datenschutz</Link>.
+            </p>
+        </section>
+
+        <section className="info-page__section">
+            <h2>Haftungsausschluss</h2>
+            <p>
+                Die von dieser App berechneten Bewässerungsmengen sind Orientierungswerte auf
+                Grundlage des Merkblatts <em>{STANDARD.name}</em> sowie der hinterlegten Klima-,
+                Boden- und Niederschlagsdaten. Sie ersetzen weder eine fachliche Einzelfallberatung
+                noch eine rechtsverbindliche Bemessung, z. B. für wasserrechtliche Anträge. Die
+                Ergebnisse werden ohne Gewähr auf Richtigkeit, Vollständigkeit und Aktualität
+                bereitgestellt; eine Haftung für Entscheidungen, die auf Basis der Ergebnisse
+                getroffen werden, ist – soweit gesetzlich zulässig – ausgeschlossen.
             </p>
         </section>
 

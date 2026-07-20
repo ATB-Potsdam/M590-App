@@ -1,5 +1,5 @@
 import {Link} from "react-router";
-import {CONTACT_EMAIL, DEVELOPER, MAP_TILE_SOURCE, OPERATOR} from "../constants/contact";
+import {DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR} from "../constants/contact";
 import {BackButton} from "../components/BackButton";
 import "./AboutPage.scss";
 
@@ -20,7 +20,7 @@ export const PrivacyPage = () => (
             <p>
                 {OPERATOR.name}<br />
                 {OPERATOR.address}<br />
-                E-Mail: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+                E-Mail: <a href={`mailto:${IMPRINT.contactEmail}`}>{IMPRINT.contactEmail}</a>
             </p>
             <p>
                 Technische Umsetzung: <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer">{DEVELOPER.name}</a>
