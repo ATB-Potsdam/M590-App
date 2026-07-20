@@ -153,7 +153,7 @@ export const AboutPage = () => {
                 </li>
             </ul>
             <p className="info-page__meta">
-                Vollständige Lizenztexte sind im Quellcode-Repository der App hinterlegt.
+                Die jeweiligen Lizenztexte sind über die oben verlinkten Quellen der Bibliotheken abrufbar; der Quellcode dieser App liegt öffentlich im Repository.
             </p>
         </section>
 
