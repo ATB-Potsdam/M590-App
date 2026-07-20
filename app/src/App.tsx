@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {Navigate, Route, Routes, useLocation} from 'react-router';
+import {Navigate, Route, Routes, useLocation, useNavigate} from 'react-router';
 import "./App.scss";
 import {BottomNav} from './components/BottomNav';
 import {ErrorBoundary} from './components/ErrorBoundary';
@@ -114,6 +114,7 @@ const App = () => {
     }, [layer]);
 
     const location = useLocation();
+    const navigate = useNavigate();
     const atBottom = useIsScrolledToBottom(location.pathname, splashDismissed);
     const showOverlay = splashDismissed && (!onboardingDismissed || overlayForcedOpen);
 
@@ -197,6 +198,7 @@ const App = () => {
             {showOverlay && (
                 <OnboardingOverlay
                     onClose={handleCloseOverlay}
+                    onNavigate={(path) => {closeOverlayForTour(); navigate(path);}}
                     onStartTour={(variant) => {closeOverlayForTour(); startTour(variant);}}
                     hasDemo={!!demoProjectId}
                 />

@@ -1,5 +1,5 @@
 // src/components/OnboardingOverlay.tsx
-import {useLocation, useNavigate} from "react-router";
+import {useLocation} from "react-router";
 import {useLocalStore} from "../stores/useLocalStore";
 import {useAppStore} from "../stores/useAppStore";
 import {seedDemoData} from "../lib/demoData";
@@ -10,14 +10,20 @@ const base = import.meta.env.BASE_URL;
 
 interface Props {
     onClose: () => void;
+    /**
+     * Overlay schließen UND navigieren – ohne den history.back()-Pop des normalen
+     * Schließens. Sonst würde das beim Öffnen gepushte History-Entry die Ziel-
+     * Navigation der FAQ-Links sofort wieder rückgängig machen (man landet wieder
+     * auf der Ausgangsseite).
+     */
+    onNavigate: (path: string) => void;
     /** Geführten Rundgang starten. "demo" tourt Beispieldaten, "empty" leitet beim Anlegen an. */
     onStartTour: (variant: "demo" | "empty") => void;
     /** Ob bereits ein Demo-Szenario existiert (dann Rundgang durch die Beispieldaten). */
     hasDemo: boolean;
 }
 
-export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
-    const navigate = useNavigate();
+export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: Props) => {
     const {pathname} = useLocation();
     const [farm, setFarm] = useLocalStore((s) => s.dwa_farm);
     const [projects, setProjects] = useLocalStore((s) => s.dwa_projects);
@@ -50,10 +56,9 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
             : tourMode === "empty" ? "🧭 Schritt für Schritt anlegen (geführt)"
                 : "🧭 Kurzeinführung: die wichtigsten Stellen";
 
-    const goTo = (path: string) => {
-        onClose();
-        navigate(path);
-    };
+    // Über onNavigate schließen+navigieren (ohne history.back()), sonst würde die
+    // FAQ-Navigation sofort wieder rückgängig gemacht.
+    const goTo = (path: string) => onNavigate(path);
 
     const loadDemo = () => {
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
