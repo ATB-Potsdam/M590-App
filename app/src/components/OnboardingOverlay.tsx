@@ -45,6 +45,15 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
                     landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
                 </p>
 
+                <button
+                    className="onboarding-overlay__tour-btn"
+                    onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
+                >
+                    {hasDemo
+                        ? "🧭 Rundgang durch die Beispieldaten"
+                        : "🧭 Schritt für Schritt anlegen (geführt)"}
+                </button>
+
                 {!hasFarm && (
                     <div className="onboarding-overlay__demo">
                         <p className="onboarding-overlay__demo-text">
@@ -93,15 +102,6 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
                         </div>
                     </li>
                 </ol>
-
-                <button
-                    className="onboarding-overlay__tour-btn"
-                    onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
-                >
-                    {hasDemo
-                        ? "🧭 Rundgang durch die Beispieldaten"
-                        : "🧭 Schritt für Schritt anlegen (geführt)"}
-                </button>
 
                 <button className="onboarding-overlay__dismiss" onClick={onClose}>
                     Verstanden
