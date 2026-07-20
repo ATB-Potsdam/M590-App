@@ -155,6 +155,13 @@ export const TourOverlay = ({demoProjectId}: Props) => {
             const nextRoute = next ? resolveRoute(next.route, tourPid) : "";
             if (nextRoute && nextRoute !== "/" && (here === nextRoute || here.startsWith(nextRoute + "/"))) return;
         }
+        // Leerzustand-Rundgang ist zustandsgesteuert (kein fester nächster Schritt):
+        // Ist der Anwender bereits TIEFER als die Ziel-Route (z. B. hat aus
+        // „Nutzung festlegen“ /projects/:id die Zuweisungs-Seite /projects/:id/
+        // assignment/:aid geöffnet), NICHT zurückreißen – der done-Prädikat rückt
+        // gleich vor. Ohne das wurde der Klick auf „Nutzung wählen“ sofort
+        // zurücknavigiert (schien wirkungslos, Rundgang hing).
+        if (!active.terminal && tourVariant === "empty" && active.route !== "/" && here.startsWith(active.route + "/")) return;
         navigate(active.route);
     }, [active, location.pathname, navigate, tourVariant, tourStep, tourPid]);
 
