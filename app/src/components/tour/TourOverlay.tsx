@@ -155,6 +155,16 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tourActive, tourVariant, active]);
 
+    // Banner-Modus verdeckt den unteren Seitenrand (u. a. „Zuweisung speichern“).
+    // Solange der Banner sichtbar ist, dem <body> Platz nach unten geben, damit
+    // die Seite über den Banner hinaus scrollen kann und alle Steuerelemente
+    // (Speichern-Button) erreichbar bleiben.
+    const bannerActive = tourActive && !!active?.banner;
+    useEffect(() => {
+        document.body.classList.toggle("tour-banner-active", bannerActive);
+        return () => document.body.classList.remove("tour-banner-active");
+    }, [bannerActive]);
+
     if (!tourActive || !active) return null;
     if (!active.banner && !rect) return null;
 

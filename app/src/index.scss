@@ -38,6 +38,13 @@ body {
   overflow-y: scroll;
 }
 
+// Rundgang im Banner-Modus: fester Hinweis am unteren Rand verdeckt sonst die
+// letzten Steuerelemente der Seite (z. B. „Zuweisung speichern“). Zusätzlichen
+// Platz nach unten schaffen, damit alles über den Banner gescrollt werden kann.
+body.tour-banner-active {
+  padding-bottom: 300px;
+}
+
 button {
   border-radius: 8px;
   border: 1px solid var(--color-border);
