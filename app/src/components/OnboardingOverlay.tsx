@@ -1,8 +1,9 @@
 // src/components/OnboardingOverlay.tsx
-import {useNavigate} from "react-router";
+import {useLocation, useNavigate} from "react-router";
 import {useLocalStore} from "../stores/useLocalStore";
 import {useAppStore} from "../stores/useAppStore";
 import {seedDemoData} from "../lib/demoData";
+import {allEmptyStepsDone, currentProjectId} from "./tour/tourSteps";
 import "./OnboardingOverlay.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -17,11 +18,20 @@ interface Props {
 
 export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
     const navigate = useNavigate();
+    const {pathname} = useLocation();
     const [farm, setFarm] = useLocalStore((s) => s.dwa_farm);
-    const [, setProjects] = useLocalStore((s) => s.dwa_projects);
+    const [projects, setProjects] = useLocalStore((s) => s.dwa_projects);
     const precipitationLookup = useAppStore((s) => s.precipitationLookup);
     const et0Lookup = useAppStore((s) => s.et0Lookup);
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
+
+    // Rundgang nur anbieten, wenn er noch etwas leitet: bei geladenen Beispieldaten
+    // (Demo-Rundgang) oder solange der Anlege-Rundgang noch offene Schritte hat.
+    // Bei vollständigen Eigendaten würde der Leerzustand-Rundgang nur auf die
+    // Zusammenfassung springen – dann Button ausblenden, stattdessen FAQ nutzen.
+    const tourCtx = {farm, projects, pathname};
+    const showTour = hasDemo || !allEmptyStepsDone(tourCtx);
+    const ownProjectId = currentProjectId(tourCtx);
 
     const goTo = (path: string) => {
         onClose();
@@ -45,14 +55,16 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
                     landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
                 </p>
 
-                <button
-                    className="onboarding-overlay__tour-btn"
-                    onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
-                >
-                    {hasDemo
-                        ? "🧭 Rundgang durch die Beispieldaten"
-                        : "🧭 Schritt für Schritt anlegen (geführt)"}
-                </button>
+                {showTour && (
+                    <button
+                        className="onboarding-overlay__tour-btn"
+                        onClick={() => onStartTour(hasDemo ? "demo" : "empty")}
+                    >
+                        {hasDemo
+                            ? "🧭 Rundgang durch die Beispieldaten"
+                            : "🧭 Schritt für Schritt anlegen (geführt)"}
+                    </button>
+                )}
 
                 {!hasFarm && (
                     <div className="onboarding-overlay__demo">
@@ -66,42 +78,71 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
                     </div>
                 )}
 
-                <p className="onboarding-overlay__steps-heading">In drei Schritten zum Ergebnis:</p>
+                <p className="onboarding-overlay__steps-heading">Häufige Fragen</p>
 
-                <ol className="onboarding-overlay__steps">
-                    <li>
-                        <span className="onboarding-overlay__step-num">1</span>
-                        <div className="onboarding-overlay__step-body">
-                            <strong>Betrieb einrichten</strong>
-                            <p>Geben Sie Ihren Betriebsnamen ein und legen Sie Ihre Schläge mit Standort und Bodenklasse an.</p>
-                            <button className="onboarding-overlay__step-btn" onClick={() => goTo("/farm")}>
-                                Jetzt einrichten ➔
-                            </button>
-                        </div>
-                    </li>
-                    <li>
-                        <span className="onboarding-overlay__step-num">2</span>
-                        <div className="onboarding-overlay__step-body">
-                            <strong>Szenario anlegen</strong>
-                            <p>Erstellen Sie ein Bewässerungsszenario (z. B. für ein bestimmtes Jahr) und wählen Sie die zu berechnenden Schläge aus.</p>
-                            <button
-                                className="onboarding-overlay__step-btn"
-                                onClick={() => goTo("/")}
-                                disabled={!hasFarm}
-                                title={!hasFarm ? "Zuerst Betrieb einrichten" : undefined}
-                            >
-                                Jetzt anlegen ➔
-                            </button>
-                        </div>
-                    </li>
-                    <li>
-                        <span className="onboarding-overlay__step-num">3</span>
-                        <div className="onboarding-overlay__step-body">
-                            <strong>Nutzung zuweisen</strong>
-                            <p>Weisen Sie jedem Schlag ein Nutzungsmodul zu (z. B. Hauptkulturen, Gemüse, Golf). Die App berechnet den Wasserbedarf automatisch.</p>
-                        </div>
-                    </li>
-                </ol>
+                <div className="onboarding-overlay__faq">
+                    <details className="onboarding-overlay__faq-item">
+                        <summary>Wo lege ich eine Fläche an oder bearbeite sie?</summary>
+                        <p>
+                            Öffnen Sie unten in der Navigation den Tab
+                            <strong> 🏡 Betrieb</strong>. Dort legen Sie über
+                            „+ Feld hinzufügen“ neue Flächen an; über das Stift-Symbol
+                            ändern Sie Standort und Bodenklasse einer bestehenden Fläche.
+                        </p>
+                        <button className="onboarding-overlay__faq-link" onClick={() => goTo("/farm")}>
+                            Zu den Flächen ➔
+                        </button>
+                    </details>
+
+                    <details className="onboarding-overlay__faq-item">
+                        <summary>Wie lege ich ein Szenario an?</summary>
+                        <p>
+                            Ein Szenario bündelt eine Berechnung (z. B. für ein bestimmtes
+                            Jahr). Öffnen Sie unten in der Navigation den Tab
+                            <strong> 🌾 Szenarien</strong> und legen Sie es dort über
+                            „+ Neues Szenario“ an; anschließend weisen Sie ihm Ihre Flächen zu.
+                        </p>
+                        <button
+                            className="onboarding-overlay__faq-link"
+                            onClick={() => goTo("/")}
+                            disabled={!hasFarm}
+                            title={!hasFarm ? "Zuerst eine Fläche anlegen" : undefined}
+                        >
+                            Zu den Szenarien ➔
+                        </button>
+                    </details>
+
+                    <details className="onboarding-overlay__faq-item">
+                        <summary>Wie ändere ich eine Zuweisung?</summary>
+                        <p>
+                            Öffnen Sie unter <strong>🌾 Szenarien</strong> das Szenario und
+                            darin die betreffende Zuweisung. Dort ändern Sie die Nutzung
+                            (z. B. Hauptkulturen, Gemüse, Golf) und die Angaben; die App
+                            berechnet den Wasserbedarf neu und speichert beim Bestätigen.
+                        </p>
+                        <button
+                            className="onboarding-overlay__faq-link"
+                            onClick={() => goTo(ownProjectId ? `/projects/${ownProjectId}` : "/")}
+                        >
+                            Zu den Szenarien ➔
+                        </button>
+                    </details>
+
+                    <details className="onboarding-overlay__faq-item">
+                        <summary>Wo sehe ich das Ergebnis und erzeuge das PDF?</summary>
+                        <p>
+                            Öffnen Sie unter <strong>🌾 Szenarien</strong> Ihr Szenario. In
+                            der <strong>Zusammenfassung</strong> steht der Gesamtbedarf über
+                            alle Flächen; von dort erzeugen Sie das PDF für Ihren Antrag.
+                        </p>
+                        <button
+                            className="onboarding-overlay__faq-link"
+                            onClick={() => goTo(ownProjectId ? `/projects/${ownProjectId}` : "/")}
+                        >
+                            Zur Zusammenfassung ➔
+                        </button>
+                    </details>
+                </div>
 
                 <button className="onboarding-overlay__dismiss" onClick={onClose}>
                     Verstanden

@@ -232,5 +232,14 @@ export const currentEmptyStep = (ctx: TourContext): EmptyStep | undefined => {
     return undefined;
 };
 
+/**
+ * True, sobald alle inhaltlichen Leerzustand-Schritte (ohne den Endschritt)
+ * erledigt sind – d. h. es gibt bereits Betrieb, Feld, Szenario, Zuweisung und
+ * Modul. Dann ist der geführte Anlege-Rundgang gegenstandslos und würde nur auf
+ * die Zusammenfassung springen; der ?-Dialog blendet den Rundgang-Button dann aus.
+ */
+export const allEmptyStepsDone = (ctx: TourContext): boolean =>
+    emptySteps.every((step) => step.terminal || step.done(ctx));
+
 export const tourStepsFor = (variant: "demo" | "empty"): TourStep[] =>
     variant === "empty" ? [] : demoSteps;
