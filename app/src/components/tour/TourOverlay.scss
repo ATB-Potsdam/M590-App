@@ -92,4 +92,18 @@
             background: var(--color-primary-dark);
         }
     }
+
+    // Banner-Modus: fester Hinweis am unteren Rand, kein Spotlight/Dimmer.
+    &--banner {
+        pointer-events: none;
+    }
+
+    &__tooltip--banner {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+        width: min(360px, calc(100vw - 24px));
+        max-width: none;
+    }
 }

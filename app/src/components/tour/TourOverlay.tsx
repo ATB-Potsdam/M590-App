@@ -37,6 +37,8 @@ interface ActiveStep {
     terminal: boolean;
     /** Demo-Rundgang: dieser Schritt rückt per „Weiter“-Button vor. */
     demoButton: boolean;
+    /** Banner-Modus: kein Spotlight/Ziel, fester Hinweis am unteren Rand. */
+    banner: boolean;
 }
 
 const resolveRoute = (route: string | ((id: string) => string), demoId: string): string =>
@@ -69,7 +71,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
             return {
                 id: s.id, target: s.target, title: s.title, body: s.body,
                 placement: s.placement ?? "bottom", route: s.route(ctx),
-                terminal: !!s.terminal, demoButton: false,
+                terminal: !!s.terminal, demoButton: false, banner: !!s.banner,
             };
         }
         const steps = tourStepsFor("demo");
@@ -79,11 +81,11 @@ export const TourOverlay = ({demoProjectId}: Props) => {
             id: s.id, target: s.target, title: s.title, body: s.body,
             placement: s.placement ?? "bottom", route: resolveRoute(s.route, demoProjectId ?? ""),
             terminal: tourStep === steps.length - 1,
-            demoButton: s.advanceOn === "button",
+            demoButton: s.advanceOn === "button", banner: false,
         };
     }, [tourActive, tourVariant, ctx, tourStep, demoProjectId]);
 
-    const rect = useTourTarget(active ? active.target : null);
+    const rect = useTourTarget(active && !active.banner ? active.target : null);
 
     const arrowRef = useRef<HTMLDivElement>(null);
     const {refs, floatingStyles, middlewareData, placement, update} = useFloating({
@@ -153,7 +155,8 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tourActive, tourVariant, active]);
 
-    if (!tourActive || !active || !rect) return null;
+    if (!tourActive || !active) return null;
+    if (!active.banner && !rect) return null;
 
     const onNext = () => {
         if (active.terminal) { finish(); return; }
@@ -161,11 +164,40 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     };
     const showNextButton = active.terminal || active.demoButton;
 
+    const actions = (
+        <div className="tour-overlay__actions">
+            <button type="button" className="tour-overlay__skip" onClick={suspend}>
+                Tour pausieren
+            </button>
+            {showNextButton && (
+                <button type="button" className="tour-overlay__next" onClick={onNext}>
+                    {active.terminal ? "Fertig" : "Weiter ➔"}
+                </button>
+            )}
+        </div>
+    );
+
+    // Banner-Modus: kein Spotlight, fester Hinweis unten – für selbst scrollende
+    // Formulare (Zuweisungs-Maske), wo ein wanderndes Spotlight aus dem Bild liefe.
+    if (active.banner) {
+        return (
+            <div className="tour-overlay tour-overlay--banner">
+                <div className="tour-overlay__tooltip tour-overlay__tooltip--banner">
+                    <h3 className="tour-overlay__title">{active.title}</h3>
+                    <p className="tour-overlay__body">{active.body}</p>
+                    {actions}
+                </div>
+            </div>
+        );
+    }
+
     const arrowX = middlewareData.arrow?.x;
     const arrowY = middlewareData.arrow?.y;
     const staticSide = ({top: "bottom", right: "left", bottom: "top", left: "right"} as const)[
         placement.split("-")[0] as "top" | "right" | "bottom" | "left"
     ];
+
+    if (!rect) return null; // (Nicht-Banner: durch die Guards oben bereits gesetzt.)
 
     return (
         <div className="tour-overlay">
@@ -190,16 +222,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                 />
                 <h3 className="tour-overlay__title">{active.title}</h3>
                 <p className="tour-overlay__body">{active.body}</p>
-                <div className="tour-overlay__actions">
-                    <button type="button" className="tour-overlay__skip" onClick={suspend}>
-                        Tour pausieren
-                    </button>
-                    {showNextButton && (
-                        <button type="button" className="tour-overlay__next" onClick={onNext}>
-                            {active.terminal ? "Fertig" : "Weiter ➔"}
-                        </button>
-                    )}
-                </div>
+                {actions}
             </div>
         </div>
     );

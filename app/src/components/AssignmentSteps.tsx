@@ -22,7 +22,7 @@ export const AssignmentSteps = ({current}: Props) => {
     const currentIdx = STEPS.findIndex((s) => s.key === current);
 
     return (
-        <ol className="assignment-steps" aria-label="Fortschritt">
+        <ol className="assignment-steps" aria-label="Fortschritt" data-tour="assignment-steps">
             {STEPS.map((step, i) => {
                 const state = i < currentIdx ? "done" : i === currentIdx ? "active" : "upcoming";
                 return (

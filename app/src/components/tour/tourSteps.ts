@@ -142,6 +142,13 @@ export interface EmptyStep {
     done: (ctx: TourContext) => boolean;
     /** Letzter Schritt: „Fertig“ statt „Weiter“. */
     terminal?: boolean;
+    /**
+     * Banner-Modus: kein Spotlight/kein Ziel, sondern ein fest am unteren Rand
+     * verankerter Hinweis. Für Schritte, deren „Ziel“ ein mehrteiliges, selbst
+     * scrollendes Formular ist (Zuweisungs-Maske) – ein wanderndes Spotlight
+     * würde dort ständig aus dem Bild scrollen.
+     */
+    banner?: boolean;
 }
 
 const FARM = (): string => "/farm";
@@ -194,10 +201,10 @@ export const emptySteps: EmptyStep[] = [
         done: (ctx) => onAssignmentPage(ctx) || hasAssignedModule(ctx),
     },
     {
-        id: "configure-assignment", route: PROJ, target: "module-picker",
+        id: "configure-assignment", route: PROJ, target: "assignment-steps",
         title: "Nutzung wählen & speichern",
-        body: "Wählen Sie hier die Nutzung (z. B. Hauptkulturen oder Golf), füllen Sie die weiteren Angaben aus und speichern Sie die Zuweisung. Die App berechnet den Bedarf automatisch.",
-        placement: "bottom",
+        body: "Arbeiten Sie die Schritte Nutzung ➔ Details ab: Nutzung wählen (z. B. Hauptkulturen oder Golf), Angaben ausfüllen und die Zuweisung speichern. Die App berechnet den Bedarf automatisch – danach geht die Tour weiter.",
+        banner: true,
         // Modul landet erst beim Speichern im Store → feuert nach dem Speichern.
         done: hasAssignedModule,
     },
