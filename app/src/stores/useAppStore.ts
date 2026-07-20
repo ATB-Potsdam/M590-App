@@ -29,9 +29,11 @@ type AppState = {
     // "empty" = Rundgang, der beim Anlegen eigener Daten anleitet (Betrieb → Feld → …)
     tourActive: boolean;
     tourVariant: "demo" | "empty";
-    tourStep: number;
+    tourStep: number;                    // nur für den (linearen) Demo-Rundgang
+    tourSuspended: boolean;              // pausiert (per „Überspringen“) → fortsetzbar
     startTour: (variant: "demo" | "empty") => void;
-    nextTourStep: () => void;
+    nextTourStep: () => void;            // Demo-Rundgang: einen Schritt weiter
+    suspendTour: () => void;             // pausieren, fortsetzbar über Floating-Button
     endTour: () => void;
 };
 
@@ -68,8 +70,10 @@ export const useAppStore = create<AppState>()(
         tourActive: false,
         tourVariant: "demo",
         tourStep: 0,
-        startTour: (variant) => set({tourActive: true, tourVariant: variant, tourStep: 0}),
+        tourSuspended: false,
+        startTour: (variant) => set({tourActive: true, tourVariant: variant, tourStep: 0, tourSuspended: false}),
         nextTourStep: () => set((state) => ({tourStep: state.tourStep + 1})),
-        endTour: () => set({tourActive: false, tourStep: 0}),
+        suspendTour: () => set({tourActive: false, tourSuspended: true}),
+        endTour: () => set({tourActive: false, tourStep: 0, tourSuspended: false}),
     }))
 );

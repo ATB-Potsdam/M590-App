@@ -10,6 +10,7 @@ import {UpdateBanner} from './components/UpdateBanner';
 import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
 import {TourOverlay} from './components/tour/TourOverlay';
+import {TourResumeButton} from './components/tour/TourResumeButton';
 import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm';
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
@@ -131,6 +132,15 @@ const App = () => {
         }
     };
 
+    // Overlay schließen OHNE history.back() – wird beim Start eines Rundgangs
+    // genutzt, damit die anschließende Tour-Navigation (z. B. auf /farm) nicht
+    // durch das zurückspringende History-Entry sofort wieder rückgängig wird.
+    const closeOverlayForTour = () => {
+        onboardingPushedRef.current = false;
+        setOverlayForcedOpen(false);
+        setOnboardingDismissed(true);
+    };
+
     useEffect(() => {
         if (!showOverlay) return;
         window.history.pushState({onboarding: true}, "");
@@ -179,12 +189,13 @@ const App = () => {
                         {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
                     </div>
                     <TourOverlay demoProjectId={demoProjectId} />
+                    <TourResumeButton />
                 </>
             )}
             {showOverlay && (
                 <OnboardingOverlay
                     onClose={handleCloseOverlay}
-                    onStartTour={(variant) => {handleCloseOverlay(); startTour(variant);}}
+                    onStartTour={(variant) => {closeOverlayForTour(); startTour(variant);}}
                     hasDemo={!!demoProjectId}
                 />
             )}

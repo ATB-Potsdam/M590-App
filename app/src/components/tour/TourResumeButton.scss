@@ -1,0 +1,45 @@
+@use "../../variables" as *;
+
+.tour-resume {
+    position: fixed;
+    // Über der unteren Navigationsleiste sitzen.
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1400;
+    display: flex;
+    align-items: stretch;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28);
+
+    &__btn {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        padding: 0.65rem 1.1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover {
+            background: var(--color-primary-dark);
+        }
+    }
+
+    &__close {
+        background: var(--color-primary-dark);
+        color: #fff;
+        border: none;
+        border-left: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 0 0.7rem;
+        font-size: 1.1rem;
+        line-height: 1;
+        cursor: pointer;
+
+        &:hover {
+            background: #14471a;
+        }
+    }
+}

@@ -1,6 +1,7 @@
 // src/components/tour/TourOverlay.tsx
-import {useEffect, useLayoutEffect, useRef} from "react";
+import {useEffect, useLayoutEffect, useMemo, useRef} from "react";
 import {useLocation, useNavigate} from "react-router";
+import type {Placement} from "@floating-ui/react";
 import {
     arrow,
     autoUpdate,
@@ -11,18 +12,32 @@ import {
 } from "@floating-ui/react";
 import {useAppStore} from "../../stores/useAppStore";
 import {useLocalStore} from "../../stores/useLocalStore";
-import {tourStepsFor} from "./tourSteps";
+import {currentEmptyStep, tourStepsFor} from "./tourSteps";
 import type {TourContext} from "./tourSteps";
 import {useTourTarget} from "./useTourTarget";
 import "./TourOverlay.scss";
 
 interface Props {
-    /** ID des Demo-Szenarios – für die route-Funktionen der Schritte 3–5. */
+    /** ID des Demo-Szenarios – für die route-Funktionen des Demo-Rundgangs. */
     demoProjectId?: string;
 }
 
 /** Loch-Rand um das hervorgehobene Ziel. */
 const SPOTLIGHT_PADDING = 8;
+
+/** Normalisierte Sicht auf den aktuellen Schritt – egal welcher Rundgang. */
+interface ActiveStep {
+    id: string;
+    target: string;
+    title: string;
+    body: string;
+    placement: Placement;
+    route: string;                       // aufgelöste Ziel-Route
+    /** Endschritt → „Fertig“ statt „Weiter“. */
+    terminal: boolean;
+    /** Demo-Rundgang: dieser Schritt rückt per „Weiter“-Button vor. */
+    demoButton: boolean;
+}
 
 const resolveRoute = (route: string | ((id: string) => string), demoId: string): string =>
     typeof route === "function" ? route(demoId) : route;
@@ -32,6 +47,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     const tourVariant = useAppStore((s) => s.tourVariant);
     const tourStep = useAppStore((s) => s.tourStep);
     const nextTourStep = useAppStore((s) => s.nextTourStep);
+    const suspendTour = useAppStore((s) => s.suspendTour);
     const endTour = useAppStore((s) => s.endTour);
     const [, setTourCompleted] = useLocalStore((s) => s.dwa_tour_completed);
     const [farm] = useLocalStore((s) => s.dwa_farm);
@@ -39,97 +55,113 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const steps = tourStepsFor(tourVariant);
-    const step = tourActive ? steps[tourStep] : undefined;
-    const isLast = tourStep === steps.length - 1;
-    const rect = useTourTarget(step ? step.target : null);
+    const ctx: TourContext = useMemo(
+        () => ({farm, projects, demoProjectId, pathname: location.pathname}),
+        [farm, projects, demoProjectId, location.pathname],
+    );
+
+    // Aktuellen Schritt bestimmen – zustandsgesteuert (empty) bzw. linear (demo).
+    const active: ActiveStep | undefined = useMemo(() => {
+        if (!tourActive) return undefined;
+        if (tourVariant === "empty") {
+            const s = currentEmptyStep(ctx);
+            if (!s) return undefined;
+            return {
+                id: s.id, target: s.target, title: s.title, body: s.body,
+                placement: s.placement ?? "bottom", route: s.route(ctx),
+                terminal: !!s.terminal, demoButton: false,
+            };
+        }
+        const steps = tourStepsFor("demo");
+        const s = steps[tourStep];
+        if (!s) return undefined;
+        return {
+            id: s.id, target: s.target, title: s.title, body: s.body,
+            placement: s.placement ?? "bottom", route: resolveRoute(s.route, demoProjectId ?? ""),
+            terminal: tourStep === steps.length - 1,
+            demoButton: s.advanceOn === "button",
+        };
+    }, [tourActive, tourVariant, ctx, tourStep, demoProjectId]);
+
+    const rect = useTourTarget(active ? active.target : null);
 
     const arrowRef = useRef<HTMLDivElement>(null);
     const {refs, floatingStyles, middlewareData, placement, update} = useFloating({
-        // "fixed": das virtuelle Referenz-Element liefert Viewport-Koordinaten
-        // (getBoundingClientRect). Mit der Default-Strategie "absolute" würde
-        // floating-ui offsetParent-relative rechnen → Tooltip säße falsch.
         strategy: "fixed",
-        placement: step?.placement ?? "bottom",
+        placement: active?.placement ?? "bottom",
         middleware: [offset(12), flip({padding: 8}), shift({padding: 8}), arrow({element: arrowRef})],
         whileElementsMounted: autoUpdate,
     });
 
-    // Virtuelles Referenz-Element aus dem gemessenen Ziel-Rechteck.
     useLayoutEffect(() => {
-        if (!rect) {
-            refs.setReference(null);
-            return;
-        }
+        if (!rect) { refs.setReference(null); return; }
         refs.setReference({
             getBoundingClientRect: () => ({
-                x: rect.left,
-                y: rect.top,
-                top: rect.top,
-                left: rect.left,
-                right: rect.left + rect.width,
-                bottom: rect.top + rect.height,
-                width: rect.width,
-                height: rect.height,
+                x: rect.left, y: rect.top,
+                top: rect.top, left: rect.left,
+                right: rect.left + rect.width, bottom: rect.top + rect.height,
+                width: rect.width, height: rect.height,
             }),
         });
         update();
     }, [rect, refs, update]);
 
-    const finish = () => {
-        setTourCompleted(true);
-        endTour();
-    };
+    // Fertig = abgeschlossen (kein Fortsetzen-Button mehr).
+    const finish = () => { setTourCompleted(true); endTour(); };
+    // Überspringen/Escape = nur pausieren; über den Floating-Button fortsetzbar.
+    const suspend = () => { suspendTour(); };
 
-    // Escape beendet den Rundgang.
+    // Escape pausiert den Rundgang.
     useEffect(() => {
         if (!tourActive) return;
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") finish();
-        };
+        const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") suspend(); };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tourActive]);
 
-    // Bei Start/Wechsel eines Schritts mit fester Ziel-Route dorthin navigieren,
-    // falls der Anwender gerade woanders ist (z. B. Rundgang aus dem ?-Dialog auf
-    // der Szenario-Seite gestartet → zurück auf /farm). Funktions-Routen (mit
-    // Projekt-ID) werden nur mitten im Rundgang erreicht und daher ausgelassen.
+    // Bei Bedarf zur Ziel-Route des aktuellen Schritts navigieren (z. B. Rundgang
+    // aus dem ?-Dialog auf einer anderen Seite gestartet). Leere Projekt-Route
+    // (kein Projekt) auslassen, damit wir nicht nach /projects/ springen.
     useEffect(() => {
-        if (!step || typeof step.route !== "string") return;
-        if (location.pathname !== step.route) navigate(step.route);
-    }, [step, location.pathname, navigate]);
+        if (!active || !active.route || active.route.endsWith("/projects/")) return;
+        if (location.pathname !== active.route) navigate(active.route);
+    }, [active, location.pathname, navigate]);
 
-    // Routen-basiertes Vorrücken: sobald der Pfad zum Ziel des NÄCHSTEN Schritts passt.
+    // Demo-Rundgang: routenbasiertes Vorrücken (Anwender navigiert selbst).
     useEffect(() => {
-        if (!step || step.advanceOn !== "route") return;
+        if (!active || tourVariant !== "demo") return;
+        const steps = tourStepsFor("demo");
+        const cur = steps[tourStep];
+        if (!cur || cur.advanceOn !== "route") return;
         const next = steps[tourStep + 1];
         if (!next) return;
         const wanted = resolveRoute(next.route, demoProjectId ?? "");
         if (location.pathname === wanted) nextTourStep();
-    }, [location.pathname, step, steps, tourStep, demoProjectId, nextTourStep]);
+    }, [active, tourVariant, location.pathname, tourStep, demoProjectId, nextTourStep]);
 
-    // Zustands-basiertes Vorrücken: sobald die echte Aktion erfolgt ist
-    // (Name gesetzt, Feld angelegt, Szenario erstellt, Nutzung zugewiesen).
+    // empty-Rundgang: fertig, sobald kein Schritt mehr offen ist.
     useEffect(() => {
-        if (!step || step.advanceOn !== "state" || !step.done) return;
-        const ctx: TourContext = {farm, projects, demoProjectId, pathname: location.pathname};
-        if (step.done(ctx)) nextTourStep();
-    }, [step, farm, projects, demoProjectId, location.pathname, nextTourStep]);
+        if (tourActive && tourVariant === "empty" && !active) finish();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tourActive, tourVariant, active]);
 
-    if (!tourActive || !step || !rect) return null;
+    if (!tourActive || !active || !rect) return null;
+
+    const onNext = () => {
+        if (active.terminal) { finish(); return; }
+        if (active.demoButton) { nextTourStep(); return; }
+    };
+    const showNextButton = active.terminal || active.demoButton;
 
     const arrowX = middlewareData.arrow?.x;
     const arrowY = middlewareData.arrow?.y;
-    // Seite, an der der Tooltip-Pfeil sitzt (dem Ziel zugewandt).
     const staticSide = ({top: "bottom", right: "left", bottom: "top", left: "right"} as const)[
         placement.split("-")[0] as "top" | "right" | "bottom" | "left"
     ];
 
     return (
         <div className="tour-overlay">
-            {/* Dimmer mit „Loch“ um das Ziel (box-shadow). Klicks gehen durch. */}
             <div
                 className="tour-overlay__spotlight"
                 style={{
@@ -139,7 +171,6 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                     height: rect.height + SPOTLIGHT_PADDING * 2,
                 }}
             />
-
             <div ref={refs.setFloating} className="tour-overlay__tooltip" style={floatingStyles}>
                 <div
                     ref={arrowRef}
@@ -150,23 +181,16 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                         [staticSide]: "-6px",
                     }}
                 />
-                <div className="tour-overlay__step-count">Schritt {tourStep + 1} von {steps.length}</div>
-                <h3 className="tour-overlay__title">{step.title}</h3>
-                <p className="tour-overlay__body">{step.body}</p>
+                <h3 className="tour-overlay__title">{active.title}</h3>
+                <p className="tour-overlay__body">{active.body}</p>
                 <div className="tour-overlay__actions">
-                    <button type="button" className="tour-overlay__skip" onClick={finish}>
+                    <button type="button" className="tour-overlay__skip" onClick={suspend}>
                         Überspringen
                     </button>
-                    {step.advanceOn === "button" && (
-                        isLast ? (
-                            <button type="button" className="tour-overlay__next" onClick={finish}>
-                                Fertig
-                            </button>
-                        ) : (
-                            <button type="button" className="tour-overlay__next" onClick={nextTourStep}>
-                                Weiter ➔
-                            </button>
-                        )
+                    {showNextButton && (
+                        <button type="button" className="tour-overlay__next" onClick={onNext}>
+                            {active.terminal ? "Fertig" : "Weiter ➔"}
+                        </button>
                     )}
                 </div>
             </div>

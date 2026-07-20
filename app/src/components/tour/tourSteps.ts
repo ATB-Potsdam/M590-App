@@ -11,6 +11,10 @@ export interface TourContext {
     pathname: string;
 }
 
+/** ID des vom Anwender angelegten (nicht-Demo) Szenarios – für Ziel-Routen. */
+export const currentProjectId = (ctx: TourContext): string | undefined =>
+    ctx.projects.find((p) => !p.isDemo)?.id ?? ctx.projects[0]?.id;
+
 /**
  * Ein Schritt des geführten Rundgangs. Der Anwender führt die echte Aktion selbst
  * aus; der Rundgang „lauscht“ (Route bzw. Zustand) und rückt dann vor.
@@ -38,6 +42,7 @@ export interface TourStep {
 
 const hasFarmName = (ctx: TourContext) => ctx.farm.name.trim().length > 0;
 const hasField = (ctx: TourContext) => ctx.farm.fields.length > 0;
+const hasProject = (ctx: TourContext) => ctx.projects.some((p) => !p.isDemo);
 const onProjectDetail = (ctx: TourContext) => /^\/projects\/[^/]+$/.test(ctx.pathname);
 const onAssignmentPage = (ctx: TourContext) => /^\/projects\/[^/]+\/assignment\//.test(ctx.pathname);
 const hasAssignment = (ctx: TourContext) =>
@@ -117,106 +122,108 @@ export const demoSteps: TourStep[] = [
  * eigener Daten. Jeder Schritt rückt automatisch vor, sobald die echte Aktion
  * erfolgt ist (Name gesetzt, Feld angelegt, Szenario erstellt, Nutzung zugewiesen).
  */
-export const emptySteps: TourStep[] = [
+/**
+ * Zustandsgesteuerter Schritt des Leerzustand-Rundgangs. Anders als der Demo-
+ * Rundgang läuft dieser nicht über einen festen Index, sondern der aktive Schritt
+ * ist immer der erste noch NICHT erledigte – abgeleitet aus dem echten App-Zustand.
+ * So zeigt der Rundgang (auch nach Neustart aus dem ?-Dialog) stets den nächsten
+ * sinnvollen Schritt, egal was schon angelegt ist.
+ */
+export interface EmptyStep {
+    id: string;
+    /** Ziel-Route; Funktion, falls die Projekt-ID gebraucht wird. */
+    route: (ctx: TourContext) => string;
+    /** data-tour-Wert des hervorzuhebenden Elements. */
+    target: string;
+    title: string;
+    body: string;
+    placement?: Placement;
+    /** true, sobald der Schritt anhand des Zustands als erledigt gilt. */
+    done: (ctx: TourContext) => boolean;
+    /** Letzter Schritt: „Fertig“ statt „Weiter“. */
+    terminal?: boolean;
+}
+
+const FARM = (): string => "/farm";
+const SCEN = (): string => "/";
+const PROJ = (ctx: TourContext): string => `/projects/${currentProjectId(ctx) ?? ""}`;
+
+export const emptySteps: EmptyStep[] = [
     {
-        id: "farm-name",
-        route: "/farm",
-        target: "farm-name",
+        id: "farm-name", route: FARM, target: "farm-name",
         title: "Betrieb benennen",
         body: "Geben Sie zuerst den Namen Ihres Betriebs ein und bestätigen Sie mit Enter oder dem Haken.",
         placement: "bottom",
-        advanceOn: "state",
         done: hasFarmName,
     },
-    fieldStep("state"),
     {
-        // Nachdem die erste Fläche angelegt ist: der Anwender kann beliebig viele
-        // weitere anlegen und bestätigt per „Weiter“, wenn alle erfasst sind.
-        id: "add-more-fields",
-        route: "/farm",
-        target: "add-field",
-        title: "Weitere Flächen?",
-        body: "Legen Sie bei Bedarf weitere Flächen an. Wenn alle Ihre Flächen erfasst sind, geht es weiter.",
+        id: "add-field", route: FARM, target: "add-field",
+        title: "Flächen anlegen",
+        body: "Legen Sie hier Ihre erste Fläche an – mit Standort (Karte) und Bodenklasse. Sie können mehrere Flächen anlegen. Daraus ermittelt die App Klimadaten und Wasserbedarf.",
         placement: "top",
-        advanceOn: "button",
+        done: hasField,
     },
     {
-        id: "nav-scenarios",
-        route: "/farm",
-        target: "nav-scenarios",
+        id: "nav-scenarios", route: FARM, target: "nav-scenarios",
         title: "Zu den Szenarien",
         body: "Wechseln Sie unten zu Szenarien ➔ – dort legen Sie eine Bewässerungsberechnung an.",
         placement: "top",
-        advanceOn: "route",
+        // Erledigt, sobald der Anwender die Szenarien-Seite (oder weiter) erreicht.
+        done: (ctx) => ctx.pathname === "/" || onProjectDetail(ctx) || onAssignmentPage(ctx) || hasProject(ctx),
     },
     {
-        id: "add-scenario",
-        route: "/",
-        target: "add-scenario",
+        id: "add-scenario", route: SCEN, target: "add-scenario",
         title: "Szenario anlegen",
         body: "Legen Sie mit „+ Neues Szenario“ Ihre erste Berechnung an (z. B. für ein bestimmtes Jahr).",
         placement: "top",
-        advanceOn: "state",
-        done: onProjectDetail,
+        done: hasProject,
     },
     {
-        id: "assign-field",
-        route: (id) => `/projects/${id}`,
-        target: "add-assignment",
+        id: "assign-field", route: PROJ, target: "add-assignment",
         title: "Fläche zuweisen",
-        body: "Fügen Sie dem Szenario eine Ihrer Flächen hinzu.",
+        body: "Fügen Sie dem Szenario eine Ihrer Flächen hinzu. Sie können später mehrere Flächen zuweisen.",
         placement: "top",
-        advanceOn: "state",
         done: hasAssignment,
     },
     {
-        // Auf der Szenario-Seite: die Zuweisung öffnen, um die Nutzung festzulegen.
-        // Rückt vor, sobald die Zuweisungs-Seite geöffnet ist.
-        id: "open-usage",
-        route: (id) => `/projects/${id}`,
-        target: "assignment-row",
+        id: "open-usage", route: PROJ, target: "assignment-row",
         title: "Nutzung festlegen",
         body: "Öffnen Sie die Zuweisung („Nutzung wählen“), um die Art der Nutzung festzulegen.",
         placement: "bottom",
-        advanceOn: "state",
-        done: onAssignmentPage,
+        // Erledigt, sobald die Zuweisungs-Seite offen ist ODER schon ein Modul gesetzt.
+        done: (ctx) => onAssignmentPage(ctx) || hasAssignedModule(ctx),
     },
     {
-        // Auf der Zuweisungs-Seite: Modul wählen, modulabhängige Angaben ausfüllen,
-        // speichern. Das Modul landet erst beim Speichern im Store – deshalb rückt
-        // der Schritt über hasAssignedModule vor (feuert nach dem Speichern).
-        // Ziel ist der Speichern-Button unten, damit der Fokus nach der Modulwahl
-        // (die App scrollt dann nach unten) im aktiven Eingabebereich liegt.
-        id: "configure-assignment",
-        route: (id) => `/projects/${id}`,
-        target: "assignment-save",
+        id: "configure-assignment", route: PROJ, target: "assignment-save",
         title: "Nutzung wählen & speichern",
         body: "Wählen Sie oben die Nutzung (z. B. Hauptkulturen oder Golf), füllen Sie die weiteren Angaben aus und speichern Sie die Zuweisung. Die App berechnet den Bedarf automatisch.",
         placement: "top",
-        advanceOn: "state",
+        // Modul landet erst beim Speichern im Store → feuert nach dem Speichern.
         done: hasAssignedModule,
     },
     {
-        // Wie bei den Flächen: der Anwender kann weitere Flächen zuweisen (je mit
-        // eigener Nutzung) und bestätigt per „Weiter“, wenn alle zugewiesen sind.
-        id: "add-more-assignments",
-        route: (id) => `/projects/${id}`,
-        target: "add-assignment",
-        title: "Weitere Zuweisungen?",
-        body: "Zurück im Szenario können Sie bei Bedarf weitere Flächen zuweisen und jeweils die Nutzung wählen. Wenn alle zugewiesen sind, geht es weiter.",
-        placement: "top",
-        advanceOn: "button",
-    },
-    {
-        id: "summary",
-        route: (id) => `/projects/${id}`,
-        target: "project-summary",
+        id: "summary", route: PROJ, target: "project-summary",
         title: "Zusammenfassung & PDF",
         body: "Hier steht der Gesamtbedarf – und Sie können daraus das PDF für Ihren Antrag erzeugen. Fertig!",
         placement: "top",
-        advanceOn: "button",
+        terminal: true,
+        done: () => false, // Endschritt: bleibt bis „Fertig“.
     },
 ];
 
+/**
+ * Aktueller Schritt des Leerzustand-Rundgangs = erster noch nicht erledigter,
+ * rein aus dem App-Zustand abgeleitet. So zeigt der Rundgang – auch nach Neustart
+ * aus dem ?-Dialog – stets die nächste sinnvolle Aktion. Ist alles erledigt bis
+ * auf den Endschritt, wird dieser gezeigt (bis „Fertig“).
+ */
+export const currentEmptyStep = (ctx: TourContext): EmptyStep | undefined => {
+    for (const step of emptySteps) {
+        if (step.terminal) return step;
+        if (!step.done(ctx)) return step;
+    }
+    return undefined;
+};
+
 export const tourStepsFor = (variant: "demo" | "empty"): TourStep[] =>
-    variant === "empty" ? emptySteps : demoSteps;
+    variant === "empty" ? [] : demoSteps;
