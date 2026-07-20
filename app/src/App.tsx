@@ -28,10 +28,13 @@ import {useLocalStore} from './stores/useLocalStore';
 const SPLASH_MIN_DURATION_MS = 2000;
 
 const ScrollToTop = () => {
-    const {pathname} = useLocation();
+    const {pathname, hash, key} = useLocation();
     useEffect(() => {
+        // #anchor navigation (e.g. /about#impressum) is handled by the target page,
+        // which scrolls the anchor into view — don't fight it with a top-scroll.
+        if (hash) return;
         window.scrollTo(0, 0);
-    }, [pathname]);
+    }, [pathname, hash, key]);
     return null;
 };
 
