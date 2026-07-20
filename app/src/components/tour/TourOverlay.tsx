@@ -122,10 +122,17 @@ export const TourOverlay = ({demoProjectId}: Props) => {
 
     // Bei Bedarf zur Ziel-Route des aktuellen Schritts navigieren (z. B. Rundgang
     // aus dem ?-Dialog auf einer anderen Seite gestartet). Leere Projekt-Route
-    // (kein Projekt) auslassen, damit wir nicht nach /projects/ springen.
+    // (kein Projekt) auslassen. WICHTIG: nicht navigieren, wenn der Anwender bereits
+    // TIEFER ist (Unterseite der Ziel-Route) – sonst zieht der Rundgang ihn beim
+    // Öffnen einer Zuweisung sofort zur Szenario-Seite zurück (Endlosschleife,
+    // „Nutzung wählen“ scheint wirkungslos). Ziele auf der Zuweisungs-Seite werden
+    // von useTourTarget ohnehin erst dort aufgelöst.
     useEffect(() => {
         if (!active || !active.route || active.route.endsWith("/projects/")) return;
-        if (location.pathname !== active.route) navigate(active.route);
+        const here = location.pathname;
+        if (here === active.route) return;
+        if (here.startsWith(active.route + "/")) return; // bereits tiefer → in Ruhe lassen
+        navigate(active.route);
     }, [active, location.pathname, navigate]);
 
     // Demo-Rundgang: routenbasiertes Vorrücken (Anwender navigiert selbst).
@@ -185,7 +192,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                 <p className="tour-overlay__body">{active.body}</p>
                 <div className="tour-overlay__actions">
                     <button type="button" className="tour-overlay__skip" onClick={suspend}>
-                        Überspringen
+                        Tour pausieren
                     </button>
                     {showNextButton && (
                         <button type="button" className="tour-overlay__next" onClick={onNext}>

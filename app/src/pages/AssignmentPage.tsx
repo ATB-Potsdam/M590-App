@@ -308,7 +308,7 @@ export const AssignmentPage = () => {
             <AssignmentSteps current={!module ? 'module' : result ? 'result' : 'details'} />
 
             {/* Schritt 1: Modul */}
-            <section className="assignment-section">
+            <section className="assignment-section" data-tour="module-picker">
                 <h2>1. Nutzungsmodul</h2>
                 <InfoHint>
                     Das Nutzungsmodul bestimmt die Berechnungsmethode nach DWA-M 590.

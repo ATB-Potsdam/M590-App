@@ -194,10 +194,10 @@ export const emptySteps: EmptyStep[] = [
         done: (ctx) => onAssignmentPage(ctx) || hasAssignedModule(ctx),
     },
     {
-        id: "configure-assignment", route: PROJ, target: "assignment-save",
+        id: "configure-assignment", route: PROJ, target: "module-picker",
         title: "Nutzung wählen & speichern",
-        body: "Wählen Sie oben die Nutzung (z. B. Hauptkulturen oder Golf), füllen Sie die weiteren Angaben aus und speichern Sie die Zuweisung. Die App berechnet den Bedarf automatisch.",
-        placement: "top",
+        body: "Wählen Sie hier die Nutzung (z. B. Hauptkulturen oder Golf), füllen Sie die weiteren Angaben aus und speichern Sie die Zuweisung. Die App berechnet den Bedarf automatisch.",
+        placement: "bottom",
         // Modul landet erst beim Speichern im Store → feuert nach dem Speichern.
         done: hasAssignedModule,
     },
