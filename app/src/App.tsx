@@ -11,6 +11,7 @@ import {OnboardingOverlay} from './components/OnboardingOverlay';
 import {SplashScreen} from './components/SplashScreen';
 import {TourOverlay} from './components/tour/TourOverlay';
 import {TourResumeButton} from './components/tour/TourResumeButton';
+import {TourStartButton} from './components/tour/TourStartButton';
 import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm';
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
@@ -190,6 +191,7 @@ const App = () => {
                     </div>
                     <TourOverlay demoProjectId={demoProjectId} />
                     <TourResumeButton />
+                    <TourStartButton />
                 </>
             )}
             {showOverlay && (

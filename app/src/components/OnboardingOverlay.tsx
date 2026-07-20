@@ -21,6 +21,7 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
     const {pathname} = useLocation();
     const [farm, setFarm] = useLocalStore((s) => s.dwa_farm);
     const [projects, setProjects] = useLocalStore((s) => s.dwa_projects);
+    const [, setTourCompleted] = useLocalStore((s) => s.dwa_tour_completed);
     const precipitationLookup = useAppStore((s) => s.precipitationLookup);
     const et0Lookup = useAppStore((s) => s.et0Lookup);
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
@@ -40,6 +41,8 @@ export const OnboardingOverlay = ({onClose, onStartTour, hasDemo}: Props) => {
 
     const loadDemo = () => {
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
+        // Rundgang wieder anbieten (schwebender Button), falls früher beendet.
+        setTourCompleted(false);
         // Overlay schliessen und auf der Betriebsseite bleiben – das Overlay wird
         // ohne Betrieb ohnehin über /farm angezeigt. Dort erscheint der Demo-Hinweis
         // mit „Weiter zum Szenario“. Der Anwender sieht zuerst seinen Betrieb.

@@ -48,9 +48,6 @@ export const FarmPage = () => {
     const {farm, updateFarmName, addField, editField, removeField} = useFarm();
     const {projects, removeFieldFromAllProjects} = useProjects();
     const addMessage = useAppStore((state) => state.addMessage);
-    const startTour = useAppStore((state) => state.startTour);
-    const tourActive = useAppStore((state) => state.tourActive);
-    const [tourCompleted, setTourCompleted] = useLocalStore((s) => s.dwa_tour_completed);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
     // editingName startet false: fehlt der Name, zeigt das Render-Gate
@@ -137,7 +134,11 @@ export const FarmPage = () => {
         const {precipitationLookup, et0Lookup} = useAppStore.getState();
         const [, setFarm] = useLocalStore.getState().dwa_farm;
         const [, setProjects] = useLocalStore.getState().dwa_projects;
+        const [, setTourCompleted] = useLocalStore.getState().dwa_tour_completed;
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
+        // Beispiel laden = bewusster „zeig mir das“-Klick → Rundgang wieder anbieten
+        // (der schwebende Button ist sonst ausgeblendet, wenn früher schon beendet).
+        setTourCompleted(false);
         setConfirmLoadDemo(false);
         // Nach oben scrollen, damit der Demo-Hinweis und der Betrieb sichtbar sind.
         window.scrollTo({top: 0, behavior: "smooth"});
@@ -201,30 +202,6 @@ export const FarmPage = () => {
 
             <OnboardingBanner />
             {demoProject && <DemoHint variant="farm" />}
-            {demoProject && !tourCompleted && !tourActive && (
-                <div className="farm-page__tour-offer">
-                    <p className="farm-page__tour-offer-text">
-                        🧭 Neu hier? Ein kurzer Rundgang zeigt Ihnen die App von den Feldern
-                        bis zur fertigen Antragsmenge.
-                    </p>
-                    <div className="farm-page__tour-offer-actions">
-                        <button
-                            type="button"
-                            className="farm-page__tour-offer-start"
-                            onClick={() => startTour("demo")}
-                        >
-                            Rundgang starten ➔
-                        </button>
-                        <button
-                            type="button"
-                            className="farm-page__tour-offer-later"
-                            onClick={() => setTourCompleted(true)}
-                        >
-                            Später
-                        </button>
-                    </div>
-                </div>
-            )}
 
             <div className="farm-page__name-label" data-tour="farm-name">
                 <strong>Name</strong>
