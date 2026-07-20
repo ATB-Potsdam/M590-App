@@ -1,0 +1,111 @@
+#!/usr/bin/env node
+/*
+ * Generates THIRD-PARTY-LICENSES.txt at repo root by concatenating the
+ * license texts of every dependency shipped in the browser bundle.
+ * Re-run after dependency changes:  node app/scripts/gen-third-party-licenses.cjs
+ */
+const fs = require("fs");
+const path = require("path");
+
+const appDir = path.resolve(__dirname, "..");
+const repoRoot = path.resolve(appDir, "..");
+const nm = path.join(appDir, "node_modules");
+
+// Packages actually shipped to the browser (runtime + their license file name).
+// LICENSE resolved automatically; entries with `text` inline a fallback.
+const pkgs = [
+  "react", "react-dom", "react-router", "zustand",
+  "@capacitor/core", "@capacitor/filesystem", "@capacitor/geolocation",
+  "@capacitor/share", "@capacitor/android", "@capacitor/ios",
+  "vite", "@react-pdf/renderer", "proj4", "uuid", "clsx",
+  "react-icons", "@floating-ui/react", "leaflet", "react-leaflet",
+];
+
+const MIT_FALLBACK = (holder) => `MIT License
+
+Copyright (c) ${holder}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+
+// Manual fallbacks for packages without a distributed LICENSE file.
+const fallbacks = {
+  "@react-pdf/renderer": MIT_FALLBACK("2017 Diego Muracciole <diegomuracciole@gmail.com>"),
+};
+
+function findLicense(dir) {
+  const entries = fs.readdirSync(dir);
+  const hit = entries.find((e) => /^licen[sc]e/i.test(e) && fs.statSync(path.join(dir, e)).isFile());
+  return hit ? path.join(dir, hit) : null;
+}
+
+const blocks = [];
+for (const p of pkgs) {
+  const dir = path.join(nm, p);
+  const pkgJson = JSON.parse(fs.readFileSync(path.join(dir, "package.json"), "utf8"));
+  const version = pkgJson.version;
+  const license = pkgJson.license || "(see text)";
+  const lf = findLicense(dir);
+  let text;
+  if (lf) {
+    text = fs.readFileSync(lf, "utf8").trim();
+  } else if (fallbacks[p]) {
+    text = fallbacks[p].trim();
+  } else {
+    throw new Error(`No license file or fallback for ${p}`);
+  }
+  const header = `${p}  (${version})  —  ${license}`;
+  const bar = "=".repeat(header.length);
+  blocks.push(`${bar}\n${header}\n${bar}\n\n${text}`);
+}
+
+// Non-npm assets bundled / used by the app.
+const assets = [
+`==============================================================
+Roboto (Google Fonts)  —  Apache License 2.0
+==============================================================
+
+Copyright the Roboto Project Authors (https://github.com/googlefonts/roboto).
+Licensed under the Apache License, Version 2.0.
+Full text: https://www.apache.org/licenses/LICENSE-2.0`,
+`==============================================================
+Kartendaten / Kartenkacheln  —  OpenStreetMap
+==============================================================
+
+© OpenStreetMap contributors.
+Map data available under the Open Database License (ODbL):
+  https://www.openstreetmap.org/copyright
+Rendered tiles under CC BY-SA 2.0.`,
+];
+
+const preamble = `THIRD-PARTY SOFTWARE LICENSES
+=============================
+
+Diese Datei bündelt die Lizenztexte der Bibliotheken und Assets, die in der
+ausgelieferten M 590 DWA App enthalten sind. Automatisch generiert von
+app/scripts/gen-third-party-licenses.cjs — nicht von Hand bearbeiten.
+
+Der Quellcode dieser App selbst steht unter der Apache License 2.0 (siehe
+./LICENSE).
+
+`;
+
+const out = preamble + [...blocks, ...assets].join("\n\n\n") + "\n";
+const target = path.join(repoRoot, "THIRD-PARTY-LICENSES.txt");
+fs.writeFileSync(target, out, "utf8");
+console.log(`Wrote ${target} (${pkgs.length} packages + ${assets.length} assets, ${out.length} bytes)`);

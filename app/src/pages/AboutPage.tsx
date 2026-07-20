@@ -132,7 +132,8 @@ export const AboutPage = () => {
                 <li>
                     <strong>React</strong>, <strong>React Router</strong>, <strong>Zustand</strong>,{" "}
                     <strong>Capacitor</strong>, <strong>Vite</strong>, <strong>@react-pdf/renderer</strong>,{" "}
-                    <strong>proj4</strong>, <strong>uuid</strong>, <strong>clsx</strong>, <strong>react-icons</strong> —{" "}
+                    <strong>proj4</strong>, <strong>uuid</strong>, <strong>clsx</strong>, <strong>react-icons</strong>,{" "}
+                    <strong>@floating-ui/react</strong> —{" "}
                     <a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer">MIT-Lizenz</a>
                 </li>
                 <li>
@@ -153,7 +154,9 @@ export const AboutPage = () => {
                 </li>
             </ul>
             <p className="info-page__meta">
-                Die jeweiligen Lizenztexte sind über die oben verlinkten Quellen der Bibliotheken abrufbar; der Quellcode dieser App liegt öffentlich im Repository.
+                Die vollständigen Lizenztexte aller mitgelieferten Bibliotheken sind in der{" "}
+                <a href="https://github.com/ATB-Potsdam/M590-App/blob/main/THIRD-PARTY-LICENSES.txt" target="_blank" rel="noopener noreferrer">Datei THIRD-PARTY-LICENSES</a>{" "}
+                im öffentlichen Quellcode-Repository gebündelt.
             </p>
         </section>
 
