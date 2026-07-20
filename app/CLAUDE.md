@@ -11,6 +11,10 @@ M 590 DWA App — a German agricultural irrigation advisory tool (DWA = Deutsche
 - Do **not** add `Co-Authored-By` lines to commit messages.
 - Always run `yarn lint` (and fix any issues) before committing.
 
+## Local environment
+
+- **Never kill a running Chromium / browser instance (Vivaldi, Chrome, etc.) to debug or automate — always ask first.** The user has other scripts that rely on a persistent browser instance (e.g. a remote-debugging port); closing it breaks them. When you need a browser for UI/tour verification, launch your **own** headless instance on a **separate** port and close only that one. Leave anything you did not start alone.
+
 ## Commands
 
 - `yarn dev` — start Vite dev server with HMR
