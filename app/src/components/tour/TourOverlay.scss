@@ -33,9 +33,28 @@
         width: 12px;
         height: 12px;
         background: var(--color-bg);
-        border-left: 1px solid var(--color-primary-border);
-        border-top: 1px solid var(--color-primary-border);
+        border: 1px solid transparent;
         transform: rotate(45deg);
+
+        // Nur die zwei zum Ziel zeigenden Kanten erhalten die Randfarbe – sonst
+        // wirkt das um 45° gedrehte Quadrat wie ein vollständiger Rhombus.
+        // data-side = Platzierung des Tooltips; der Pfeil sitzt gegenüber.
+        &[data-side="bottom"] { // Tooltip unter dem Ziel, Pfeil oben
+            border-top-color: var(--color-primary-border);
+            border-left-color: var(--color-primary-border);
+        }
+        &[data-side="top"] { // Tooltip über dem Ziel, Pfeil unten
+            border-bottom-color: var(--color-primary-border);
+            border-right-color: var(--color-primary-border);
+        }
+        &[data-side="right"] { // Tooltip rechts, Pfeil links
+            border-bottom-color: var(--color-primary-border);
+            border-left-color: var(--color-primary-border);
+        }
+        &[data-side="left"] { // Tooltip links, Pfeil rechts
+            border-top-color: var(--color-primary-border);
+            border-right-color: var(--color-primary-border);
+        }
     }
 
     &__step-count {

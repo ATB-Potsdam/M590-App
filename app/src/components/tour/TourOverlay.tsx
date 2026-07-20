@@ -238,6 +238,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                 <div
                     ref={arrowRef}
                     className="tour-overlay__arrow"
+                    data-side={placement.split("-")[0]}
                     style={{
                         left: arrowX != null ? `${arrowX}px` : "",
                         top: arrowY != null ? `${arrowY}px` : "",
