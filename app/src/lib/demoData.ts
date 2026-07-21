@@ -5,9 +5,9 @@ import type {FieldAssignment, Project} from "../types/project";
 import type {RasterLookup} from "../types/raster";
 import {latLonToClimateClass} from "./tools";
 
-// Demo data for getting to know the app. Deliberately located in the Brandenburg
-// region (Potsdam reference, see soilConstants) so that climate and soil values
-// are loaded automatically. The user can delete the farm/scenario at any time —
+// Demo data for getting to know the app. Uses real sites near the ATB in the
+// Brandenburg region (Potsdam reference, see soilConstants) so that climate and
+// soil values are loaded automatically. The user can delete the farm/scenario at any time —
 // these are normal records without special handling.
 
 const now = () => new Date().toISOString();
@@ -39,8 +39,12 @@ const baseAssignment = (fieldId: string): FieldAssignment => ({
  * result (incl. PDF) immediately before entering their own data.
  */
 export const createDemoData = (): {farm: Farm; project: Project} => {
-    const acker = demoField("Beispiel-Acker (Kartoffeln)", 52.4009, 13.0591, 12.5);
-    const golf = demoField("Beispiel-Golfplatz", 52.3906, 13.0645, 45);
+    // Real sites near the ATB (Potsdam-Bornim) so climate/soil lookups load
+    // automatically and users recognise the locations:
+    //  - ATB "Fieldlab" research farmland at Marquardt (NW of the institute).
+    //  - Märkischer Golfclub Potsdam, Kemnitz (real 18-hole course).
+    const acker = demoField("Beispiel-Acker (Kartoffeln) – ATB Marquardt", 52.4578, 12.9669, 12.5);
+    const golf = demoField("Beispiel-Golfplatz – Golfclub Kemnitz", 52.4093, 12.8741, 45);
 
     const farm: Farm = {
         id: uuidv4(),
