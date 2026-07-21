@@ -71,12 +71,12 @@
 - [x] **8. Handle missing table values: hide or show alternative display**
       From Todo.md:
     - Hide result card when calculation yields null/no values
-    - Optionally show info: "Leere Felder bedeuten fehlende Literaturwerte, nicht: 'kein Bedarf'"
+    - Optionally show info: "Empty fields mean missing literature values, not: 'no demand'"
     - Apply to all modules (especially Hauptkulturen and Gemüse/Obst)
 
 - [x] **9. AssignmentPage.tsx**
-      When selecting "Obst/Gemüse"
-    - When selecting "Zuweisung Speichern" is enabled even before a time span is selected
+      When selecting "Obst/Gemüse" (fruit/vegetables)
+    - "Save assignment" is enabled even before a time span is selected
     - After selecting "Obst/Gemüse" the screen should jump to the fruit selection
 
 - [x] **10. Export project calculations to PDF or printer**

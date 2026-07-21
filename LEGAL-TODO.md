@@ -1,40 +1,39 @@
-# Offene rechtliche Punkte
+# Open legal items
 
-Stand: 2026-07-20. Diese Datei sammelt rechtliche Punkte, die **nicht im Code**
-gelöst werden können und von ATB / einer juristischen Prüfung bestätigt werden
-müssen, bevor die App öffentlich beworben wird.
+As of 2026-07-20. This file collects legal items that **cannot be resolved in
+code** and must be confirmed by ATB / a legal review before the app is publicly
+promoted.
 
-## Offen
+## Open
 
-- [ ] **DWA-M 590 – Reproduktionsrechte.** Die App gibt Tabellenwerte und die
-  Berechnungsmethodik aus dem Merkblatt DWA-M 590 wieder. DWA-Merkblätter sind
-  urheberrechtlich geschützte Publikationen. Zu klären: Liegt eine Erlaubnis der
-  DWA vor, die Tabellen/Werte wiederzugeben (nicht nur zu zitieren)? Ansprech­
-  partner: DWA e.V. (https://www.dwa.de). Fachliche Begleitung durch ATB ersetzt
-  die Reproduktions­lizenz nicht automatisch.
+- [ ] **DWA-M 590 – reproduction rights.** The app reproduces table values and
+  the calculation methodology from the DWA-M 590 code of practice. DWA codes of
+  practice are copyrighted publications. To clarify: is there a permission from
+  the DWA to reproduce the tables/values (not merely to cite them)? Contact:
+  DWA e.V. (https://www.dwa.de). Technical support from ATB does not
+  automatically replace the reproduction license.
 
-- [ ] **Aufsichtsbehörde bestätigen.** In der Datenschutzerklärung ist als
-  zuständige Aufsichtsbehörde die LDA Brandenburg angegeben (Sitz Potsdam). Von
-  ATB/Datenschutzbeauftragtem bestätigen lassen, dass dies für das ATB als
-  Verantwortlichen zutrifft. Siehe `PRIVACY.supervisoryAuthority` in
+- [ ] **Confirm supervisory authority.** The privacy policy names the LDA
+  Brandenburg (seat in Potsdam) as the competent supervisory authority. Have
+  ATB / the data protection officer confirm that this applies to ATB as the
+  controller. See `PRIVACY.supervisoryAuthority` in
   `app/src/constants/contact.ts`.
 
-- [ ] **Juristische Gesamtprüfung.** Impressum, Datenschutz und Haftungs­
-  ausschluss vor öffentlicher Bewerbung von einer rechtskundigen Stelle prüfen
-  lassen.
+- [ ] **Overall legal review.** Have the imprint, privacy policy, and
+  disclaimer reviewed by a qualified legal party before public promotion.
 
-- [ ] **OSM-Tile-Nutzung.** Die App lädt Kartenkacheln direkt von
-  `tile.openstreetmap.org`. Die OSMF-Tile-Usage-Policy untersagt „heavy use“.
-  Bei steigender Nutzung auf einen eigenen/kostenpflichtigen Tile-Dienst
-  wechseln. https://operations.osmfoundation.org/policies/tiles/
+- [ ] **OSM tile usage.** The app loads map tiles directly from
+  `tile.openstreetmap.org`. The OSMF tile usage policy forbids "heavy use".
+  Switch to an own/paid tile service as usage grows.
+  https://operations.osmfoundation.org/policies/tiles/
 
-## Erledigt
+## Done
 
-- [x] Third-Party-Lizenztexte gebündelt (`THIRD-PARTY-LICENSES.txt`), im
-  ?-Dialog verlinkt.
-- [x] Impressum-Abschnitt (§ 5 DDG) im ?-Dialog, Link auf die vollständige
-  ATB-Anbieterkennzeichnung.
-- [x] Haftungsausschluss für Berechnungsergebnisse.
-- [x] Datenschutz: Datenschutzbeauftragte(r), Beschwerderecht/Aufsichtsbehörde,
-  Link auf die vollständige ATB-Datenschutzerklärung.
-- [x] Betreiber-/Verantwortlichen-Kontakt zeigt die ATB-Adresse.
+- [x] Third-party license texts bundled (`THIRD-PARTY-LICENSES.txt`), linked in
+  the ?-dialog.
+- [x] Imprint section (§ 5 DDG) in the ?-dialog, link to the full ATB provider
+  identification.
+- [x] Disclaimer for calculation results.
+- [x] Privacy: data protection officer, right to complain/supervisory
+  authority, link to the full ATB privacy policy.
+- [x] Operator/controller contact shows the ATB address.

@@ -70,7 +70,7 @@ Two stores, both using `subscribeWithSelector`:
 
 ### Language
 
-Domain terminology and code comments are in **German** (agricultural/hydrological terms). UI text is German. Variable names and code structure use English.
+**All developer-facing text (docs, code comments, commit messages) is written in English** — see the repo-root `CLAUDE.md`. Variable names and code structure are English. UI text is **German** (product decision, target market). Domain proper nouns / DWA-M 590 terminology (module names, table/factor names) stay as established terms.
 
 ---
 
