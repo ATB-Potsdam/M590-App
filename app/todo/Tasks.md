@@ -94,3 +94,34 @@
 - [x] **14. Try to split the built packages to optimize loading**
       There is a warning "Some chunks are larger than 500 kB after minification."
       Try to not exceed this limit too much!
+
+## Backlog / Deferred
+
+- [ ] **Major dependency upgrades (react-router 8, vite 8).** Deferred — no
+      security benefit (current deps are audit-clean after the 2026-07-21
+      in-major security patches), and both majors are blocked by the Node
+      runtime. Treat as a deliberate "Node 22 + toolchain" maintenance window,
+      not a security fix.
+
+      **Hard blocker — Node runtime:** we run **Node 21.7.1**.
+    - react-router 8 requires `node >=22.22.0`.
+    - vite 8 requires `node ^20.19 || >=22.12` (Node 21 satisfies neither).
+    - → Upgrade Node to **22.x LTS** across dev/CI/deploy first.
+
+      **react-router 7 → 8** — low code risk:
+    - App uses only the declarative API (`BrowserRouter`, `Routes`/`Route`/
+      `Link`, `useNavigate`/`useParams`/`useLocation`/`useSearchParams`); RR8's
+      breaking changes target the data-router (`createBrowserRouter`, loaders/
+      actions), which we do **not** use.
+    - Peer bump: `react`/`react-dom` to `>=19.2.7` (currently 19.2.4).
+
+      **vite 7 → 8** — low–moderate code risk:
+    - Must bump together: `@vitejs/plugin-react` 5 → **6** (its v6 peers
+      `vite ^8`), and `vite-plugin-pwa` 1.2 → 1.3 (already supports vite 8).
+    - vite 8 defaults to the **Rolldown** bundler. `vite.config.ts` uses stable
+      APIs (`defineConfig`, `loadEnv`, Rollup `generateBundle`/`emitFile` in the
+      `seoPlugin`) — expected to work, but re-verify: SEO robots.txt/sitemap
+      output, PWA service worker, chunk splitting, and all routes.
+
+      **Order:** Node 22 → react/react-dom → vite+plugin-react+pwa → react-router
+      → full build + smoke test.
