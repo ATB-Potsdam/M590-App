@@ -11,7 +11,12 @@
     &__spotlight {
         position: fixed;
         border-radius: 8px;
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+        // Accent ring on the cut-out gives the highlighted area a visible
+        // boundary; the second layer is the surrounding dimmer. Darker dimmer
+        // (0.62) so page vs. tour reads more clearly.
+        box-shadow:
+            0 0 0 2px var(--color-primary),
+            0 0 0 9999px rgba(0, 0, 0, 0.62);
         // Target stays clickable: the dimmer itself does not capture clicks.
         pointer-events: none;
         transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
@@ -20,11 +25,13 @@
     &__tooltip {
         pointer-events: auto;
         max-width: min(320px, calc(100vw - 24px));
-        background: var(--color-bg);
-        border: 1px solid var(--color-primary-border);
+        // Solid green bubble = unmistakably tour chrome, so it never reads as
+        // part of the (white) highlighted page content behind the dimmer.
+        background: var(--color-primary);
+        border: 1px solid var(--color-primary);
         border-radius: 10px;
         padding: 0.85rem 1rem 0.9rem;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
         z-index: 1501;
     }
 
@@ -32,7 +39,7 @@
         position: absolute;
         width: 12px;
         height: 12px;
-        background: var(--color-bg);
+        background: var(--color-primary);
         border: 1px solid transparent;
         transform: rotate(45deg);
 
@@ -40,40 +47,41 @@
         // otherwise the square rotated by 45° looks like a full rhombus.
         // data-side = placement of the tooltip; the arrow sits opposite.
         &[data-side="bottom"] { // tooltip below the target, arrow on top
-            border-top-color: var(--color-primary-border);
-            border-left-color: var(--color-primary-border);
+            border-top-color: var(--color-primary);
+            border-left-color: var(--color-primary);
         }
         &[data-side="top"] { // tooltip above the target, arrow at the bottom
-            border-bottom-color: var(--color-primary-border);
-            border-right-color: var(--color-primary-border);
+            border-bottom-color: var(--color-primary);
+            border-right-color: var(--color-primary);
         }
         &[data-side="right"] { // tooltip on the right, arrow on the left
-            border-bottom-color: var(--color-primary-border);
-            border-left-color: var(--color-primary-border);
+            border-bottom-color: var(--color-primary);
+            border-left-color: var(--color-primary);
         }
         &[data-side="left"] { // tooltip on the left, arrow on the right
-            border-top-color: var(--color-primary-border);
-            border-right-color: var(--color-primary-border);
+            border-top-color: var(--color-primary);
+            border-right-color: var(--color-primary);
         }
     }
 
+    // Text sits on the green bubble → light colors.
     &__step-count {
         font-size: 0.72rem;
-        color: var(--color-text-muted);
+        color: rgba(255, 255, 255, 0.75);
         margin-bottom: 0.2rem;
     }
 
     &__title {
         margin: 0 0 0.35rem;
         font-size: 1rem;
-        color: var(--color-primary-dark);
+        color: #fff;
     }
 
     &__body {
         margin: 0 0 0.75rem;
         font-size: 0.9rem;
         line-height: 1.4;
-        color: var(--color-text);
+        color: rgba(255, 255, 255, 0.92);
     }
 
     &__actions {
@@ -93,18 +101,20 @@
         border: none;
         padding: 0.25rem 0;
         font-size: 0.85rem;
-        color: var(--color-text-muted);
+        color: rgba(255, 255, 255, 0.7);
         cursor: pointer;
 
         &:hover {
-            color: var(--color-text);
+            color: #fff;
             text-decoration: underline;
         }
     }
 
+    // On the green bubble the primary button would vanish → invert it:
+    // white button, green label.
     &__next {
-        background: var(--color-primary);
-        color: #fff;
+        background: #fff;
+        color: var(--color-primary);
         border: none;
         border-radius: 6px;
         padding: 0.45rem 0.9rem;
@@ -113,7 +123,7 @@
         cursor: pointer;
 
         &:hover {
-            background: var(--color-primary-dark);
+            background: var(--color-primary-bg);
         }
     }
 
