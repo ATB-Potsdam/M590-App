@@ -116,20 +116,20 @@
     }
 
     &__item {
+        position: relative;
         border: 1px solid var(--color-border);
         border-radius: 8px;
         padding: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
     }
 
     &__main {
-        flex: 1;
         cursor: pointer;
         display: flex;
         flex-direction: column;
         gap: 4px;
+        // Reserve room on the right for the vertically-centred trash button
+        // (absolutely positioned) so the module/result rows don't slide under it.
+        padding-right: 32px;
 
         &:active {
             opacity: 0.7;
@@ -137,9 +137,7 @@
     }
 
     &__field {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        display: flow-root; // contain the floated meta
         font-size: 15px;
 
         span {
@@ -148,15 +146,41 @@
         }
     }
 
+    // Area + climate zone: float to the top-right of the whole tile (above the
+    // trash button), so the first line of the field name sits beside it and any
+    // following lines wrap to the full width beneath it. The negative right
+    // margin lets it reach the tile edge, escaping &__main's trash padding.
+    // Never breaks internally.
+    &__meta {
+        float: right;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 8px;
+        margin-right: -32px;
+        white-space: nowrap;
+        color: var(--color-text-secondary);
+        font-size: 13px;
+    }
+
+    &__area {
+        white-space: nowrap;
+    }
+
     &__climate {
         font-size: 12px;
         background: var(--color-primary-bg);
         color: var(--color-primary);
         padding: 1px 6px;
         border-radius: 10px;
+        white-space: nowrap;
     }
 
     &__delete {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
         background: none;
         border: none;
         font-size: 18px;

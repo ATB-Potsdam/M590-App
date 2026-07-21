@@ -178,13 +178,16 @@ export const ProjectDetailPage = () => {
                                 data-tour={i === 0 ? "assignment-row" : undefined}
                                 onClick={() => navigate(`/projects/${project.id}/assignment/${fa.id}`)}
                             >
-                                {/* Row 1: field name + area + climate zone – unchanged */}
+                                {/* Row 1: field name; area + zone float top-right so a long
+                                    name wraps beneath them and uses the full width. */}
                                 <div className="assignment-list__field">
+                                    <span className="assignment-list__meta">
+                                        <span className="assignment-list__area">{formatNum(field.areaHa, 2)}&nbsp;ha</span>
+                                        {field.climateClassStatus === "done" && field.climateClass && (
+                                            <span className="assignment-list__climate">🌿&nbsp;{field.climateClass[0]}</span>
+                                        )}
+                                    </span>
                                     <strong>{field.name}</strong>
-                                    <span>{formatNum(field.areaHa, 2)} ha</span>
-                                    {field.climateClassStatus === "done" && field.climateClass && (
-                                        <span className="assignment-list__climate">🌿 {field.climateClass[0]}</span>
-                                    )}
                                 </div>
 
                                 {/* Row 2: module + plant – unchanged */}
@@ -348,9 +351,9 @@ export const ProjectDetailPage = () => {
                                     }}
                                 >
                                     <strong>{field.name}</strong>
-                                    <span>{formatNum(field.areaHa, 2)} ha</span>
+                                    <span>{formatNum(field.areaHa, 2)}&nbsp;ha</span>
                                     {field.climateClassStatus === "done" && field.climateClass && (
-                                        <span className="assignment-list__climate">🌿 {field.climateClass[0]}</span>
+                                        <span className="assignment-list__climate">🌿&nbsp;{field.climateClass[0]}</span>
                                     )}
                                 </li>
                             ))}
