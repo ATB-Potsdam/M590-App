@@ -29,8 +29,8 @@ export const MODULE_SOURCES: Record<ModuleType, SourceReference> = {
     },
     gruenflaechen: {
         id: "dwa-m590-fll",
-        shortName: "DWA-M 590 / FLL",
-        fullName: "DWA-Merkblatt M 590 / FLL-Richtlinie",
+        shortName: "DWA-M 590/​FLL",
+        fullName: "DWA-Merkblatt M 590/​FLL-Richtlinie",
         tables: "Tab. 29–32",
     },
     naturrasen: {

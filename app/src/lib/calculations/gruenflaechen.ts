@@ -42,9 +42,9 @@ export const getFactorS = (s: FllSun): number => FACTOR_S[s];
 
 /** Labels for display */
 export const VEGETATION_OPTIONS: {value: FllVegetation; label: string}[] = [
-    {value: "rasen", label: "Rasen / Bodendecker"},
-    {value: "stauden", label: "Stauden / Kleinsträucher"},
-    {value: "baeume", label: "Großsträucher / Bäume"},
+    {value: "rasen", label: "Rasen/​Bodendecker"},
+    {value: "stauden", label: "Stauden/​Kleinsträucher"},
+    {value: "baeume", label: "Großsträucher/​Bäume"},
 ];
 
 export const MOISTURE_OPTIONS: {value: FllMoisture; label: string}[] = [
@@ -56,7 +56,7 @@ export const MOISTURE_OPTIONS: {value: FllMoisture; label: string}[] = [
 export const SOIL_OPTIONS: {value: FllSoil; label: string}[] = [
     {value: "sand", label: "Sand"},
     {value: "sandiger_lehm", label: "Sandiger Lehm"},
-    {value: "lehm", label: "Lehm / Schluff / Ton"},
+    {value: "lehm", label: "Lehm/​Schluff/​Ton"},
 ];
 
 export const SUN_OPTIONS: {value: FllSun; label: string}[] = [

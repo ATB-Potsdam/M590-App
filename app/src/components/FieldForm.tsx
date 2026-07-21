@@ -25,8 +25,8 @@ const NFKWE_CLASS_DESC: Record<NFkweClassName, string> = {
     "1-2": "vorwiegend sandige Böden",
     "3a": "schwach lehmige Sande",
     "3b": "lehmige Böden",
-    "4": "stark lehmige / schluffige Böden",
-    "5": "tiefgründige Löss- / Lehmböden",
+    "4": "stark lehmige/​schluffige Böden",
+    "5": "tiefgründige Löss-/​Lehmböden",
 };
 
 const bzRangeLabel = (cls: NFkweClassName): string => {

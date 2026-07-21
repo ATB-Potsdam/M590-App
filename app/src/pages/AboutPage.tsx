@@ -126,7 +126,7 @@ export const AboutPage = () => {
                 </li>
                 <li>Klimaräume und KWBv-Zonen: DWA-M 590, Anhang</li>
                 <li>Niederschlag und ET₀: monatliche Rasterdaten (Deutscher Wetterdienst, Referenzperiode)</li>
-                <li>nFKWe-Klassen: Bodenübersichtskarte BÜK 200 / 1000</li>
+                <li>nFKWe-Klassen: Bodenübersichtskarte BÜK 200/{'\u200b'}1000</li>
             </ul>
         </section>
 

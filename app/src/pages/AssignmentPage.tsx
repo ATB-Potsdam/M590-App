@@ -312,7 +312,7 @@ export const AssignmentPage = () => {
                 <h2>1. Nutzungsmodul</h2>
                 <InfoHint>
                     Das Nutzungsmodul bestimmt die Berechnungsmethode nach DWA-M 590.
-                    Landwirtschaft (Hauptkulturen, Gemüse/Obst, Weinbau) nutzt Tabellenwerte
+                    Landwirtschaft (Hauptkulturen, Gemüse/{'\u200b'}Obst, Weinbau) nutzt Tabellenwerte
                     je Kultur; Sport- und Grünflächen (Golf, Rasen, Kunstrasen) rechnen nach
                     Fläche und Niederschlag. Wählen Sie die Nutzung, die zu dieser Fläche passt.
                 </InfoHint>
@@ -639,7 +639,7 @@ export const AssignmentPage = () => {
                             <h2>3. Teilflächen</h2>
                             <div className="assignment-page__golf-inputs">
                                 <label className="assignment-page__golf-label">
-                                    <span>Grüns / Vorgrüns (m²)</span>
+                                    <span>Grüns/{'\u200b'}Vorgrüns (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfGreensM2}
@@ -648,7 +648,7 @@ export const AssignmentPage = () => {
                                     />
                                 </label>
                                 <label className="assignment-page__golf-label">
-                                    <span>Abschläge / Tees (m²)</span>
+                                    <span>Abschläge/{'\u200b'}Tees (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfTeeM2}
@@ -657,7 +657,7 @@ export const AssignmentPage = () => {
                                     />
                                 </label>
                                 <label className="assignment-page__golf-label">
-                                    <span>Spielbahnen / Fairways (m²)</span>
+                                    <span>Spielbahnen/{'\u200b'}Fairways (m²)</span>
                                     <input
                                         type="number" min={0} step={1}
                                         value={golfFairwayM2}

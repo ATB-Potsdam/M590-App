@@ -9,7 +9,7 @@ export interface ModuleDefinition {
 
 export const MODULES: ModuleDefinition[] = [
     {type: "hauptkulturen", icon: "🌾", label: "Hauptkulturen"},
-    {type: "gemuese_obst", icon: "🥦", label: "Gemüse / Obst"},
+    {type: "gemuese_obst", icon: "🥦", label: "Gemüse/​Obst"},
     {type: "weinbau", icon: "🍷", label: "Weinbau"},
     {type: "gruenflaechen", icon: "🌿", label: "Grünflächen"},
     {type: "naturrasen", icon: "⚽", label: "Naturrasensportplatz"},

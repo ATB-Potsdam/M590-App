@@ -52,5 +52,5 @@ export const COPYRIGHT = {
     years: __BUILD_YEAR__ > COPYRIGHT_START_YEAR
         ? `${COPYRIGHT_START_YEAR}–${__BUILD_YEAR__}`
         : `${COPYRIGHT_START_YEAR}`,
-    holder: `${DEVELOPER.name} / ATB`,
+    holder: `${DEVELOPER.name}/\u200bATB`,
 } as const;

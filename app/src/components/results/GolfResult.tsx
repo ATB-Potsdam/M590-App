@@ -30,15 +30,15 @@ export const GolfResultCard = ({result, fieldName}: Props) => (
                     <strong>{formatRange(result.totalRangeM3, "m³/a")}</strong>
                 </div>
                 <div className="result-card__value-row">
-                    <span>Grüns / Vorgrüns</span>
+                    <span>Grüns/{'\u200b'}Vorgrüns</span>
                     <span>{formatRange(result.greens.rangeM3, "m³/a")}</span>
                 </div>
                 <div className="result-card__value-row">
-                    <span>Abschläge / Tees</span>
+                    <span>Abschläge/{'\u200b'}Tees</span>
                     <span>{formatRange(result.tees.rangeM3, "m³/a")}</span>
                 </div>
                 <div className="result-card__value-row">
-                    <span>Spielbahnen / Fairways</span>
+                    <span>Spielbahnen/{'\u200b'}Fairways</span>
                     <span>{formatRange(result.fairways.rangeM3, "m³/a")}</span>
                 </div>
             </div>
@@ -71,19 +71,19 @@ export const GolfResultCard = ({result, fieldName}: Props) => (
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Grüns / Vorgrüns</td>
+                        <td>Grüns/{'\u200b'}Vorgrüns</td>
                         <td>{formatNum(result.greens.areaM2, 0)}</td>
                         <td>{formatRange(result.greens.rangeMmPerA, "")}</td>
                         <td>{formatRange(result.greens.rangeM3, "")}</td>
                     </tr>
                     <tr>
-                        <td>Abschläge / Tees</td>
+                        <td>Abschläge/{'\u200b'}Tees</td>
                         <td>{formatNum(result.tees.areaM2, 0)}</td>
                         <td>{formatRange(result.tees.rangeMmPerA, "")}</td>
                         <td>{formatRange(result.tees.rangeM3, "")}</td>
                     </tr>
                     <tr>
-                        <td>Spielbahnen / Fairways</td>
+                        <td>Spielbahnen/{'\u200b'}Fairways</td>
                         <td>{formatNum(result.fairways.areaM2, 0)}</td>
                         <td>{formatRange(result.fairways.rangeMmPerA, "")}</td>
                         <td>{formatRange(result.fairways.rangeM3, "")}</td>
