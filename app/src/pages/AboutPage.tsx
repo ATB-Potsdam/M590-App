@@ -15,7 +15,7 @@ export const AboutPage = () => {
     const [showIosOverlay, setShowIosOverlay] = useState(false);
     const [updateState, setUpdateState] = useState<UpdateCheckState>("idle");
 
-    // Bei Aufruf mit Anker (z. B. /about#impressum) zur Zielsektion scrollen.
+    // When called with an anchor (e.g. /about#impressum), scroll to the target section.
     const {hash} = useLocation();
     useEffect(() => {
         if (!hash) return;

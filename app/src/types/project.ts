@@ -17,7 +17,7 @@ export type PlantCategory =
     | "agrar"
     | "futter";
 
-export type IrrigationMonth = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10; // März–Oktober
+export type IrrigationMonth = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10; // March–October
 
 export type MonthPosition = "early" | "mid" | "late" | "full";
 
@@ -41,14 +41,14 @@ export interface FieldAssignment {
     surchargeIntermediate: boolean;
     surchargeEmergence: number;
     surchargeHeavySoil: number;
-    /** Speisekartoffeln — aktiviert den automatischen +20-mm-Zuschlag (nur Kartoffeln). undefined = true. */
+    /** Speisekartoffeln — enables the automatic +20 mm surcharge (Kartoffeln only). undefined = true. */
     isTablePotato?: boolean;
-    /** Sommergetreide (z.B. Sommerhafer) bei "sonst. Getreide" — schaltet Zwischenfrucht/Auflaufbewässerung frei. undefined = false. */
+    /** Sommergetreide (e.g. Sommerhafer) for "sonst. Getreide" — unlocks Zwischenfrucht/Auflaufbewässerung. undefined = false. */
     isSummerCereal?: boolean;
     /**
-     * Benutzerdefinierte Zusatzbewässerung (mm/a) für Kulturen ohne Literaturwert.
-     * Ersetzt fehlende Tabellenwerte durch Anwender-geschätzten Bedarf.
-     * Nur wirksam wenn Tabellenwert null (hasValue=false).
+     * User-defined additional irrigation (mm/a) for crops without a literature value.
+     * Replaces missing table values with the user-estimated demand.
+     * Only effective when the table value is null (hasValue=false).
      */
     userCustomMm?: number;
     isJunganlage?: boolean;
@@ -67,7 +67,7 @@ export interface FieldAssignment {
     // Kunstrasen
     kunstrasenWeeks?: number;
     kunstrasenMmPerWeek?: number;
-    // Alternative Wasserquellen (Grünflächen + Sportflächen)
+    // Alternative water sources (Grünflächen + sports areas)
     altWasserM3?: number;
 }
 
@@ -78,6 +78,6 @@ export interface Project {
     fieldAssignments: FieldAssignment[];
     createdAt: string;
     updatedAt: string;
-    /** true für das automatisch erzeugte Beispiel-Szenario (steuert den Demo-Hinweis). */
+    /** true for the automatically created demo scenario (controls the demo hint). */
     isDemo?: boolean;
 }

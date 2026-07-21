@@ -4,10 +4,11 @@ import {useAppStore} from "../../stores/useAppStore";
 import "./TourResumeButton.scss";
 
 /**
- * Schwebender Button, der nach dem Laden der Beispieldaten erscheint und den
- * Demo-Rundgang startet. Anders als der Button im ?-Dialog ist er dauerhaft und
- * leicht zu finden. Dismissbar über × (setzt dwa_tour_completed). Erscheint nicht
- * gleichzeitig mit dem TourResumeButton (der greift, sobald der Rundgang pausiert).
+ * Floating button that appears after the demo data has been loaded and starts
+ * the demo walk-through. Unlike the button in the ?-dialog it is persistent and
+ * easy to find. Dismissable via × (sets dwa_tour_completed). Does not appear at
+ * the same time as the TourResumeButton (which kicks in once the walk-through is
+ * paused).
  */
 export const TourStartButton = () => {
     const [projects] = useLocalStore((s) => s.dwa_projects);

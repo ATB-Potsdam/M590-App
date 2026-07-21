@@ -23,18 +23,18 @@ type AppState = {
     addMessage: (message: MessageType) => MessageType;
     delMessage: (message: MessageType) => void;
 
-    // Geführter Rundgang (Walk-Through). Nur Laufzeit-Zustand – ob der Rundgang
-    // schon absolviert wurde, steckt persistent in dwa_tour_completed.
-    // "demo"  = Rundgang durch die geladenen Beispieldaten
-    // "empty" = Rundgang, der beim Anlegen eigener Daten anleitet (Betrieb → Feld → …)
+    // Guided walk-through. Runtime state only – whether the tour has already
+    // been completed is stored persistently in dwa_tour_completed.
+    // "demo"  = walk-through of the loaded demo data
+    // "empty" = walk-through that guides the creation of your own data (farm → field → …)
     tourActive: boolean;
     tourVariant: "demo" | "empty";
-    tourStep: number;                    // nur für den (linearen) Demo-Rundgang
-    tourSuspended: boolean;              // pausiert (per „Überspringen“) → fortsetzbar
+    tourStep: number;                    // only for the (linear) demo walk-through
+    tourSuspended: boolean;              // paused (via "Überspringen") → resumable
     startTour: (variant: "demo" | "empty") => void;
-    resumeTour: () => void;              // pausierten Rundgang fortsetzen (tourStep bleibt)
-    nextTourStep: () => void;            // Demo-Rundgang: einen Schritt weiter
-    suspendTour: () => void;             // pausieren, fortsetzbar über Floating-Button
+    resumeTour: () => void;              // resume a paused walk-through (tourStep is kept)
+    nextTourStep: () => void;            // demo walk-through: advance one step
+    suspendTour: () => void;             // pause, resumable via the floating button
     endTour: () => void;
 };
 
@@ -73,8 +73,8 @@ export const useAppStore = create<AppState>()(
         tourStep: 0,
         tourSuspended: false,
         startTour: (variant) => set({tourActive: true, tourVariant: variant, tourStep: 0, tourSuspended: false}),
-        // Fortsetzen ohne tourStep zurückzusetzen – der Demo-Rundgang ist
-        // index-basiert und würde sonst wieder von vorn beginnen.
+        // Resume without resetting tourStep – the demo walk-through is
+        // index-based and would otherwise start over from the beginning.
         resumeTour: () => set({tourActive: true, tourSuspended: false}),
         nextTourStep: () => set((state) => ({tourStep: state.tourStep + 1})),
         suspendTour: () => set({tourActive: false, tourSuspended: true}),

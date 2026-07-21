@@ -1,4 +1,4 @@
-// Kontakt- und Verantwortlichkeitsdaten. ATB ist Betreiber der App.
+// Contact and responsibility data. ATB is the operator of the app.
 
 export const DEVELOPER = {
     name: "runlevel3 GmbH",
@@ -11,10 +11,10 @@ export const OPERATOR = {
     url: "https://www.atb-potsdam.de",
 } as const;
 
-// Impressum-Angaben (§ 5 DDG). ATB ist Betreiber der App; die vollständige
-// Anbieterkennzeichnung (vertretungsberechtigte Personen, Vereinsregister,
-// USt-IdNr.) wird auf die ATB-Impressumsseite verlinkt statt hier dupliziert,
-// damit sie nicht driftet.
+// Impressum (legal notice) details (§ 5 DDG). ATB is the operator of the app; the
+// full provider identification (authorized representatives, Vereinsregister,
+// USt-IdNr.) is linked to the ATB Impressum page instead of duplicated here,
+// so that it does not drift.
 export const IMPRINT = {
     provider: OPERATOR.name,
     address: OPERATOR.address,
@@ -23,10 +23,10 @@ export const IMPRINT = {
     imprintUrl: "https://www.atb-potsdam.de/de/impressum",
 } as const;
 
-// Datenschutz-Angaben. Kontakt der/des Datenschutzbeauftragten und die
-// vollständige Datenschutzerklärung liegen beim ATB; hier wird darauf verwiesen.
-// TODO(ATB): Zuständigkeit der Aufsichtsbehörde bestätigen (Sitz Potsdam →
-// voraussichtlich LDA Brandenburg).
+// Privacy (Datenschutz) details. The contact of the data protection officer and
+// the full privacy policy reside with ATB; they are referenced here.
+// TODO(ATB): confirm the responsibility of the supervisory authority (seat Potsdam →
+// presumably LDA Brandenburg).
 export const PRIVACY = {
     dpoEmail: "datenschutz@atb-potsdam.de",
     policyUrl: "https://www.atb-potsdam.de/de/datenschutz",

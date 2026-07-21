@@ -36,7 +36,7 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index}: Props) =>
                 {index}. {field.name} — {moduleLabel} — {formatNumDe(field.areaHa, 2)} ha
             </Text>
 
-            {/* Standortdaten */}
+            {/* Location data (Standortdaten) */}
             <View style={styles.detailTable}>
                 <View style={styles.detailTableHeader}>
                     <Text style={styles.detailTableHeaderCell}>Standortdaten</Text>
@@ -75,16 +75,16 @@ export const PdfFieldDetail = ({field, assignment: fa, result, index}: Props) =>
                 )}
             </View>
 
-            {/* Nutzungsdaten */}
+            {/* Usage data (Nutzungsdaten) */}
             <PdfNutzungsdatenBlock fa={fa} />
 
-            {/* Berechnungsgrundlagen */}
+            {/* Calculation basis (Berechnungsgrundlagen) */}
             <PdfBerechnungsBlock module={fa.module} result={result} fa={fa} source={source} />
 
-            {/* Zuschläge */}
+            {/* Surcharges (Zuschläge) */}
             <PdfZuschlaegeBlock module={fa.module} result={result} />
 
-            {/* Ergebnis */}
+            {/* Result (Ergebnis) */}
             <PdfErgebnisBlock result={result} />
         </View>
     );

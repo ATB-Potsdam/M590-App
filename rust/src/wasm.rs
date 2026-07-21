@@ -26,7 +26,7 @@ impl WasmLayer {
         })
     }
 
-    /// `property` – Name der FlatGeobuf-Property, z. B. "KWB" oder "NAME"
+    /// `property` – name of the FlatGeobuf property, e.g. "KWB" or "NAME"
     #[wasm_bindgen(js_name = queryPointJSON)]
     pub fn query_point_json(&self, lon: f64, lat: f64, property: &str) -> Result<String, JsValue> {
         let eps = 1e-9;

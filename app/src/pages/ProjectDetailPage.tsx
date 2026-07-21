@@ -70,7 +70,7 @@ export const ProjectDetailPage = () => {
         );
     }
 
-    // Felder die noch NICHT zugewiesen sind
+    // Fields that are NOT yet assigned
     const assignedFieldIds = new Set(project.fieldAssignments.map((fa) => fa.fieldId));
     const availableFields = farm.fields.filter((f) => !assignedFieldIds.has(f.id));
 
@@ -92,8 +92,8 @@ export const ProjectDetailPage = () => {
     ).length;
     const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
 
-    // Terminologie an den Projektkontext anpassen: reine Sport-/Golf-Projekte
-    // sagen "Fläche" statt "Schlag"/"Feld".
+    // Adapt the terminology to the project context: pure sport/golf projects
+    // say "Fläche" (area) instead of "Schlag"/"Feld" (field).
     const projectModules = project.fieldAssignments.map((fa) => fa.module);
     const term = fieldTerm(projectModules);
     const termPlural = fieldTerm(projectModules, true);
@@ -156,7 +156,7 @@ export const ProjectDetailPage = () => {
             <OnboardingBanner />
             {project.isDemo && <DemoHint variant="project" />}
 
-            {/* Feld-/Flächenzuweisungen */}
+            {/* Field/area assignments */}
             <h2>{term === 'Feld' ? 'Feldzuweisungen' : 'Flächenzuweisungen'}</h2>
 
             {project.fieldAssignments.length === 0 && (
@@ -178,7 +178,7 @@ export const ProjectDetailPage = () => {
                                 data-tour={i === 0 ? "assignment-row" : undefined}
                                 onClick={() => navigate(`/projects/${project.id}/assignment/${fa.id}`)}
                             >
-                                {/* Zeile 1: Feldname + Fläche + Klimazone – unverändert */}
+                                {/* Row 1: field name + area + climate zone – unchanged */}
                                 <div className="assignment-list__field">
                                     <strong>{field.name}</strong>
                                     <span>{formatNum(field.areaHa, 2)} ha</span>
@@ -187,7 +187,7 @@ export const ProjectDetailPage = () => {
                                     )}
                                 </div>
 
-                                {/* Zeile 2: Modul + Pflanze – unverändert */}
+                                {/* Row 2: module + plant – unchanged */}
                                 <div className="assignment-list__module">
                                     {fa.module
                                         ? <span className="module-badge module-badge--set">{getModuleLabel(fa.module)}</span>
@@ -203,14 +203,14 @@ export const ProjectDetailPage = () => {
                                     )}
                                 </div>
 
-                                {/* Zeile 3: Bewässerungszeitraum – unverändert */}
+                                {/* Row 3: irrigation period – unchanged */}
                                 {fa.irrigationPeriod && (
                                     <div className="assignment-list__period">
                                         📅 {formatPeriod(fa.irrigationPeriod)}
                                     </div>
                                 )}
 
-                                {/* Zeile 4: Berechnungsergebnis – neu */}
+                                {/* Row 4: calculation result – new */}
                                 {(() => {
                                     const result = assignmentResults[i];
                                     const missing = result === null && fa.module
@@ -220,8 +220,8 @@ export const ProjectDetailPage = () => {
                                     const normalHasValue = result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue);
                                     const dryHasValue = result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue);
 
-                                    // Selbstheilende Lookups: wenn nur Klima/Klimadaten gerade noch nicht
-                                    // geladen sind, zeigen wir „wird ermittelt…“ statt einer Fehler-/Link-Liste.
+                                    // Self-healing lookups: if only climate/climate data is not yet
+                                    // loaded, we show "wird ermittelt…" (being determined) instead of an error/link list.
                                     const climateLoading = !result && fa.module && (
                                         field.climateClassStatus === "loading" ||
                                         field.climateClassStatus === "idle" ||
@@ -260,8 +260,8 @@ export const ProjectDetailPage = () => {
                                     }
 
                                     if (missing.length > 0) {
-                                        // Field-level Mängel werden auf Farm-Seite behoben (?edit=<id>),
-                                        // Modul-/Plant-/Optionen auf der Zuweisungs-Seite.
+                                        // Field-level deficiencies are fixed on the farm page (?edit=<id>),
+                                        // module/plant/options on the assignment page.
                                         const isFieldLevel = (m: string) =>
                                             m.startsWith("Klimazone") || m.startsWith("Klimadaten") || m === "nFKWe-Klasse";
                                         return (
@@ -324,7 +324,7 @@ export const ProjectDetailPage = () => {
                 })}
             </ul>
 
-            {/* Feld/Fläche hinzufügen */}
+            {/* Add field/area */}
             <div data-tour="add-assignment">
             {showAddField ? (
                 <div className="project-detail__add-field">
@@ -367,16 +367,16 @@ export const ProjectDetailPage = () => {
             )}
             </div>
 
-            {/* Zusammenfassung */}
+            {/* Summary */}
             {project.fieldAssignments.length > 0 && (
-                // Rundgang-Ziel umschließt Zusammenfassung UND den PDF-Export-Button
-                // (der Button ist eine Schwester der <section>) – sonst bliebe er im
-                // letzten Schritt „Zusammenfassung & PDF“ außerhalb des Spotlights.
+                // The Rundgang (tour) target wraps the summary AND the PDF export button
+                // (the button is a sibling of the <section>) – otherwise it would stay outside
+                // the spotlight in the last step "Zusammenfassung & PDF" (summary & PDF).
                 <div data-tour="project-summary" className="project-summary-tour-wrap">
                 <section className="project-summary">
                     <h2>Zusammenfassung</h2>
 
-                    {/* Detailtabelle je Feld/Fläche */}
+                    {/* Detail table per field/area */}
                     <details className="project-summary__details">
                         <summary>Details je {term}</summary>
                         <div className="project-summary__table-wrap-outer" ref={tableOuterRef}>
@@ -472,7 +472,7 @@ export const ProjectDetailPage = () => {
                         </div>
                     </details>
 
-                    {/* Brutto / Alt. Wasser / Netto */}
+                    {/* Brutto (gross) / Alt. Wasser / Netto (net) */}
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>

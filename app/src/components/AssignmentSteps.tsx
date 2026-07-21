@@ -14,9 +14,9 @@ interface Props {
 }
 
 /**
- * Orientierungs-Fortschrittsanzeige für die Zuweisungs-Maske.
- * Zeigt die drei Makro-Phasen (Nutzung → Details → Ergebnis), damit Anwender
- * wissen, wo sie stehen und was noch kommt. Rein informativ, nicht klickbar.
+ * Orientation progress indicator for the assignment (Zuweisung) screen.
+ * Shows the three macro phases (Nutzung → Details → Ergebnis) so users
+ * know where they are and what is still to come. Purely informational, not clickable.
  */
 export const AssignmentSteps = ({current}: Props) => {
     const currentIdx = STEPS.findIndex((s) => s.key === current);

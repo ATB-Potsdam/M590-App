@@ -9,10 +9,10 @@ export interface TargetRect {
 }
 
 /**
- * Löst das Element mit [data-tour="<target>"] auf. Nach einem Routenwechsel ist
- * das Ziel noch nicht im DOM – deshalb wird per requestAnimationFrame gepollt,
- * bis es erscheint (gleiches Muster wie das scrollIntoView in ProjectsPage/DemoHint).
- * Danach wird es zentriert gescrollt und die Position bei Scroll/Resize aktualisiert.
+ * Resolves the element with [data-tour="<target>"]. After a route change the
+ * target is not yet in the DOM – therefore it is polled via requestAnimationFrame
+ * until it appears (same pattern as the scrollIntoView in ProjectsPage/DemoHint).
+ * It is then scrolled to center and its position is updated on scroll/resize.
  */
 export const useTourTarget = (target: string | null): TargetRect | null => {
     const [rect, setRect] = useState<TargetRect | null>(null);
@@ -29,10 +29,10 @@ export const useTourTarget = (target: string | null): TargetRect | null => {
         const selector = `[data-tour="${target}"]`;
 
         const measure = () => {
-            // Frisch nachschlagen: React kann das Element bei Re-Renders durch ein
-            // neues ersetzen; ein gecachtes, abgehängtes Element liefert 0×0. Ein
-            // ersetztes Element hängt zudem den alten ResizeObserver ab – darum hier
-            // immer neu auflösen und den Observer auf den aktuellen Knoten setzen.
+            // Look up fresh: on re-renders React can replace the element with a new
+            // one; a cached, detached element returns 0×0. A replaced element also
+            // detaches the old ResizeObserver – so always re-resolve here and point
+            // the observer at the current node.
             const cur = document.querySelector(selector);
             if (!cur) return;
             if (cur !== el) {
@@ -42,28 +42,28 @@ export const useTourTarget = (target: string | null): TargetRect | null => {
                 observer.observe(cur);
             }
             const r = cur.getBoundingClientRect();
-            // 0×0 (nicht gelayoutet/abgehängt) ignorieren – altes Rechteck behalten.
+            // Ignore 0×0 (not laid out/detached) – keep the old rect.
             if (r.width === 0 && r.height === 0) return;
             setRect({top: r.top, left: r.left, width: r.width, height: r.height});
         };
 
-        // Nach dem ersten Fund kann sich die Ziel-Größe noch ändern: die Ergebnis-
-        // Pills einer Zuweisung erscheinen erst, wenn die Klima-Lookups asynchron
-        // fertig sind – die Zeile wächst DANACH. Passiert das per React-Re-Render,
-        // wird der beobachtete Knoten ersetzt und der alte ResizeObserver feuert
-        // nie → der Spotlight bliebe zu kurz (bis der Anwender scrollt). Darum ein
-        // paar Frames lang aktiv nachmessen (re-query je Frame), bis das Rechteck
-        // ein paar Frames stabil ist bzw. das Zeitbudget erschöpft ist.
+        // After the first find, the target size can still change: an assignment's
+        // result pills only appear once the climate lookups have finished
+        // asynchronously – the row grows AFTERWARDS. If that happens via a React
+        // re-render, the observed node is replaced and the old ResizeObserver never
+        // fires → the spotlight would stay too short (until the user scrolls).
+        // Therefore actively re-measure for a few frames (re-query per frame) until
+        // the rect is stable for a few frames or the time budget is exhausted.
         const settle = (framesLeft: number, stableFor: number) => {
             if (cancelled) return;
             const cur = document.querySelector(selector);
             const r = cur?.getBoundingClientRect();
-            // Solange das Layout noch nicht ruhig ist, das Ziel im Sichtbereich
-            // halten: der einmalige scrollIntoView beim Fund wird stale, wenn die
-            // Seite danach umbricht (z. B. die Zusammenfassung berechnet ihre
-            // Summen asynchron und wächst, oder wir sind gerade von der Zuweisungs-
-            // Seite hochnavigiert). Erst re-scrollen, DANN messen, damit das
-            // Spotlight-Rechteck zu den finalen Viewport-Koordinaten passt.
+            // While the layout is not yet settled, keep the target in view: the
+            // one-time scrollIntoView at find time goes stale if the page reflows
+            // afterwards (e.g. the summary computes its totals asynchronously and
+            // grows, or we just navigated up from the assignment page). Re-scroll
+            // first, THEN measure, so that the spotlight rect matches the final
+            // viewport coordinates.
             if (cur && r && !(r.width === 0 && r.height === 0)) {
                 const vh = window.innerHeight;
                 const fullyVisible = r.top >= 0 && r.bottom <= vh;
@@ -79,10 +79,10 @@ export const useTourTarget = (target: string | null): TargetRect | null => {
             }
         };
 
-        // Auf das Erscheinen UND das Layout des Ziels warten. Nach einem
-        // Routenwechsel matcht querySelector das Element evtl. schon, während die
-        // Seite noch nicht gerendert ist → Rechteck 0×0 am Ursprung. Erst wenn
-        // eine echte Größe vorliegt, wird gescrollt, gemessen und beobachtet.
+        // Wait for the target to appear AND be laid out. After a route change
+        // querySelector may already match the element while the page is not yet
+        // rendered → rect 0×0 at the origin. Only once a real size is present is it
+        // scrolled, measured and observed.
         const poll = () => {
             if (cancelled) return;
             const found = document.querySelector(selector);
@@ -95,10 +95,10 @@ export const useTourTarget = (target: string | null): TargetRect | null => {
                 observer.observe(found);
                 window.addEventListener("scroll", measure, {passive: true, capture: true});
                 window.addEventListener("resize", measure);
-                // ~1.5s (90 Frames) lang nachmessen, bis das Layout ruhig ist.
+                // Re-measure for ~1.5s (90 frames) until the layout is settled.
                 settleRaf = requestAnimationFrame(() => settle(90, 0));
             } else {
-                // Noch nicht (sinnvoll) da – weiter pollen.
+                // Not (meaningfully) present yet – keep polling.
                 raf = requestAnimationFrame(poll);
             }
         };
@@ -111,8 +111,8 @@ export const useTourTarget = (target: string | null): TargetRect | null => {
             observer?.disconnect();
             window.removeEventListener("scroll", measure, {capture: true});
             window.removeEventListener("resize", measure);
-            // Beim Wechsel des Ziels (oder Beenden) das alte Rechteck verwerfen,
-            // damit der Spotlight nicht kurz am alten Ort stehen bleibt.
+            // On target change (or teardown) discard the old rect, so the
+            // spotlight does not briefly linger at the old location.
             setRect(null);
         };
     }, [target]);

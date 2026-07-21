@@ -3,7 +3,7 @@ import type {Placement} from "@floating-ui/react";
 import type {Farm} from "../../types/farm";
 import type {Project} from "../../types/project";
 
-/** Kontext, gegen den state-basierte Schritte ihren Abschluss prüfen. */
+/** Context against which state-based steps check their completion. */
 export interface TourContext {
     farm: Farm;
     projects: Project[];
@@ -12,40 +12,40 @@ export interface TourContext {
 }
 
 /**
- * ID des Szenarios, das der (lineare) Rundgang öffnet: das erste vom Anwender
- * angelegte (nicht-Demo), sonst das erste überhaupt. Der Spotlight-Anker
- * `data-tour="project-row"` MUSS auf genau diese Zeile gesetzt werden, sonst
- * findet der Schritt „Szenario öffnen“ kein Ziel und der Rundgang bleibt hängen.
+ * ID of the scenario that the (linear) walk-through opens: the first one created
+ * by the user (non-demo), otherwise the first one at all. The spotlight anchor
+ * `data-tour="project-row"` MUST be set on exactly this row, otherwise the step
+ * "Szenario öffnen" finds no target and the walk-through hangs.
  */
 export const tourProjectId = (projects: Project[]): string | undefined =>
     projects.find((p) => !p.isDemo)?.id ?? projects[0]?.id;
 
-/** ID des vom Anwender angelegten (nicht-Demo) Szenarios – für Ziel-Routen. */
+/** ID of the user-created (non-demo) scenario – for target routes. */
 export const currentProjectId = (ctx: TourContext): string | undefined =>
     tourProjectId(ctx.projects);
 
 /**
- * Ein Schritt des geführten Rundgangs. Der Anwender führt die echte Aktion selbst
- * aus; der Rundgang „lauscht“ (Route bzw. Zustand) und rückt dann vor.
+ * A step of the guided walk-through. The user performs the actual action
+ * themselves; the walk-through "listens" (route or state) and then advances.
  */
 export interface TourStep {
     id: string;
-    /** Erwarteter Pfad für diesen Schritt. Funktion, falls die Demo-ID gebraucht wird. */
+    /** Expected path for this step. Function if the demo ID is needed. */
     route: string | ((demoId: string) => string);
-    /** data-tour-Wert des Elements, das hervorgehoben wird. */
+    /** data-tour value of the element that is highlighted. */
     target: string;
     title: string;
-    /** Warum-hier-klicken-Text (Deutsch). */
+    /** Why-click-here text (German). */
     body: string;
     placement?: Placement;
     /**
-     * Wie der Schritt abgeschlossen wird:
-     *  - "route":  Pfad passt zum Ziel des nächsten Schritts (Anwender navigiert)
-     *  - "state":  ein Zustand hat sich geändert (Name gesetzt, Feld angelegt, …)
-     *  - "button": der Anwender bestätigt per „Weiter“/„Fertig“
+     * How the step is completed:
+     *  - "route":  path matches the next step's target (user navigates)
+     *  - "state":  a state has changed (name set, field created, …)
+     *  - "button": the user confirms via "Weiter"/"Fertig"
      */
     advanceOn: "route" | "state" | "button";
-    /** Nur bei advanceOn === "state": true, sobald der Schritt erledigt ist. */
+    /** Only for advanceOn === "state": true once the step is done. */
     done?: (ctx: TourContext) => boolean;
 }
 
@@ -59,7 +59,7 @@ const hasAssignment = (ctx: TourContext) =>
 const hasAssignedModule = (ctx: TourContext) =>
     ctx.projects.some((p) => p.fieldAssignments.some((fa) => !!fa.module));
 
-// Von beiden Rundgängen geteilter Schritt: Flächen anlegen/bearbeiten.
+// Step shared by both walk-throughs: create/edit fields.
 const fieldStep = (advanceOn: "state" | "button"): TourStep => ({
     id: "add-field",
     route: "/farm",
@@ -74,8 +74,8 @@ const fieldStep = (advanceOn: "state" | "button"): TourStep => ({
 });
 
 /**
- * Rundgang durch die geladenen Beispieldaten (Variante b): führt im Kontext von
- * Feldern → Szenarien → Zuweisung → Zusammenfassung, ohne in Formulare zu ziehen.
+ * Walk-through of the loaded demo data (variant b): leads through the context of
+ * fields → scenarios → assignment → summary, without pulling into forms.
  */
 export const demoSteps: TourStep[] = [
     {
@@ -113,14 +113,14 @@ export const demoSteps: TourStep[] = [
         title: "Zuweisungen",
         body: "Jede Zeile ist eine Zuweisung: eine Fläche mit ihrer Nutzung und dem berechneten Bedarf. Öffnen Sie die Zuweisung mit einem Klick, um die Details zu sehen.",
         placement: "bottom",
-        // Anwender klickt die Zuweisung → Wechsel auf die Zuweisungs-Seite rückt vor.
+        // User clicks the assignment → switching to the assignment page advances.
         advanceOn: "route",
     },
     {
         id: "assignment-detail",
-        // Elternroute (Szenario-Seite): die Auto-Navigation lässt den Anwender auf
-        // der tieferen Zuweisungs-Seite in Ruhe (here.startsWith(route + "/")),
-        // sodass der Spotlight das Ergebnis auf der Zuweisungs-Seite treffen kann.
+        // Parent route (scenario page): the auto-navigation leaves the user alone
+        // on the deeper assignment page (here.startsWith(route + "/")), so that the
+        // spotlight can hit the result on the assignment page.
         route: (id) => `/projects/${id}`,
         target: "assignment-result",
         title: "Berechnung & Ergebnis",
@@ -140,35 +140,35 @@ export const demoSteps: TourStep[] = [
 ];
 
 /**
- * Rundgang für den Leerzustand: leitet Schritt für Schritt durch das Anlegen
- * eigener Daten. Jeder Schritt rückt automatisch vor, sobald die echte Aktion
- * erfolgt ist (Name gesetzt, Feld angelegt, Szenario erstellt, Nutzung zugewiesen).
+ * Walk-through for the empty state: guides step by step through creating your
+ * own data. Each step advances automatically once the actual action has been
+ * done (name set, field created, scenario created, usage assigned).
  */
 /**
- * Zustandsgesteuerter Schritt des Leerzustand-Rundgangs. Anders als der Demo-
- * Rundgang läuft dieser nicht über einen festen Index, sondern der aktive Schritt
- * ist immer der erste noch NICHT erledigte – abgeleitet aus dem echten App-Zustand.
- * So zeigt der Rundgang (auch nach Neustart aus dem ?-Dialog) stets den nächsten
- * sinnvollen Schritt, egal was schon angelegt ist.
+ * State-driven step of the empty-state walk-through. Unlike the demo walk-through,
+ * this one does not run via a fixed index; instead the active step is always the
+ * first one NOT yet done – derived from the actual app state. So the walk-through
+ * (even after a restart from the ?-dialog) always shows the next sensible step,
+ * regardless of what already exists.
  */
 export interface EmptyStep {
     id: string;
-    /** Ziel-Route; Funktion, falls die Projekt-ID gebraucht wird. */
+    /** Target route; function if the project ID is needed. */
     route: (ctx: TourContext) => string;
-    /** data-tour-Wert des hervorzuhebenden Elements. */
+    /** data-tour value of the element to highlight. */
     target: string;
     title: string;
     body: string;
     placement?: Placement;
-    /** true, sobald der Schritt anhand des Zustands als erledigt gilt. */
+    /** true once the step is considered done based on the state. */
     done: (ctx: TourContext) => boolean;
-    /** Letzter Schritt: „Fertig“ statt „Weiter“. */
+    /** Last step: "Fertig" instead of "Weiter". */
     terminal?: boolean;
     /**
-     * Banner-Modus: kein Spotlight/kein Ziel, sondern ein fest am unteren Rand
-     * verankerter Hinweis. Für Schritte, deren „Ziel“ ein mehrteiliges, selbst
-     * scrollendes Formular ist (Zuweisungs-Maske) – ein wanderndes Spotlight
-     * würde dort ständig aus dem Bild scrollen.
+     * Banner mode: no spotlight/no target, but a hint anchored fixed at the bottom
+     * edge. For steps whose "target" is a multi-part, self-scrolling form
+     * (assignment form) – a roaming spotlight would constantly scroll off-screen
+     * there.
      */
     banner?: boolean;
 }
@@ -197,7 +197,7 @@ export const emptySteps: EmptyStep[] = [
         title: "Zu den Szenarien",
         body: "Wechseln Sie unten zu Szenarien ➔ – dort legen Sie eine Bewässerungsberechnung an.",
         placement: "top",
-        // Erledigt, sobald der Anwender die Szenarien-Seite (oder weiter) erreicht.
+        // Done once the user reaches the scenarios page (or beyond).
         done: (ctx) => ctx.pathname === "/" || onProjectDetail(ctx) || onAssignmentPage(ctx) || hasProject(ctx),
     },
     {
@@ -219,7 +219,7 @@ export const emptySteps: EmptyStep[] = [
         title: "Nutzung festlegen",
         body: "Öffnen Sie die Zuweisung („Nutzung wählen“), um die Art der Nutzung festzulegen.",
         placement: "bottom",
-        // Erledigt, sobald die Zuweisungs-Seite offen ist ODER schon ein Modul gesetzt.
+        // Done once the assignment page is open OR a module is already set.
         done: (ctx) => onAssignmentPage(ctx) || hasAssignedModule(ctx),
     },
     {
@@ -227,7 +227,7 @@ export const emptySteps: EmptyStep[] = [
         title: "Nutzung wählen & speichern",
         body: "Arbeiten Sie die Schritte Nutzung ➔ Details ab: Nutzung wählen (z. B. Hauptkulturen oder Golf), Angaben ausfüllen und die Zuweisung speichern. Die App berechnet den Bedarf automatisch – danach geht die Tour weiter.",
         banner: true,
-        // Modul landet erst beim Speichern im Store → feuert nach dem Speichern.
+        // Module only lands in the store on save → fires after saving.
         done: hasAssignedModule,
     },
     {
@@ -236,15 +236,15 @@ export const emptySteps: EmptyStep[] = [
         body: "Hier steht der Gesamtbedarf – und Sie können daraus das PDF für Ihren Antrag erzeugen. Fertig!",
         placement: "top",
         terminal: true,
-        done: () => false, // Endschritt: bleibt bis „Fertig“.
+        done: () => false, // Final step: stays until "Fertig".
     },
 ];
 
 /**
- * Aktueller Schritt des Leerzustand-Rundgangs = erster noch nicht erledigter,
- * rein aus dem App-Zustand abgeleitet. So zeigt der Rundgang – auch nach Neustart
- * aus dem ?-Dialog – stets die nächste sinnvolle Aktion. Ist alles erledigt bis
- * auf den Endschritt, wird dieser gezeigt (bis „Fertig“).
+ * Current step of the empty-state walk-through = first one not yet done, derived
+ * purely from the app state. So the walk-through – even after a restart from the
+ * ?-dialog – always shows the next sensible action. If everything except the
+ * final step is done, that one is shown (until "Fertig").
  */
 export const currentEmptyStep = (ctx: TourContext): EmptyStep | undefined => {
     for (const step of emptySteps) {
@@ -255,22 +255,22 @@ export const currentEmptyStep = (ctx: TourContext): EmptyStep | undefined => {
 };
 
 /**
- * True, sobald alle inhaltlichen Leerzustand-Schritte (ohne den Endschritt)
- * erledigt sind – d. h. es gibt bereits Betrieb, Feld, Szenario, Zuweisung und
- * Modul. Dann ist der geführte Anlege-Rundgang gegenstandslos und würde nur auf
- * die Zusammenfassung springen; der ?-Dialog blendet den Rundgang-Button dann aus.
+ * True once all content empty-state steps (excluding the final step) are done –
+ * i.e. there is already a farm, field, scenario, assignment and module. Then the
+ * guided setup walk-through is moot and would only jump to the summary; the
+ * ?-dialog hides the walk-through button in that case.
  */
 export const allEmptyStepsDone = (ctx: TourContext): boolean =>
     emptySteps.every((step) => step.terminal || step.done(ctx));
 
 /**
- * True, wenn der (lineare) Rundgang mit den vorhandenen Daten vollständig
- * durchlaufbar ist – d. h. Betrieb, Feld und das vom Rundgang geöffnete Szenario
- * (currentProjectId) hat mindestens eine Zuweisung, deren Feld existiert. Nur
- * dann funktionieren die klick-/routenbasierten Schritte (Szenario öffnen →
- * Zuweisung öffnen). Damit lässt sich der Rundgang als neutrale „Kurzeinführung“
- * auch ohne Beispieldaten anbieten – aber nur, wenn er nicht auf halbem Weg
- * mangels anklickbarer Zeile stehen bliebe.
+ * True if the (linear) walk-through can run through completely with the existing
+ * data – i.e. there is a farm, a field, and the scenario opened by the
+ * walk-through (currentProjectId) has at least one assignment whose field exists.
+ * Only then do the click-/route-based steps work (open scenario → open
+ * assignment). This lets the walk-through be offered as a neutral
+ * "Kurzeinführung" even without demo data – but only if it would not get stuck
+ * halfway for lack of a clickable row.
  */
 export const isTourWalkable = (ctx: TourContext): boolean => {
     if (!hasFarmName(ctx) || !hasField(ctx)) return false;

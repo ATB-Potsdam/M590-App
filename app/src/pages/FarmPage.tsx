@@ -50,10 +50,10 @@ export const FarmPage = () => {
     const addMessage = useAppStore((state) => state.addMessage);
     const [showAddField, setShowAddField] = useState(false);
     const [editingField, setEditingField] = useState<Field | null>(null);
-    // editingName startet false: fehlt der Name, zeigt das Render-Gate
-    // (editingName || !farm.name) trotzdem das Eingabefeld. So bleibt kein
-    // veralteter „im Bearbeiten“-Zustand hängen, wenn der Name von aussen
-    // gesetzt wird (Demo laden, Import).
+    // editingName starts false: if the name is missing, the render gate
+    // (editingName || !farm.name) still shows the input field. This way no
+    // stale "editing" state lingers when the name is set from outside
+    // (loading the demo, import).
     const [editingName, setEditingName] = useState(false);
     const [nameDraft, setNameDraft] = useState(farm.name);
     const [confirmImport, setConfirmImport] = useState<{farm: Farm; projects: Project[]} | null>(null);
@@ -103,9 +103,9 @@ export const FarmPage = () => {
     }, [confirmDeleteFieldId]);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Deep-Link aus ProjectDetailPage: ?edit=<fieldId> öffnet Editor + scrollt.
-    // URL-→-State-Synchronisation bedingt setState im Effect; ist nicht
-    // eigentliches Anti-Pattern (Quelle ist externer Router-State).
+    // Deep link from ProjectDetailPage: ?edit=<fieldId> opens the editor + scrolls.
+    // URL-→-state synchronisation requires setState in the effect; this is not
+    // a genuine anti-pattern (the source is external router state).
     useEffect(() => {
         const editId = searchParams.get("edit");
         if (!editId) return;
@@ -120,7 +120,7 @@ export const FarmPage = () => {
                 });
             }, 50);
         }
-        // Param entfernen damit nachfolgende Renders nicht erneut feuern
+        // Remove the param so subsequent renders don't fire again
         searchParams.delete("edit");
         setSearchParams(searchParams, {replace: true});
     }, [searchParams, setSearchParams, farm.fields]);
@@ -136,11 +136,11 @@ export const FarmPage = () => {
         const [, setProjects] = useLocalStore.getState().dwa_projects;
         const [, setTourCompleted] = useLocalStore.getState().dwa_tour_completed;
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
-        // Beispiel laden = bewusster „zeig mir das“-Klick → Rundgang wieder anbieten
-        // (der schwebende Button ist sonst ausgeblendet, wenn früher schon beendet).
+        // Loading the example = a deliberate "show me this" click → offer the Rundgang again
+        // (the floating button is otherwise hidden once it was finished earlier).
         setTourCompleted(false);
         setConfirmLoadDemo(false);
-        // Nach oben scrollen, damit der Demo-Hinweis und der Betrieb sichtbar sind.
+        // Scroll to the top so the demo hint and the farm are visible.
         window.scrollTo({top: 0, behavior: "smooth"});
     };
 
@@ -211,9 +211,9 @@ export const FarmPage = () => {
                             value={nameDraft}
                             onChange={(e) => setNameDraft(e.target.value)}
                             onBlur={() => {
-                                // Name beim Verlassen des Feldes übernehmen, damit der
-                                // Haken nicht extra geklickt werden muss. Leere Eingabe
-                                // ignorieren (Feld bleibt im Bearbeiten-Modus).
+                                // Apply the name when leaving the field, so the
+                                // checkmark doesn't have to be clicked separately. Ignore
+                                // empty input (the field stays in editing mode).
                                 const trimmed = nameDraft.trim();
                                 if (!trimmed) return;
                                 updateFarmName(trimmed);
@@ -252,8 +252,8 @@ export const FarmPage = () => {
                         <button
                             type="button"
                             className="farm-page__name-btn farm-page__name-btn--cancel"
-                            // onMouseDown feuert vor dem input-onBlur, damit „Verwerfen“
-                            // nicht durch das Speichern-bei-Blur überschrieben wird.
+                            // onMouseDown fires before the input onBlur, so "Verwerfen" (discard)
+                            // is not overridden by the save-on-blur.
                             onMouseDown={(e) => {
                                 e.preventDefault();
                                 setNameDraft(farm.name);

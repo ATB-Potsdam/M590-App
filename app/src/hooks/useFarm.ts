@@ -11,7 +11,7 @@ export const useFarm = () => {
     const precipitationLookup = useAppStore((state) => state.precipitationLookup);
     const et0Lookup = useAppStore((state) => state.et0Lookup);
 
-    // Klimadaten für ein Feld laden und speichern
+    // Load and store climate data for a field
     const fetchClimateData = (id: string, lat: number, lon: number) => {
         if (!precipitationLookup || !et0Lookup) return;
 
@@ -50,7 +50,7 @@ export const useFarm = () => {
     ) => {
         const id = uuidv4();
 
-        // Sofort mit loading speichern
+        // Store immediately with loading state
         setFarm((prev: Farm) => ({
             ...prev,
             fields: [
@@ -65,7 +65,7 @@ export const useFarm = () => {
             updatedAt: new Date().toISOString(),
         }));
 
-        // Klimazone + Klimadaten ermitteln
+        // Determine climate zone + climate data
         try {
             const climateClass = latLonToClimateClass(field.location);
             setFarm((prev: Farm) => ({
@@ -180,7 +180,7 @@ export const refreshClimateData = (
         });
 };
 
-/** Klimazone (KWBv-Klasse) für Felder ermitteln, deren Status noch nicht "done" ist. */
+/** Determine the climate zone (KWBv class) for fields whose status is not yet "done". */
 export const refreshClimateClass = (
     setFarm: (fn: (prev: Farm) => Farm) => void,
     fields: Field[]

@@ -1,9 +1,9 @@
 // src/lib/calculations/golf.ts
-// DWA-M 590, Kap. 4.4.4, Tabellen 34 und 35: Golfplätze
+// DWA-M 590, Kap. 4.4.4, Tables 34 and 35: golf courses
 import type {Range} from "../../types/dataTypes";
 import {toNaturrasenPrecipClass, type NaturrasenPrecipClass} from "./naturrasen";
 
-// Tabelle 34: Mittlere jährliche Zusatzwasserbedarfe für Golfplätze (mm/a)
+// Table 34: mean annual additional water demand for golf courses (mm/a)
 const TABLE_34_GREENS: Record<NaturrasenPrecipClass, Range> = {
     "<500":    [400, 600],
     "500-700": [300, 400],
@@ -25,7 +25,7 @@ const TABLE_34_FAIRWAYS: Record<NaturrasenPrecipClass, Range> = {
     ">900":    [0,   100],
 };
 
-// Tabelle 35: Mittlere Flächengrößen verschiedener Teilbereiche (m²)
+// Table 35: mean area sizes of the various sub-areas (m²)
 export const TABLE_35 = {
     "18hole":    {greensM2: 18_000, teeM2: 11_700, fairwayM2: 176_000},
     "spielbahn": {greensM2: 1_000,  teeM2: 650,    fairwayM2: 9_778},

@@ -8,7 +8,7 @@ interface Props {
     et0: MonthValueType;
 }
 
-// März (Index 2) bis Oktober (Index 9)
+// March (index 2) to October (index 9)
 const IRRIGATION_MONTHS = [
     {index: 2, label: "Mär"},
     {index: 3, label: "Apr"},
@@ -27,7 +27,7 @@ export const ClimateBarChart = ({precipitation, et0}: Props) => {
         et0: et0[index] ?? 0,
     }));
 
-    // Separate Maxima für unabhängige Skalierung
+    // Separate maxima for independent scaling
     const maxPrecip = Math.max(...values.map((v) => v.precip), 1);
     const maxEt0 = Math.max(...values.map((v) => v.et0), 1);
     const maxValue = Math.max(maxPrecip, maxEt0);

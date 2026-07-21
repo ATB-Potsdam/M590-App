@@ -3,9 +3,9 @@ import {useAppStore} from "../../stores/useAppStore";
 import "./TourResumeButton.scss";
 
 /**
- * Schwebender Button, der erscheint, wenn der Rundgang pausiert wurde
- * („Überspringen“/Escape). Setzt den Rundgang in derselben Variante fort –
- * beim Leerzustand-Rundgang beim nächsten offenen Schritt (zustandsgesteuert).
+ * Floating button that appears when the walk-through has been paused
+ * ("Überspringen"/Escape). Resumes the walk-through in the same variant –
+ * for the empty-state walk-through at the next open step (state-driven).
  */
 export const TourResumeButton = () => {
     const tourActive = useAppStore((s) => s.tourActive);

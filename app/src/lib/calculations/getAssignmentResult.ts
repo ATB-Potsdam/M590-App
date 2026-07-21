@@ -16,9 +16,9 @@ import {calculateTennen, type TennenResult} from "./tennen";
 export interface AssignmentResult {
     normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
     dry?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
-    /** Alternative Wasserquellen in m³/a (nur Grünflächen- und Sportflächenmodule) */
+    /** Alternative water sources in m³/a (only Grünflächen and sports-area modules) */
     altWasserM3?: number;
-    /** Feldfläche in ha — für gewichtete mm/a-Berechnung in sumResults */
+    /** Field area in ha — for weighted mm/a calculation in sumResults */
     areaHa: number;
 }
 
@@ -177,7 +177,7 @@ export const getAssignmentResult = (
   }
 };
 
-// Summiert m³/a-Ranges über alle Assignments (mm/a wird vom Aufrufer aus Volumen ÷ Fläche abgeleitet)
+// Sums m³/a ranges across all assignments (mm/a is derived by the caller from volume ÷ area)
 export const sumResults = (results: AssignmentResult[]): {
     normalM3: [number, number] | null;
     normalAreaHa: number;
@@ -210,7 +210,7 @@ export const sumResults = (results: AssignmentResult[]): {
         }
     });
 
-    // Netto = Brutto-Normal minus alternative Wasserquellen (nie negativ)
+    // Netto = gross normal minus alternative water sources (never negative)
     const nettoM3: [number, number] | null = hasNormal
         ? [Math.max(0, normalM3Min - totalAltWasserM3), Math.max(0, normalM3Max - totalAltWasserM3)]
         : null;
@@ -233,7 +233,7 @@ export const getMissingData = (
 
     if (!fa.module) {
         missing.push("Nutzungsmodul");
-        return missing; // Rest ergibt keinen Sinn ohne Modul
+        return missing; // The rest makes no sense without a module
     }
 
     if ((fa.module === "hauptkulturen" || fa.module === "gemuese_obst") && !fa.plantKey) {
@@ -244,9 +244,9 @@ export const getMissingData = (
         missing.push("Bewässerungszeitraum");
     }
 
-    // Automatisch ermittelbare Werte (Klimazone, Klimadaten, nFKWe) werden NICHT
-    // als Fehler gemeldet wenn sie nur noch nicht geladen sind — sie heilen sich
-    // selbst, sobald die WASM-/Raster-Lookups bereit sind. Nur echte Fehler melden.
+    // Automatically derivable values (climate zone, climate data, nFKWe) are NOT
+    // reported as errors when they are merely not loaded yet — they heal
+    // themselves once the WASM/raster lookups are ready. Only report real errors.
     if (field.climateClassStatus === "error") {
         missing.push("Klimazone (Standort prüfen)");
     }
@@ -267,7 +267,7 @@ export const getMissingData = (
         if (!fa.fllSun) missing.push("Sonnenexposition (Faktor S)");
     }
 
-    // Alt. Wasserquellen-Pflichtangabe (0 = "keine vorhanden", undefined = nicht beantwortet)
+    // Alt. water sources mandatory field (0 = "none available", undefined = not answered)
     if (
         fa.module === "gruenflaechen" ||
         fa.module === "naturrasen" ||

@@ -3,15 +3,15 @@ import type {ReactNode} from "react";
 import "./InfoHint.scss";
 
 interface Props {
-    /** Kurze Frage/Beschriftung im Summary, z.B. "Warum fragen wir das?" */
+    /** Short question/label in the summary, e.g. "Warum fragen wir das?" */
     summary?: string;
-    /** Erklärungstext */
+    /** Explanatory text */
     children: ReactNode;
 }
 
 /**
- * Aufklappbare Kontext-Erklärung ("Warum fragen wir das?").
- * Nutzt das native <details>-Element — kein zusätzliches Tooltip-Framework.
+ * Collapsible contextual explanation ("Warum fragen wir das?").
+ * Uses the native <details> element — no additional tooltip framework.
  */
 export const InfoHint = ({summary = "Warum fragen wir das?", children}: Props) => (
     <details className="info-hint">

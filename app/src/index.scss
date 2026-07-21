@@ -3,7 +3,7 @@
 *,
 *::before,
 *::after {
-  box-sizing: border-box; // padding wird in die Breite eingerechnet, nicht addiert
+  box-sizing: border-box; // padding is counted into the width, not added on top
 }
 
 :root {
@@ -38,9 +38,9 @@ body {
   overflow-y: scroll;
 }
 
-// Rundgang im Banner-Modus: fester Hinweis am unteren Rand verdeckt sonst die
-// letzten Steuerelemente der Seite (z. B. „Zuweisung speichern“). Zusätzlichen
-// Platz nach unten schaffen, damit alles über den Banner gescrollt werden kann.
+// Rundgang (tour) in banner mode: the fixed hint at the bottom edge otherwise covers
+// the last controls of the page (e.g. "Zuweisung speichern"). Create additional
+// space at the bottom so everything can be scrolled above the banner.
 body.tour-banner-active {
   padding-bottom: 300px;
 }

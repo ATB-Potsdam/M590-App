@@ -15,12 +15,12 @@ export interface GemueseObstInput {
     areaHa: number;
     scenario: Scenario;
     irrigationPeriod: IrrigationPeriod;
-    // Standort-Klimadaten (aus Field)
+    // Site climate data (from Field)
     precipitation: MonthValueType;
     et0: MonthValueType;
-    // Zuschläge (Spec Kapitel 4.3 erlaubt nur Auflaufbewässerung A/J — kein Zwischenfrucht-Zuschlag)
+    // Surcharges (Spec Kapitel 4.3 only allows Auflaufbewässerung A/J — no Zwischenfrucht surcharge)
     surchargeEmergence: number;
-    // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
+    // User-defined (fallback if no literature value): mm/a
     userCustomMm?: number;
 }
 
@@ -47,7 +47,7 @@ export interface GemueseObstResult {
     totalRangeM3: Range;
     scenario: Scenario;
     monthlyRows: MonthlyClimateRow[];
-    // false wenn kein Literaturwert vorhanden (Tabellenwert null)
+    // false if no literature value exists (table value null)
     hasValue: boolean;
     isUserCustom: boolean;
     userCustomMm: number;
@@ -87,7 +87,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
             ? [userCustomMm!, userCustomMm!]
             : [0, 0];
 
-    // Monatliche Gewichtungen für den Bewässerungszeitraum
+    // Monthly weights for the irrigation period
     const weights = getMonthWeights(irrigationPeriod);
     const monthlyRows: MonthlyClimateRow[] = [];
     let deltaKwb = 0;
@@ -115,14 +115,14 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         });
     }
 
-    // Korrektur = ΔKWB × rFactor — entfällt für Anwender-Werte (Anwendung
-    // gibt direkt den Bedarf an, keine standortbezogene Klimakorrektur)
+    // Correction = ΔKWB × rFactor — omitted for user values (the user
+    // states the demand directly, no site-specific climate correction)
     const correctionMm = isUserCustom ? 0 : Math.round(deltaKwb * rFactor[nFkweClass]);
 
-    // AJ-Vorschlag aus Konstante (nur Gemüse)
+    // AJ suggestion from constant (vegetables only)
     const ajSuggestedMm = (rawVegetableDataAj as Record<string, number | null>)[plant] ?? null;
 
-    // Optionale Zuschläge (nur Auflaufbewässerung — Spec Kapitel 4.3)
+    // Optional surcharges (only Auflaufbewässerung — Spec Kapitel 4.3)
     const surchargeEmergenceMm = surchargeEmergence;
     const optionalSurchargeMm = surchargeEmergenceMm;
 

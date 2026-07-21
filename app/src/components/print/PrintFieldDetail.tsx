@@ -61,7 +61,7 @@ export const PrintFieldDetail = ({field, assignment: fa, result, index}: Props) 
                 {index}. {field.name} — {moduleLabel} — {formatNum(field.areaHa, 2)} ha
             </h3>
 
-            {/* Standortdaten */}
+            {/* Location data (Standortdaten) */}
             <table className="print-detail__table">
                 <thead>
                     <tr><th colSpan={2}>Standortdaten</th></tr>
@@ -98,22 +98,22 @@ export const PrintFieldDetail = ({field, assignment: fa, result, index}: Props) 
                 </tbody>
             </table>
 
-            {/* Nutzungsdaten */}
+            {/* Usage data (Nutzungsdaten) */}
             <NutzungsdatenBlock fa={fa} />
 
-            {/* Berechnungsgrundlagen */}
+            {/* Calculation basis (Berechnungsgrundlagen) */}
             <BerechnungsBlock module={fa.module} result={result} fa={fa} source={source} />
 
-            {/* Zuschläge */}
+            {/* Surcharges (Zuschläge) */}
             <ZuschlaegeBlock module={fa.module} result={result} />
 
-            {/* Ergebnis */}
+            {/* Result (Ergebnis) */}
             <ErgebnisBlock result={result} />
         </div>
     );
 };
 
-// --- Nutzungsdaten ---
+// --- Usage data (Nutzungsdaten) ---
 const NutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
     const rows: [string, string][] = [];
 
@@ -169,7 +169,7 @@ const NutzungsdatenBlock = ({fa}: {fa: FieldAssignment}) => {
     );
 };
 
-// --- Berechnungsgrundlagen ---
+// --- Calculation basis (Berechnungsgrundlagen) ---
 const SourceLine = ({source}: {source: SourceReference}) => (
     <div className="print-detail__source">
         Quelle: {source.shortName} — {source.fullName}, {source.tables}
@@ -392,7 +392,7 @@ const BerechnungsBlock = ({module, result, fa, source}: {module: ModuleType; res
     return null;
 };
 
-// --- Zuschläge ---
+// --- Surcharges (Zuschläge) ---
 const ZuschlaegeBlock = ({module, result}: {module: ModuleType; result: AssignmentResult}) => {
     if (module !== "hauptkulturen" && module !== "gemuese_obst") return null;
 
@@ -432,7 +432,7 @@ const ZuschlaegeBlock = ({module, result}: {module: ModuleType; result: Assignme
     );
 };
 
-// --- Ergebnis ---
+// --- Result (Ergebnis) ---
 const ErgebnisBlock = ({result}: {result: AssignmentResult}) => {
     const normal = result.normal;
     const dry = result.dry;

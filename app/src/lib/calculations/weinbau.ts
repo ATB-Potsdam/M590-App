@@ -26,7 +26,7 @@ export const toPrecipitationClass = (annualPrecipMm: number): PrecipitationClass
 export const isGeisenheimRange = (annualPrecipMm: number): boolean =>
     annualPrecipMm >= 500 && annualPrecipMm <= 600;
 
-// Tabelle 26: Durchschnittliche Zusatzwasserbedarfe nach Jahresniederschlag
+// Table 26: average additional water demand by annual precipitation
 const TABLE_26: Record<WeinbauNFkwe, Record<PrecipitationClass, number>> = {
     "1-2": {"<500": 70, "500-700": 50, "700-900": 40},
     "3":   {"<500": 45, "500-700": 15, "700-900": 0},
@@ -34,7 +34,7 @@ const TABLE_26: Record<WeinbauNFkwe, Record<PrecipitationClass, number>> = {
     "5":   {"<500": 20, "500-700": 0,  "700-900": 0},
 };
 
-// Tabelle 27: Normaljahr / Trockenjahr für ~550mm Standorte (Geisenheim)
+// Table 27: normal year / dry year for ~550mm sites (Geisenheim)
 const TABLE_27: Record<WeinbauNFkwe, Record<Scenario, number>> = {
     "1-2": {normal: 50, dry: 63},
     "3":   {normal: 15, dry: 50},
@@ -50,7 +50,7 @@ export interface WeinbauInput {
 }
 
 export interface WeinbauResult {
-    /** Basiswert from Table 26 (mm/a) */
+    /** Base value from Table 26 (mm/a) */
     baseMm: number;
     /** Total as Range [same, same] for consistency with other modules */
     totalRangeMm: Range;

@@ -108,8 +108,8 @@ const App = () => {
         refreshClimateData(precipitationLookup, et0Lookup, setFarm, farm.fields);
     }, [precipitationLookup, et0Lookup]);
 
-    // Klimazone (KWBv-Klasse) selbstheilend nachladen sobald WASM-Layer bereit ist.
-    // Verhindert „Klimazone fehlt“-Fehlermeldungen direkt nach App-Start.
+    // Self-healing reload of the Klimazone (KWBv class) as soon as the WASM layer is ready.
+    // Prevents "Klimazone fehlt" (climate zone missing) error messages right after app start.
     useEffect(() => {
         if (!layer) return;
         const [farm, setFarm] = useLocalStore.getState().dwa_farm;
@@ -137,9 +137,9 @@ const App = () => {
         }
     };
 
-    // Overlay schließen OHNE history.back() – wird beim Start eines Rundgangs
-    // genutzt, damit die anschließende Tour-Navigation (z. B. auf /farm) nicht
-    // durch das zurückspringende History-Entry sofort wieder rückgängig wird.
+    // Close the overlay WITHOUT history.back() – used when starting a Rundgang (guided
+    // tour) so that the subsequent tour navigation (e.g. to /farm) is not immediately
+    // undone again by the history entry jumping back.
     const closeOverlayForTour = () => {
         onboardingPushedRef.current = false;
         setOverlayForcedOpen(false);

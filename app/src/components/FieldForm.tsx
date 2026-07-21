@@ -19,8 +19,8 @@ interface Props {
     onCancel: () => void;
 }
 
-// Kurzbeschreibung + Bodenzahl-Bereich (BZ) je nFKWe-Klasse — hilft Anwendern
-// ohne bodenkundlichen Hintergrund (z.B. Golfplatzplaner) bei der Einordnung.
+// Short description + soil-index range (Bodenzahl, BZ) per nFKWe class — helps users
+// without a soil-science background (e.g. golf-course planners) with classification.
 const NFKWE_CLASS_DESC: Record<NFkweClassName, string> = {
     "1-2": "vorwiegend sandige Böden",
     "3a": "schwach lehmige Sande",

@@ -16,7 +16,7 @@ L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
 L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
 L.Icon.Default.imagePath = "";
 
-// Gedimmtes Icon für bestehende Felder
+// Dimmed icon for existing fields
 const existingIcon = new L.Icon({
     iconUrl: markerIconUrl,
     iconRetinaUrl: markerIconRetinaUrl,
@@ -24,18 +24,18 @@ const existingIcon = new L.Icon({
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     shadowSize: [41, 41],
-    className: "marker-existing", // für SCSS opacity
+    className: "marker-existing", // for SCSS opacity
 });
 
 interface Props {
     value: GeoPoint | null;
     onChange: (point: GeoPoint) => void;
     existingLocations?: Array<GeoPoint & {name: string;}>;
-    onLocate?: () => void;   // wird aus FieldForm übergeben
-    locating?: boolean;      // Lade-Zustand für disabled
+    onLocate?: () => void;   // passed in from FieldForm
+    locating?: boolean;      // loading state for disabled
 }
 
-// React.MutableRefObject → React.RefObject (nicht veraltet)
+// React.MutableRefObject → React.RefObject (not deprecated)
 const MapRefCapture = ({mapRef}: {mapRef: RefObject<LeafletMap | null>;}) => {
     const map = useMap();
 
@@ -114,7 +114,7 @@ export const LocationPicker = forwardRef<LocationPickerHandle, Props>(
                     )}
                 </MapContainer>
 
-                {/* Location-Button als Overlay – wie in Google Maps / Apple Maps */}
+                {/* Location button as overlay – like in Google Maps / Apple Maps */}
                 {onLocate && (
                     <button
                         type="button"
@@ -133,7 +133,7 @@ export const LocationPicker = forwardRef<LocationPickerHandle, Props>(
                                 </path>
                             </svg>
                         ) : (
-                            // Location-Icon (⊙)
+                            // Location icon (⊙)
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                                 <circle cx="12" cy="12" r="8" />
                                 <line x1="12" y1="2" x2="12" y2="8" />

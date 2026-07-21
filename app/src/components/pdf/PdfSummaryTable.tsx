@@ -32,7 +32,7 @@ export const PdfSummaryTable = ({data}: Props) => {
     const normalPartial = normalCount < assignedCount;
     const dryPartial = dryCount < assignedCount;
 
-    // Terminologie an Projektkontext anpassen (reine Golf-/Sport-Projekte: "Fläche")
+    // Adapt terminology to the project context (pure golf/sport projects: "Fläche")
     const projectModules = project.fieldAssignments.map((fa) => fa.module);
     const term = fieldTerm(projectModules);
     const termPlural = fieldTerm(projectModules, true);

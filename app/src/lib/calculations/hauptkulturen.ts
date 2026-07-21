@@ -8,50 +8,50 @@ export interface HauptkulturenInput {
     kwbZone: KwbZone;
     areaHa: number;
     scenario: Scenario;
-    // Zuschläge
+    // Surcharges
     surchargeIntermediate: boolean;  // +10 mm
     surchargeEmergence: number;      // 0–20 mm
-    surchargeHeavySoil: number;      // 0–20 mm (nur Kartoffeln)
-    // Speisekartoffeln: aktiviert den automatischen +20-mm-Zuschlag (nur Kartoffeln).
-    // undefined = true (Rückwärtskompatibilität mit gespeicherten Projekten).
+    surchargeHeavySoil: number;      // 0–20 mm (Kartoffeln only)
+    // Speisekartoffeln: enables the automatic +20 mm surcharge (Kartoffeln only).
+    // undefined = true (backward compatibility with saved projects).
     isTablePotato?: boolean;
-    // Sommergetreide (z.B. Sommerhafer) bei "sonst. Getreide" — schaltet die
-    // optionalen Zuschläge frei. undefined = false.
+    // Sommergetreide (e.g. Sommerhafer) for "sonst. Getreide" — unlocks the
+    // optional surcharges. undefined = false.
     isSummerCereal?: boolean;
-    // Benutzerdefiniert (Fallback, falls kein Literaturwert): mm/a
+    // User-defined (fallback if no literature value): mm/a
     userCustomMm?: number;
 }
 
 export interface HauptkulturenResult {
-    // Basiswert aus Tabelle (mm/a) als Range
+    // Base value from table (mm/a) as a Range
     baseRangeMm: Range;
-    // Automatischer Zuschlag (mm) — gesamt
+    // Automatic surcharge (mm) — total
     autoSurchargeMm: number;
-    // Beschriftung des automatischen Zuschlags (z.B. "Speisekartoffeln", "Körnermais")
+    // Label of the automatic surcharge (e.g. "Speisekartoffeln", "Körnermais")
     autoSurchargeLabel?: string;
-    // Optionale Zuschläge (mm) — gesamt
+    // Optional surcharges (mm) — total
     optionalSurchargeMm: number;
-    // Itemisierte optionale Zuschläge für Transparenz (Szenario-Ansicht / PDF)
+    // Itemized optional surcharges for transparency (scenario view / PDF)
     surchargeIntermediateMm: number;
     surchargeEmergenceMm: number;
     surchargeHeavySoilMm: number;
-    // Gesamtzuschlag (mm)
+    // Total surcharge (mm)
     totalSurchargeMm: number;
-    // Gesamtbedarf (mm/a) als Range
+    // Total demand (mm/a) as a Range
     totalRangeMm: Range;
-    // Wasserbedarf (m³/a) als Range
+    // Water demand (m³/a) as a Range
     totalRangeM3: Range;
-    // Verwendetes Szenario
+    // Scenario used
     scenario: Scenario;
-    // false wenn kein Literaturwert vorhanden (Tabellenwert = 0)
+    // false if no literature value exists (table value = 0)
     hasValue: boolean;
-    // true wenn das Ergebnis aus einem benutzerdefinierten Wert (userCustomMm) abgeleitet wurde
+    // true if the result was derived from a user-defined value (userCustomMm)
     isUserCustom: boolean;
-    // benutzerdefinierter Basiswert (mm/a) — nur gesetzt wenn isUserCustom
+    // user-defined base value (mm/a) — only set when isUserCustom
     userCustomMm: number;
 }
 
-// Automatischer Zuschlag je Kultur (Spec Kapitel 4.2.2):
+// Automatic surcharge per crop (Spec Kapitel 4.2.2):
 // - Speisekartoffeln: +20 mm/a
 // - Körnermais (vs. Silomais): +20 mm/a
 const AUTO_SURCHARGE_MM: Partial<Record<CropName, number>> = {
@@ -64,12 +64,12 @@ const AUTO_SURCHARGE_LABEL: Partial<Record<CropName, string>> = {
     "Silomais|Körnermais": "Körnermais",
 };
 
-// Kulturen mit Winteransaat: Zwischenfrucht- und Auflaufbewässerungs-Zuschläge
-// sind agronomisch nicht sinnvoll und werden ausgeblendet.
+// Crops with winter sowing: Zwischenfrucht and Auflaufbewässerung surcharges
+// make no agronomic sense and are hidden.
 const WINTER_CROPS: readonly CropName[] = ["Winterraps", "Winterweizen"];
 
-// Ob die optionalen Zuschläge (Zwischenfrucht / Auflaufbewässerung) für eine
-// Kultur zulässig sind. "sonst. Getreide" nur, wenn es Sommergetreide ist.
+// Whether the optional surcharges (Zwischenfrucht / Auflaufbewässerung) are
+// permitted for a crop. "sonst. Getreide" only if it is Sommergetreide.
 export const cropAllowsOptionalSurcharge = (
     crop: CropName | undefined,
     isSummerCereal: boolean,
@@ -98,7 +98,7 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
 
     const baseRangeMmRaw = getTableValue(kwbZone, crop, nFkweClass, scenario);
     const hasLiteratureValue = baseRangeMmRaw !== null;
-    // Fallback auf userCustomMm wenn kein Literaturwert vorliegt und ein Anwenderwert gesetzt ist
+    // Fall back to userCustomMm when no literature value exists and a user value is set
     const isUserCustom = !hasLiteratureValue && userCustomMm !== undefined && userCustomMm > 0;
     const baseRangeMm: Range = hasLiteratureValue
         ? baseRangeMmRaw!
@@ -106,14 +106,14 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
             ? [userCustomMm!, userCustomMm!]
             : [0, 0];
 
-    // Automatischer Zuschlag. Bei Kartoffeln nur, wenn Speisekartoffeln
-    // (isTablePotato); undefined = true (Rückwärtskompatibilität).
+    // Automatic surcharge. For Kartoffeln only if Speisekartoffeln
+    // (isTablePotato); undefined = true (backward compatibility).
     const potatoSurchargeActive = crop !== "Kartoffeln" || isTablePotato !== false;
     const autoSurchargeMm = potatoSurchargeActive ? (AUTO_SURCHARGE_MM[crop] ?? 0) : 0;
     const autoSurchargeLabel = potatoSurchargeActive ? AUTO_SURCHARGE_LABEL[crop] : undefined;
 
-    // Optionale Zuschläge — itemisiert für transparente Ausgabe. Für Kulturen ohne
-    // sinnvolle Zwischenfrucht-/Auflaufbewässerung werden sie hart auf 0 gesetzt.
+    // Optional surcharges — itemized for transparent output. For crops without
+    // sensible Zwischenfrucht/Auflaufbewässerung they are hard-set to 0.
     const allowOptional = cropAllowsOptionalSurcharge(crop, isSummerCereal ?? false);
     const surchargeIntermediateMm = allowOptional && surchargeIntermediate ? 10 : 0;
     const surchargeEmergenceMm = allowOptional ? surchargeEmergence : 0;
@@ -145,14 +145,14 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         totalRangeMm,
         totalRangeM3,
         scenario,
-        // hasValue=true heißt „Bedarfsangabe vorhanden“ — auch via Anwenderwert
+        // hasValue=true means "demand value present" — also via a user value
         hasValue: hasLiteratureValue || isUserCustom,
         isUserCustom,
         userCustomMm: isUserCustom ? userCustomMm! : 0,
     };
 };
 
-// Für Szenario "both": beide Ergebnisse berechnen
+// For scenario "both": compute both results
 export const calculateHauptkulturenBoth = (
     input: Omit<HauptkulturenInput, "scenario">
 ): {normal: HauptkulturenResult; dry: HauptkulturenResult;} => ({

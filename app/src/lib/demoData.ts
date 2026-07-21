@@ -5,10 +5,10 @@ import type {FieldAssignment, Project} from "../types/project";
 import type {RasterLookup} from "../types/raster";
 import {latLonToClimateClass} from "./tools";
 
-// Beispieldaten zum Kennenlernen der App. Bewusst in der Region Brandenburg
-// (Potsdam-Referenz, siehe soilConstants) verortet, damit Klima- und Bodenwerte
-// automatisch nachgeladen werden. Der Anwender kann Betrieb/Szenario jederzeit
-// löschen — es sind normale Datensätze ohne Sonderbehandlung.
+// Demo data for getting to know the app. Deliberately located in the Brandenburg
+// region (Potsdam reference, see soilConstants) so that climate and soil values
+// are loaded automatically. The user can delete the farm/scenario at any time —
+// these are normal records without special handling.
 
 const now = () => new Date().toISOString();
 
@@ -17,8 +17,8 @@ const demoField = (name: string, lat: number, lon: number, areaHa: number): Fiel
     name,
     location: {lat, lon},
     areaHa,
-    // Bodenklasse fest gesetzt, damit die Demo ohne Karten-Lookup rechnet;
-    // Klimazone + Klimadaten werden nach dem Laden selbstheilend ergänzt.
+    // Soil class fixed so the demo computes without a map lookup;
+    // climate zone + climate data are filled in self-healingly after loading.
     nFkweClass: "3a",
     nFkweClassSource: "manual",
     climateClassStatus: "idle",
@@ -34,9 +34,9 @@ const baseAssignment = (fieldId: string): FieldAssignment => ({
 });
 
 /**
- * Erzeugt einen Beispiel-Betrieb mit zwei Feldern und ein Beispiel-Szenario mit
- * je einer landwirtschaftlichen und einer Golf-Zuweisung — damit Anwender das
- * Ergebnis (inkl. PDF) sofort sehen, bevor sie eigene Daten erfassen.
+ * Creates a demo farm with two fields and a demo scenario with one
+ * agricultural and one golf assignment each — so users see the
+ * result (incl. PDF) immediately before entering their own data.
  */
 export const createDemoData = (): {farm: Farm; project: Project} => {
     const acker = demoField("Beispiel-Acker (Kartoffeln)", 52.4009, 13.0591, 12.5);
@@ -82,10 +82,10 @@ export const createDemoData = (): {farm: Farm; project: Project} => {
 };
 
 /**
- * Seedet Demo-Betrieb + Demo-Szenario in den Store und ergänzt Klimazone/-daten
- * direkt (die App-Effekte feuern nach dem Seeden nicht erneut). Gibt die Projekt-ID
- * für die anschließende Navigation zurück. Ersetzt Betrieb UND Szenarien komplett
- * durch die Demo — mehrfaches Laden erzeugt daher keine Duplikate.
+ * Seeds the demo farm + demo scenario into the store and fills in the climate
+ * zone/data directly (the app effects do not re-fire after seeding). Returns the
+ * project ID for the subsequent navigation. Replaces the farm AND scenarios
+ * entirely with the demo — so loading multiple times produces no duplicates.
  */
 export const seedDemoData = (
     setFarm: (farm: Farm) => void,
@@ -95,7 +95,7 @@ export const seedDemoData = (
 ): string => {
     const {farm, project} = createDemoData();
 
-    // Klimazone + Klimadaten anreichern, damit die Demo sofort rechnet.
+    // Enrich with climate zone + climate data so the demo computes immediately.
     const enrichField = (f: Field): Field => {
         const withClass: Field = (() => {
             try {

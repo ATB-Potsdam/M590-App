@@ -14,8 +14,8 @@ import "./ProjectsPage.scss";
 export const ProjectsPage = () => {
     const {projects, addProject, copyProject, removeProject} = useProjects();
     const {farm} = useFarm();
-    // Zeile, die der Rundgang-Schritt „Szenario öffnen“ hervorhebt – dieselbe,
-    // die currentProjectId für die Folge-Routen nutzt (nicht nur die Demo-Zeile).
+    // The row highlighted by the Rundgang (tour) step "Szenario öffnen" (open scenario) – the same
+    // one that currentProjectId uses for the follow-up routes (not just the demo row).
     const tourRowId = tourProjectId(projects);
     const [showForm, setShowForm] = useState(false);
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);

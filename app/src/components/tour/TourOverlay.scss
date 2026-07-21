@@ -1,8 +1,8 @@
 @use "../../variables" as *;
 
 .tour-overlay {
-    // Kein eigener Backdrop – der Dimmer steckt im box-shadow des Spotlights,
-    // damit das hervorgehobene Ziel klickbar bleibt.
+    // No separate backdrop – the dimmer lives in the spotlight's box-shadow,
+    // so the highlighted target stays clickable.
     position: fixed;
     inset: 0;
     z-index: 1500;
@@ -12,7 +12,7 @@
         position: fixed;
         border-radius: 8px;
         box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
-        // Ziel bleibt klickbar: der Dimmer selbst fängt keine Klicks ab.
+        // Target stays clickable: the dimmer itself does not capture clicks.
         pointer-events: none;
         transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
     }
@@ -36,22 +36,22 @@
         border: 1px solid transparent;
         transform: rotate(45deg);
 
-        // Nur die zwei zum Ziel zeigenden Kanten erhalten die Randfarbe – sonst
-        // wirkt das um 45° gedrehte Quadrat wie ein vollständiger Rhombus.
-        // data-side = Platzierung des Tooltips; der Pfeil sitzt gegenüber.
-        &[data-side="bottom"] { // Tooltip unter dem Ziel, Pfeil oben
+        // Only the two edges pointing towards the target get the border color –
+        // otherwise the square rotated by 45° looks like a full rhombus.
+        // data-side = placement of the tooltip; the arrow sits opposite.
+        &[data-side="bottom"] { // tooltip below the target, arrow on top
             border-top-color: var(--color-primary-border);
             border-left-color: var(--color-primary-border);
         }
-        &[data-side="top"] { // Tooltip über dem Ziel, Pfeil unten
+        &[data-side="top"] { // tooltip above the target, arrow at the bottom
             border-bottom-color: var(--color-primary-border);
             border-right-color: var(--color-primary-border);
         }
-        &[data-side="right"] { // Tooltip rechts, Pfeil links
+        &[data-side="right"] { // tooltip on the right, arrow on the left
             border-bottom-color: var(--color-primary-border);
             border-left-color: var(--color-primary-border);
         }
-        &[data-side="left"] { // Tooltip links, Pfeil rechts
+        &[data-side="left"] { // tooltip on the left, arrow on the right
             border-top-color: var(--color-primary-border);
             border-right-color: var(--color-primary-border);
         }
@@ -82,7 +82,7 @@
         align-items: center;
         gap: 0.75rem;
 
-        // Endschritt: nur „Fertig“ – rechtsbündig statt links kleben.
+        // Final step: only "Fertig" – right-aligned instead of stuck to the left.
         &--end {
             justify-content: flex-end;
         }
@@ -117,7 +117,7 @@
         }
     }
 
-    // Banner-Modus: fester Hinweis am unteren Rand, kein Spotlight/Dimmer.
+    // Banner mode: fixed hint at the bottom edge, no spotlight/dimmer.
     &--banner {
         pointer-events: none;
     }

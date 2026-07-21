@@ -15,8 +15,8 @@ export const OnboardingBanner = () => {
     const {pathname} = useLocation();
 
     if (bannerDismissed) return null;
-    // Während des geführten Rundgangs ausblenden – der Rundgang übernimmt die
-    // Wegweisung und der Banner würde nur mit dem Spotlight konkurrieren.
+    // Hide during the guided walk-through – the walk-through handles the
+    // guidance and the banner would only compete with the spotlight.
     if (tourActive) return null;
 
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;

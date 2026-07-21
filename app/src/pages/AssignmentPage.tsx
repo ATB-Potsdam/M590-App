@@ -57,12 +57,12 @@ export const AssignmentPage = () => {
     const [surchargeIntermediate, setSurchargeIntermediate] = useState(assignment?.surchargeIntermediate ?? false);
     const [surchargeEmergence, setSurchargeEmergence] = useState(assignment?.surchargeEmergence ?? 0);
     const [surchargeHeavySoil, setSurchargeHeavySoil] = useState(assignment?.surchargeHeavySoil ?? 0);
-    // Speisekartoffeln: undefined bei Altprojekten → true (bisheriges Verhalten beibehalten)
+    // Speisekartoffeln (table potatoes): undefined for old projects → true (keep previous behaviour)
     const [isTablePotato, setIsTablePotato] = useState(assignment?.isTablePotato ?? true);
     const [isSummerCereal, setIsSummerCereal] = useState(assignment?.isSummerCereal ?? false);
     const [userCustomMm, setUserCustomMm] = useState<number | "">(assignment?.userCustomMm ?? "");
     const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
-    // Grünflächen FLL factors
+    // Grünflächen (green spaces) FLL factors
     const [fllVegetation, setFllVegetation] = useState<FllVegetation | undefined>(assignment?.fllVegetation);
     const [fllMoisture, setFllMoisture] = useState<FllMoisture | undefined>(assignment?.fllMoisture);
     const [fllSoil, setFllSoil] = useState<FllSoil | undefined>(assignment?.fllSoil);
@@ -77,9 +77,9 @@ export const AssignmentPage = () => {
     // Kunstrasen
     const [kunstrasenWeeks, setKunstrasenWeeks] = useState(assignment?.kunstrasenWeeks ?? 20);
     const [kunstrasenMmPerWeek, setKunstrasenMmPerWeek] = useState(assignment?.kunstrasenMmPerWeek ?? 30);
-    // Alternative Wasserquellen — explizite Auswahl: keine | vorhanden (m³/a)
-    // Bestehende Zuweisung mit altWasserM3 === undefined → kein Modus → Auswahl erzwingen.
-    // altWasserM3 === 0 ist gültige Antwort "keine vorhanden".
+    // Alternative Wasserquellen (alternative water sources) — explicit choice: none | available (m³/a)
+    // Existing assignment with altWasserM3 === undefined → no mode → force a choice.
+    // altWasserM3 === 0 is a valid answer "none available".
     type AltWasserMode = "none" | "available";
     const initialAltMode: AltWasserMode | undefined =
         assignment?.altWasserM3 === undefined
@@ -111,7 +111,7 @@ export const AssignmentPage = () => {
         );
     }
 
-    // Pflanzennamen für aktuell gewähltes Modul/Kategorie
+    // Plant names for the currently selected module/category
     const currentNames =
         module === 'hauptkulturen'
             ? parsePlantNames(cropNames)
@@ -121,14 +121,14 @@ export const AssignmentPage = () => {
 
     const level0Groups = getLevel0Groups(currentNames);
 
-    // Single-Option-Gruppe: fullKey direkt (level0 oder level0|level1)
+    // Single-option group: fullKey directly (level0 or level0|level1)
     const resolveKey = (level0: string): string | undefined => {
         const opts = getLevel1Options(currentNames, level0);
         return opts.length === 1 ? opts[0].fullKey : undefined;
     };
 
-    // Auto-Auswahl Bewässerungszeitraum: wenn nur ein Zeitraum verfügbar ist,
-    // diesen direkt setzen (vermeidet redundanten Klick und Default-Werte ohne Bezug).
+    // Auto-select irrigation period: if only one period is available,
+    // set it directly (avoids a redundant click and unrelated default values).
     const autoSetIrrigationPeriod = (fullKey: string) => {
         if (module !== 'gemuese_obst') return;
         const periods = (allOtherPlants[fullKey as VegetableName]?.[2] ?? []).map(timeRangeToPeriod);
@@ -136,7 +136,7 @@ export const AssignmentPage = () => {
         else setIrrigationPeriod(undefined);
     };
 
-    // A/J-Vorschlag für Gemüse/Obst
+    // A/J suggestion for Gemüse/Obst (vegetables/fruit)
     const ajSuggested: number | null =
         module === 'gemuese_obst' && plantKey
             ? ((rawVegetableDataAj as Record<string, number | null>)[plantKey] ?? null)
@@ -156,15 +156,15 @@ export const AssignmentPage = () => {
     const showLevel1Picker = selectedLevel0 && hasVariants(currentNames, selectedLevel0) && !plantKey;
     const showSurcharges = !!plantKey || (!!selectedLevel0 && !hasVariants(currentNames, selectedLevel0));
 
-    // Hauptkulturen-spezifische Kultur-Flags für bedingte Zuschlags-UI
+    // Hauptkulturen-specific crop flags for the conditional surcharge UI
     const cropForRules = (plantKey ?? selectedLevel0) as CropName | undefined;
     const isPotato = plantKey?.startsWith('Kartoffel') || selectedLevel0?.startsWith('Kartoffel');
     const isOtherCereal = cropForRules === 'sonst. Getreide';
-    // Zwischenfrucht/Auflaufbewässerung nur für sinnvolle Kulturen (keine Winterkulturen;
-    // "sonst. Getreide" nur wenn Sommergetreide gewählt).
+    // Zwischenfrucht (catch crop) / Auflaufbewässerung (emergence irrigation) only for
+    // suitable crops (no winter crops; "sonst. Getreide" only if Sommergetreide is chosen).
     const optionalSurchargeAllowed = cropAllowsOptionalSurcharge(cropForRules, isSummerCereal);
 
-    // Ergebnis live berechnen
+    // Compute the result live
     const result = (() => {
         if (module === 'hauptkulturen' && plantKey && field.climateClassStatus === 'done' && field.climateClass && field.nFkweClass) {
             const input = {
@@ -307,7 +307,7 @@ export const AssignmentPage = () => {
 
             <AssignmentSteps current={!module ? 'module' : result ? 'result' : 'details'} />
 
-            {/* Schritt 1: Modul */}
+            {/* Step 1: module */}
             <section className="assignment-section" data-tour="module-picker">
                 <h2>1. Nutzungsmodul</h2>
                 <InfoHint>
@@ -344,7 +344,7 @@ export const AssignmentPage = () => {
 
             <div ref={nextStepRef} />
 
-            {/* Schritt 2a: Kategorie (nur Gemüse/Obst) */}
+            {/* Step 2a: category (only Gemüse/Obst) */}
             {showCategoryPicker && (
                 <section className="assignment-section">
                     <h2>2. Kategorie</h2>
@@ -358,7 +358,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Schritt 2b/3: Kultur wählen (level0) */}
+            {/* Step 2b/3: choose crop (level0) */}
             {showLevel0Picker && (() => {
                 const isSearchable = module === 'gemuese_obst' && level0Groups.length > 5;
                 const filtered = isSearchable && searchTerm
@@ -401,7 +401,7 @@ export const AssignmentPage = () => {
                 );
             })()}
 
-            {/* Schritt 3/4: Variante wählen (level1/level2) */}
+            {/* Step 3/4: choose variant (level1/level2) */}
             {showLevel1Picker && selectedLevel0 && (
                 <section className="assignment-section">
                     <h2>{plantCategory === 'futter' ? 'Schnitte zur Samennutzung wählen' : 'Variante wählen'}</h2>
@@ -429,7 +429,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Gewählte Pflanze */}
+            {/* Selected plant */}
             {plantKey && (
                 <div className="assignment-page__selection">
                     ✅ <strong>{plantKey.split('|').join(' · ')}</strong>
@@ -451,7 +451,7 @@ export const AssignmentPage = () => {
                 </div>
             )}
 
-            {/* Weinbau: Junganlage */}
+            {/* Weinbau: Junganlage (young vineyard) */}
             {module === 'weinbau' && (
                 <section className="assignment-section">
                     <h2>Weinbau-Optionen</h2>
@@ -472,7 +472,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Grünflächen: FLL-Faktoren */}
+            {/* Grünflächen: FLL factors */}
             {module === 'gruenflaechen' && (
                 <>
                     <section className="assignment-section">
@@ -598,7 +598,7 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Golf: Teilflächen */}
+            {/* Golf: sub-areas */}
             {module === 'golf' && (
                 <>
                     <section className="assignment-section">
@@ -671,7 +671,7 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Bewässerungszeitraum + Zuschläge — nur für hauptkulturen / gemuese_obst (Spec Kapitel 4.2.2 / 4.3) */}
+            {/* Irrigation period + surcharges — only for hauptkulturen / gemuese_obst (Spec Kapitel 4.2.2 / 4.3) */}
             {showSurcharges && (module === 'hauptkulturen' || module === 'gemuese_obst') && (
                 <>
                     {needsIrrigationSelection && plantKey && availablePeriods.length > 0 && (
@@ -789,7 +789,7 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Ergebnis */}
+            {/* Result */}
             {result && (
                 <section className="assignment-section" data-tour="assignment-result">
                     <h2>Ergebnis</h2>
@@ -855,7 +855,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Benutzerdefinierte Zusatzbewässerung — nur wenn kein Literaturwert (oder User schon eigenen Wert gesetzt) */}
+            {/* Custom additional irrigation — only when there is no literature value (or the user already set their own value) */}
             {result && (result.type === 'hauptkulturen' || result.type === 'gemuese_obst') && result.normal &&
                 ('isUserCustom' in result.normal) &&
                 (result.normal.isUserCustom || !result.normal.hasValue) && (
@@ -879,7 +879,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Alternative Wasserquellen — Pflichtangabe (Merkblatt: müssen abgezogen werden) */}
+            {/* Alternative Wasserquellen — mandatory field (Merkblatt: must be deducted) */}
             {result && (module === 'gruenflaechen' || module === 'naturrasen' || module === 'golf' || module === 'kunstrasen' || module === 'tennen') && (
                 <section className="assignment-section">
                     <h2>Alternative Wasserquellen</h2>
@@ -925,7 +925,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Speichern */}
+            {/* Save */}
             {module && (() => {
                 const missingHints: string[] = [];
                 if (needsPlantSelection && !plantKey) missingHints.push('Kultur auswählen');
@@ -940,7 +940,7 @@ export const AssignmentPage = () => {
                     if (!golfAreaMode) missingHints.push('Flächeneingabe-Modus wählen');
                     else if (!golfGreensM2 || !golfTeeM2 || !golfFairwayM2) missingHints.push('Teilflächen eingeben');
                 }
-                // Alt. Wasserquellen-Pflichtangabe für Sport-/Grünflächenmodule
+                // Alt. Wasserquellen mandatory field for sport/green-space modules
                 if (module === 'gruenflaechen' || module === 'naturrasen' || module === 'golf' || module === 'kunstrasen' || module === 'tennen') {
                     if (!altWasserMode) missingHints.push('Alternative Wasserquellen angeben');
                     else if (altWasserMode === 'available' && (altWasserM3 === "" || altWasserM3 < 0)) {

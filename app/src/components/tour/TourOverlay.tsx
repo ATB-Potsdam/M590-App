@@ -18,26 +18,26 @@ import {useTourTarget} from "./useTourTarget";
 import "./TourOverlay.scss";
 
 interface Props {
-    /** ID des Demo-Szenarios – für die route-Funktionen des Demo-Rundgangs. */
+    /** ID of the demo scenario – for the route functions of the demo walk-through. */
     demoProjectId?: string;
 }
 
-/** Loch-Rand um das hervorgehobene Ziel. */
+/** Cut-out padding around the highlighted target. */
 const SPOTLIGHT_PADDING = 8;
 
-/** Normalisierte Sicht auf den aktuellen Schritt – egal welcher Rundgang. */
+/** Normalized view of the current step – regardless of which walk-through. */
 interface ActiveStep {
     id: string;
     target: string;
     title: string;
     body: string;
     placement: Placement;
-    route: string;                       // aufgelöste Ziel-Route
-    /** Endschritt → „Fertig“ statt „Weiter“. */
+    route: string;                       // resolved target route
+    /** Final step → "Fertig" instead of "Weiter". */
     terminal: boolean;
-    /** Demo-Rundgang: dieser Schritt rückt per „Weiter“-Button vor. */
+    /** Demo walk-through: this step advances via the "Weiter" button. */
     demoButton: boolean;
-    /** Banner-Modus: kein Spotlight/Ziel, fester Hinweis am unteren Rand. */
+    /** Banner mode: no spotlight/target, fixed hint at the bottom edge. */
     banner: boolean;
 }
 
@@ -62,13 +62,13 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         [farm, projects, demoProjectId, location.pathname],
     );
 
-    // Projekt-ID, mit der der lineare Rundgang seine Routen auflöst. Für den
-    // Demo-Rundgang ist das die Demo-ID, für die „Kurzeinführung“ auf Eigendaten
-    // das erste (nicht-Demo) Szenario – currentProjectId liefert beides. NICHT
-    // hart demoProjectId nehmen, sonst zeigen die Routen bei Eigendaten ins Leere.
+    // Project ID that the linear walk-through uses to resolve its routes. For the
+    // demo walk-through this is the demo ID; for the "Kurzeinführung" on own data
+    // it is the first (non-demo) scenario – currentProjectId provides both. Do NOT
+    // hard-code demoProjectId, otherwise the routes point nowhere on own data.
     const tourPid = currentProjectId(ctx) ?? demoProjectId ?? "";
 
-    // Aktuellen Schritt bestimmen – zustandsgesteuert (empty) bzw. linear (demo).
+    // Determine the current step – state-driven (empty) or linear (demo).
     const active: ActiveStep | undefined = useMemo(() => {
         if (!tourActive) return undefined;
         if (tourVariant === "empty") {
@@ -114,12 +114,12 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         update();
     }, [rect, refs, update]);
 
-    // Fertig = abgeschlossen (kein Fortsetzen-Button mehr).
+    // Fertig = completed (no resume button anymore).
     const finish = () => { setTourCompleted(true); endTour(); };
-    // Überspringen/Escape = nur pausieren; über den Floating-Button fortsetzbar.
+    // Skip/Escape = only pause; resumable via the floating button.
     const suspend = () => { suspendTour(); };
 
-    // Escape pausiert den Rundgang.
+    // Escape pauses the walk-through.
     useEffect(() => {
         if (!tourActive) return;
         const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") suspend(); };
@@ -128,52 +128,52 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tourActive]);
 
-    // Bei Bedarf zur Ziel-Route des aktuellen Schritts navigieren (z. B. Rundgang
-    // aus dem ?-Dialog auf einer anderen Seite gestartet). Leere Projekt-Route
-    // (kein Projekt) auslassen. WICHTIG: bei NICHT-Endschritten nicht navigieren,
-    // wenn der Anwender bereits TIEFER ist (Unterseite der Ziel-Route) – sonst
-    // zieht der Rundgang ihn beim Öffnen einer Zuweisung sofort zur Szenario-Seite
-    // zurück (Endlosschleife, „Nutzung wählen“ scheint wirkungslos). Ausnahme:
-    // der Endschritt (Zusammenfassung) hat auf einer Unterseite (Zuweisungs-Maske)
-    // KEIN Ziel – startet der Anwender den Rundgang dort mit bereits vollständigen
-    // Daten, bliebe der Banner sonst unsichtbar. Darum für den Endschritt auch aus
-    // einer Unterseite heraus zur Ziel-Route hochnavigieren.
+    // Navigate to the current step's target route when needed (e.g. walk-through
+    // started from the ?-dialog on a different page). Skip the empty project route
+    // (no project). IMPORTANT: for NON-final steps do not navigate when the user is
+    // already DEEPER (sub-page of the target route) – otherwise the walk-through
+    // yanks them straight back to the scenario page when they open an assignment
+    // (endless loop, "Nutzung wählen" seems to have no effect). Exception: the
+    // final step (summary) has NO target on a sub-page (assignment form) – if the
+    // user starts the walk-through there with already complete data, the banner
+    // would otherwise stay invisible. So for the final step, navigate up to the
+    // target route even from a sub-page.
     useEffect(() => {
         if (!active || !active.route || active.route.endsWith("/projects/")) return;
         const here = location.pathname;
         if (here === active.route) return;
-        // Nicht zurückreißen, wenn der Anwender sich VORWÄRTS geklickt hat – also
-        // bereits auf der Route des nächsten Schritts (oder tiefer) ist; der
-        // Advance-Effekt rückt dann gleich vor. Nur diese Vorwärts-Route zählt als
-        // „in Ruhe lassen“, NICHT jeder beliebige tiefere Pfad: sonst würde bei
-        // route "/" auch /farm als Nachfahre gelten und der Schritt „Szenario
-        // öffnen“ könnte nie zur Szenarien-Seite navigieren. Beim Klick auf ein
-        // Szenario (/projects/x) ist genau das die Route des nächsten Schritts.
+        // Do not yank back when the user has clicked FORWARD – i.e. is already on
+        // the next step's route (or deeper); the advance effect will then move on
+        // shortly. Only this forward route counts as "leave alone", NOT any
+        // arbitrary deeper path: otherwise for route "/" even /farm would count as
+        // a descendant and the step "Szenario öffnen" could never navigate to the
+        // scenarios page. When clicking a scenario (/projects/x), that is exactly
+        // the next step's route.
         if (!active.terminal && tourVariant === "demo") {
             const steps = tourStepsFor("demo");
             const next = steps[tourStep + 1];
             const nextRoute = next ? resolveRoute(next.route, tourPid) : "";
             if (nextRoute && nextRoute !== "/" && (here === nextRoute || here.startsWith(nextRoute + "/"))) return;
         }
-        // Leerzustand-Rundgang ist zustandsgesteuert (kein fester nächster Schritt):
-        // Ist der Anwender bereits TIEFER als die Ziel-Route (z. B. hat aus
-        // „Nutzung festlegen“ /projects/:id die Zuweisungs-Seite /projects/:id/
-        // assignment/:aid geöffnet), NICHT zurückreißen – der done-Prädikat rückt
-        // gleich vor. Ohne das wurde der Klick auf „Nutzung wählen“ sofort
-        // zurücknavigiert (schien wirkungslos, Rundgang hing).
+        // Empty-state walk-through is state-driven (no fixed next step): if the
+        // user is already DEEPER than the target route (e.g. opened the assignment
+        // page /projects/:id/assignment/:aid from "Nutzung festlegen"
+        // /projects/:id), do NOT yank back – the done predicate advances shortly.
+        // Without this, clicking "Nutzung wählen" was immediately navigated back
+        // (seemed to have no effect, walk-through hung).
         if (!active.terminal && tourVariant === "empty" && active.route !== "/" && here.startsWith(active.route + "/")) return;
         navigate(active.route);
     }, [active, location.pathname, navigate, tourVariant, tourStep, tourPid]);
 
-    // Demo-Rundgang: routenbasiertes Vorrücken (Anwender navigiert selbst).
+    // Demo walk-through: route-based advancing (the user navigates themselves).
     useEffect(() => {
         if (!active || tourVariant !== "demo") return;
         const steps = tourStepsFor("demo");
         const cur = steps[tourStep];
         if (!cur || cur.advanceOn !== "route") return;
-        // Sonderfall „open-assignment“: der nächste Schritt (assignment-detail)
-        // liegt auf der TIEFEREN Zuweisungs-Seite, deren ID der Rundgang nicht
-        // kennt. Darum per Präfix erkennen, dass eine Zuweisung geöffnet wurde.
+        // Special case "open-assignment": the next step (assignment-detail) lives
+        // on the DEEPER assignment page, whose ID the walk-through does not know.
+        // So detect via prefix that an assignment has been opened.
         if (cur.id === "open-assignment") {
             const projectRoute = `/projects/${tourPid}`;
             if (location.pathname.startsWith(`${projectRoute}/assignment/`)) nextTourStep();
@@ -185,16 +185,15 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         if (location.pathname === wanted) nextTourStep();
     }, [active, tourVariant, location.pathname, tourStep, tourPid, nextTourStep]);
 
-    // empty-Rundgang: fertig, sobald kein Schritt mehr offen ist.
+    // empty walk-through: done as soon as no step is open anymore.
     useEffect(() => {
         if (tourActive && tourVariant === "empty" && !active) finish();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tourActive, tourVariant, active]);
 
-    // Banner-Modus verdeckt den unteren Seitenrand (u. a. „Zuweisung speichern“).
-    // Solange der Banner sichtbar ist, dem <body> Platz nach unten geben, damit
-    // die Seite über den Banner hinaus scrollen kann und alle Steuerelemente
-    // (Speichern-Button) erreichbar bleiben.
+    // Banner mode covers the bottom edge of the page (incl. "Zuweisung speichern").
+    // While the banner is visible, give the <body> room at the bottom so the page
+    // can scroll past the banner and all controls (save button) stay reachable.
     const bannerActive = tourActive && !!active?.banner;
     useEffect(() => {
         document.body.classList.toggle("tour-banner-active", bannerActive);
@@ -212,7 +211,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
 
     const actions = (
         <div className={`tour-overlay__actions${active.terminal ? " tour-overlay__actions--end" : ""}`}>
-            {/* Im Endschritt ergibt „Tour pausieren“ keinen Sinn – nur „Fertig“. */}
+            {/* In the final step "Tour pausieren" makes no sense – only "Fertig". */}
             {!active.terminal && (
                 <button type="button" className="tour-overlay__skip" onClick={suspend}>
                     Tour pausieren
@@ -226,8 +225,8 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         </div>
     );
 
-    // Banner-Modus: kein Spotlight, fester Hinweis unten – für selbst scrollende
-    // Formulare (Zuweisungs-Maske), wo ein wanderndes Spotlight aus dem Bild liefe.
+    // Banner mode: no spotlight, fixed hint at the bottom – for self-scrolling
+    // forms (assignment form) where a roaming spotlight would run off-screen.
     if (active.banner) {
         return (
             <div className="tour-overlay tour-overlay--banner">
@@ -246,7 +245,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         placement.split("-")[0] as "top" | "right" | "bottom" | "left"
     ];
 
-    if (!rect) return null; // (Nicht-Banner: durch die Guards oben bereits gesetzt.)
+    if (!rect) return null; // (Non-banner: already ensured by the guards above.)
 
     return (
         <div className="tour-overlay">

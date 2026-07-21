@@ -11,15 +11,15 @@ const base = import.meta.env.BASE_URL;
 interface Props {
     onClose: () => void;
     /**
-     * Overlay schließen UND navigieren – ohne den history.back()-Pop des normalen
-     * Schließens. Sonst würde das beim Öffnen gepushte History-Entry die Ziel-
-     * Navigation der FAQ-Links sofort wieder rückgängig machen (man landet wieder
-     * auf der Ausgangsseite).
+     * Close the overlay AND navigate – without the history.back() pop of the
+     * normal close. Otherwise the history entry pushed on open would immediately
+     * undo the target navigation of the FAQ links (you end up back on the
+     * original page).
      */
     onNavigate: (path: string) => void;
-    /** Geführten Rundgang starten. "demo" tourt Beispieldaten, "empty" leitet beim Anlegen an. */
+    /** Start the guided walk-through. "demo" tours example data, "empty" guides through setup. */
     onStartTour: (variant: "demo" | "empty") => void;
-    /** Ob bereits ein Demo-Szenario existiert (dann Rundgang durch die Beispieldaten). */
+    /** Whether a demo scenario already exists (then a walk-through through the example data). */
     hasDemo: boolean;
 }
 
@@ -32,14 +32,14 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
     const et0Lookup = useAppStore((s) => s.et0Lookup);
     const hasFarm = farm.name.trim().length > 0 && farm.fields.length > 0;
 
-    // Rundgang-Angebot – drei Fälle, in dieser Reihenfolge:
-    //  1. Beispieldaten geladen  → Demo-Rundgang ("… durch die Beispieldaten").
-    //  2. Eigendaten unvollständig → geführtes Anlegen (Leerzustand-Rundgang).
-    //  3. Eigendaten vollständig & durchlaufbar → neutrale "Kurzeinführung"
-    //     (derselbe lineare Rundgang wie Demo, führt zu den wichtigsten Stellen –
-    //     zum Auffrischen nach längerer Pause).
-    // Ist bei vollständigen Daten der Rundgang nicht durchlaufbar (keine
-    // anklickbare Zuweisung), wird kein Button gezeigt – dann greift die FAQ.
+    // Walk-through offer – three cases, in this order:
+    //  1. Example data loaded  → demo walk-through ("… through the example data").
+    //  2. Own data incomplete → guided setup (empty-state walk-through).
+    //  3. Own data complete & walkable → neutral "Kurzeinführung" (short intro)
+    //     (the same linear walk-through as the demo, leading to the most important
+    //     places – to refresh after a longer break).
+    // If, with complete data, the walk-through is not walkable (no clickable
+    // Zuweisung), no button is shown – then the FAQ takes over.
     const tourCtx = {farm, projects, pathname};
     const setupIncomplete = !allEmptyStepsDone(tourCtx);
     const tourMode: "demo" | "empty" | "orientation" | null =
@@ -49,24 +49,24 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                     : null;
     const ownProjectId = currentProjectId(tourCtx);
 
-    // Orientierungs-Rundgang nutzt denselben (linearen) Ablauf wie der Demo-Rundgang.
+    // Orientation walk-through uses the same (linear) flow as the demo walk-through.
     const tourVariant = tourMode === "empty" ? "empty" : "demo";
     const tourLabel =
         tourMode === "demo" ? "🧭 Rundgang durch die Beispieldaten"
             : tourMode === "empty" ? "🧭 Schritt für Schritt anlegen (geführt)"
                 : "🧭 Kurzeinführung: die wichtigsten Stellen";
 
-    // Über onNavigate schließen+navigieren (ohne history.back()), sonst würde die
-    // FAQ-Navigation sofort wieder rückgängig gemacht.
+    // Close+navigate via onNavigate (without history.back()), otherwise the
+    // FAQ navigation would be immediately undone.
     const goTo = (path: string) => onNavigate(path);
 
     const loadDemo = () => {
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
-        // Rundgang wieder anbieten (schwebender Button), falls früher beendet.
+        // Offer the walk-through again (floating button), in case it was ended earlier.
         setTourCompleted(false);
-        // Overlay schliessen und auf der Betriebsseite bleiben – das Overlay wird
-        // ohne Betrieb ohnehin über /farm angezeigt. Dort erscheint der Demo-Hinweis
-        // mit „Weiter zum Szenario“. Der Anwender sieht zuerst seinen Betrieb.
+        // Close the overlay and stay on the farm page – without a farm the overlay
+        // is shown via /farm anyway. There the demo hint appears with
+        // "Weiter zum Szenario". The user sees their farm first.
         onClose();
     };
 

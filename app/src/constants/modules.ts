@@ -18,7 +18,7 @@ export const MODULES: ModuleDefinition[] = [
     {type: "tennen", icon: "🟫", label: "Tennenfläche"},
 ];
 
-// Lookup-Hilfsfunktionen
+// Lookup helper functions
 export const getModule = (type: ModuleType): ModuleDefinition =>
     MODULES.find((m) => m.type === type)!;
 
@@ -28,14 +28,14 @@ export const getModuleLabel = (type: ModuleType): string =>
 export const getModuleIcon = (type: ModuleType): string =>
     getModule(type).icon;
 
-// Landwirtschaftliche Module verwenden den Begriff "Schlag"/"Feld".
-// Sport-/Grünflächen (z.B. Golf) kennen diese Terminologie nicht → "Fläche".
+// Agricultural modules use the term "Schlag"/"Feld".
+// Sports/green areas (e.g. Golf) do not use this terminology → "Fläche".
 const AGRICULTURAL_MODULES: ReadonlySet<ModuleType> = new Set([
     "hauptkulturen", "gemuese_obst", "weinbau",
 ]);
 
-// Passende Flächen-Bezeichnung für einen Kontext ohne landwirtschaftliche Module
-// (z.B. reine Golfplatz-Projekte). `modules` = alle im Kontext genutzten Module.
+// Suitable area label for a context without agricultural modules
+// (e.g. pure golf-course projects). `modules` = all modules used in the context.
 export const fieldTerm = (
     modules: readonly (ModuleType | undefined)[],
     plural = false,

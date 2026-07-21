@@ -4,7 +4,7 @@ import "./ResultCard.scss";
 
 interface Props {
     result: HauptkulturenResult;
-    dryResult?: HauptkulturenResult; // für Szenario "both"
+    dryResult?: HauptkulturenResult; // for scenario "both"
     fieldName: string;
     cropName: string;
     areaHa: number;
@@ -17,7 +17,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             <span>{cropName} · {formatNum(areaHa, 2)} ha</span>
         </div>
 
-        {/* Block 1: Ergebnis */}
+        {/* Block 1: Result (Ergebnis) */}
         <div className="result-card__block">
             <h4>Zusatzwasserbedarf{result.isUserCustom && <span className="result-card__custom-tag"> · benutzerdefiniert</span>}</h4>
             {!result.hasValue ? (
@@ -47,7 +47,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             )}
         </div>
 
-        {/* Block 2: Berechnungsgrundlagen */}
+        {/* Block 2: Calculation basis (Berechnungsgrundlagen) */}
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
             <div className="result-card__value-row">
@@ -72,7 +72,7 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
             </div>
         </details>
 
-        {/* Block 3: Zuschläge — itemisiert für Transparenz */}
+        {/* Block 3: Surcharges (Zuschläge) — itemized for transparency */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
                 <summary>Zuschläge (+{formatNum(result.totalSurchargeMm, 0)} mm)</summary>

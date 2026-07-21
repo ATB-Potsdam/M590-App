@@ -18,7 +18,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             <span>{plantName} · {formatNum(areaHa, 2)} ha</span>
         </div>
 
-        {/* Block 1: Ergebnis */}
+        {/* Block 1: Result (Ergebnis) */}
         <div className="result-card__block">
             <h4>Zusatzwasserbedarf{result.isUserCustom && <span className="result-card__custom-tag"> · benutzerdefiniert</span>}</h4>
             {!result.hasValue ? (
@@ -48,7 +48,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             )}
         </div>
 
-        {/* Block 2: Berechnungsgrundlagen */}
+        {/* Block 2: Calculation basis (Berechnungsgrundlagen) */}
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
 
@@ -82,7 +82,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
                 <span>Tab. 21–25 (Basiswerte je Kultur), Tab. 19 (KWB-Referenz Potsdam), Tab. 20 (Korrekturfaktor r)</span>
             </div>
 
-            {/* Monatstabelle */}
+            {/* Monthly table */}
             <table className="result-card__climate-table">
                 <thead>
                     <tr>
@@ -115,7 +115,7 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             </table>
         </details>
 
-        {/* Block 3: Zuschläge — itemisiert */}
+        {/* Block 3: Surcharges (Zuschläge) — itemized */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
                 <summary>Zuschläge (+{formatNum(result.totalSurchargeMm, 0)} mm)</summary>

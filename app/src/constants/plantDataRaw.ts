@@ -1,11 +1,11 @@
 import type {AgriculturalPlantName, CropName, FordderPlantName, FruitName, KwbZone, MedicalPlantName, RawData, VegetableName} from "../types/dataTypes";
 
 /**
- * WICHTIG!
- * Bei "time" bedeutet [7, 7]: "Juli"
- * [5.5, 10-.75] bedeutet "Mitte Mai bis Anfang Oktober"
- * Der Endmonat zählt also bei ganzzaligem Ende ganz und bei Brüchen anteilig
- * Das wurde der Lesbarkeit wegen gemacht
+ * IMPORTANT!
+ * For "time", [7, 7] means "July"
+ * [5.5, 10-.75] means "mid May to early October"
+ * The end month therefore counts fully for an integer end and proportionally for fractions
+ * This was done for readability
  */
 
 /**

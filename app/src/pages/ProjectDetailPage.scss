@@ -183,7 +183,7 @@
         padding: 1px 8px;
         border-radius: 10px;
 
-        // Zu langen Text abschneiden
+        // Truncate overly long text
         max-width: 160px;
         white-space: nowrap;
         overflow: hidden;
@@ -281,8 +281,8 @@
     }
 }
 
-// Rundgang-Wrapper um Zusammenfassung + PDF-Button (Spotlight-Ziel). Neutral,
-// hält aber den Abstand zwischen Button und Section wie zuvor.
+// Rundgang (tour) wrapper around summary + PDF button (spotlight target). Neutral,
+// but keeps the spacing between button and section as before.
 .project-summary-tour-wrap {
     display: flex;
     flex-direction: column;

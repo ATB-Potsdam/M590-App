@@ -3,22 +3,22 @@ import {useNavigate} from "react-router";
 import "./DemoHint.scss";
 
 interface Props {
-    /** "farm" = auf der Betriebsseite, "project" = im Szenario. */
+    /** "farm" = on the farm page, "project" = within the scenario. */
     variant: "farm" | "project";
 }
 
 /**
- * Kurzer Hinweis, dass gerade Beispieldaten geladen sind, mit einem Link zum
- * Löschen. Die eigentliche Wegweisung übernimmt der geführte Rundgang
- * (components/tour) – deshalb ist dieser Hinweis bewusst knapp gehalten.
- * Nicht schliessbar, nur einklappbar (<details>); bleibt verfügbar, solange
- * das Beispiel existiert.
+ * Short note that example data is currently loaded, with a link to
+ * delete it. The actual guidance is handled by the guided walk-through
+ * (components/tour) – which is why this note is deliberately kept brief.
+ * Not dismissible, only collapsible (<details>); stays available as long as
+ * the example exists.
  */
 export const DemoHint = ({variant}: Props) => {
     const navigate = useNavigate();
 
-    // Zum „Alle Daten löschen“-Bereich auf der Betriebsseite springen und dorthin
-    // scrollen. Von der Projektseite aus erst navigieren, dann scrollen.
+    // Jump to the "Alle Daten löschen" section on the farm page and scroll
+    // there. From the project page, navigate first, then scroll.
     const goToDelete = () => {
         navigate("/farm");
         requestAnimationFrame(() => {

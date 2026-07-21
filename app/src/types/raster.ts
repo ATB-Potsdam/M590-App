@@ -16,10 +16,10 @@ export interface RasterMeta {
 }
 
 export interface RasterLookup {
-    /** Wert für Monat (Kalendermonat 1–12) an Koordinate */
+    /** Value for a month (calendar month 1–12) at a coordinate */
     getValue: (lon: number, lat: number, month: number) => number | null;
-    /** Wert für alle Monate (Kalendermonat 1–12) an Koordinate */
+    /** Values for all months (calendar month 1–12) at a coordinate */
     getValues: (lon: number, lat: number) => MonthValueType;
-    /** Rohe Metadaten */
+    /** Raw metadata */
     meta: () => RasterMeta | null;
 }
