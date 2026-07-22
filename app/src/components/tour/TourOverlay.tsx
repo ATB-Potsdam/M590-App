@@ -1,6 +1,7 @@
 // src/components/tour/TourOverlay.tsx
-import {useEffect, useLayoutEffect, useMemo, useRef} from "react";
+import {Fragment, useEffect, useLayoutEffect, useMemo, useRef, type ReactNode} from "react";
 import {useLocation, useNavigate} from "react-router";
+import {LocateIcon} from "../LocateIcon";
 import type {Placement} from "@floating-ui/react";
 import {
     arrow,
@@ -35,8 +36,11 @@ interface ActiveStep {
     route: string;                       // resolved target route
     /** Final step → "Fertig" instead of "Weiter". */
     terminal: boolean;
-    /** Demo walk-through: this step advances via the "Weiter" button. */
+    /** This step advances via the "Weiter" button (demo linear step, or an empty
+     *  "advance: button" sub-step). */
     demoButton: boolean;
+    /** Empty-tour "Weiter" sub-step: its id to record in tourAdvanced on confirm. */
+    advanceId?: string;
     /** Banner mode: no spotlight/target, fixed hint at the bottom edge. */
     banner: boolean;
 }
@@ -44,11 +48,25 @@ interface ActiveStep {
 const resolveRoute = (route: string | ((id: string) => string), demoId: string): string =>
     typeof route === "function" ? route(demoId) : route;
 
+// Render a step body, replacing the `[locate]` token with the map's crosshair icon
+// so the tour references the exact same glyph the locate button shows.
+const renderBody = (body: string): ReactNode =>
+    body.split("[locate]").map((part, i, arr) => (
+        <Fragment key={i}>
+            {part}
+            {i < arr.length - 1 && <LocateIcon className="tour-inline-icon" />}
+        </Fragment>
+    ));
+
 export const TourOverlay = ({demoProjectId}: Props) => {
     const tourActive = useAppStore((s) => s.tourActive);
     const tourVariant = useAppStore((s) => s.tourVariant);
     const tourStep = useAppStore((s) => s.tourStep);
     const nextTourStep = useAppStore((s) => s.nextTourStep);
+    const prevTourStep = useAppStore((s) => s.prevTourStep);
+    const tourAdvanced = useAppStore((s) => s.tourAdvanced);
+    const advanceEmptyStep = useAppStore((s) => s.advanceEmptyStep);
+    const unadvanceEmptyStep = useAppStore((s) => s.unadvanceEmptyStep);
     const suspendTour = useAppStore((s) => s.suspendTour);
     const endTour = useAppStore((s) => s.endTour);
     const [, setTourCompleted] = useLocalStore((s) => s.dwa_tour_completed);
@@ -58,8 +76,8 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     const navigate = useNavigate();
 
     const ctx: TourContext = useMemo(
-        () => ({farm, projects, demoProjectId, pathname: location.pathname}),
-        [farm, projects, demoProjectId, location.pathname],
+        () => ({farm, projects, demoProjectId, pathname: location.pathname, advanced: tourAdvanced}),
+        [farm, projects, demoProjectId, location.pathname, tourAdvanced],
     );
 
     // Project ID that the linear walk-through uses to resolve its routes. For the
@@ -74,10 +92,12 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         if (tourVariant === "empty") {
             const s = currentEmptyStep(ctx);
             if (!s) return undefined;
+            const isButton = s.advance === "button";
             return {
                 id: s.id, target: s.target, title: s.title, body: s.body,
                 placement: s.placement ?? "bottom", route: s.route(ctx),
-                terminal: !!s.terminal, demoButton: false, banner: !!s.banner,
+                terminal: !!s.terminal, demoButton: isButton,
+                advanceId: isButton ? s.id : undefined, banner: !!s.banner,
             };
         }
         const steps = tourStepsFor("demo");
@@ -92,6 +112,20 @@ export const TourOverlay = ({demoProjectId}: Props) => {
     }, [tourActive, tourVariant, ctx, tourStep, tourPid]);
 
     const rect = useTourTarget(active && !active.banner ? active.target : null);
+
+    // Focus the highlighted step's input, so the user can type right after
+    // "Weiter" without clicking into the field first. Only text inputs (not
+    // radios/checkboxes), and only if focus isn't already inside the target.
+    const activeTarget = active && !active.banner ? active.target : null;
+    useEffect(() => {
+        if (!activeTarget || !rect) return;
+        const host = document.querySelector(`[data-tour="${activeTarget}"]`);
+        if (!host) return;
+        const input = host.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+            'input:not([type="radio"]):not([type="checkbox"]):not([disabled]), textarea',
+        );
+        if (input && !host.contains(document.activeElement)) input.focus();
+    }, [activeTarget, rect]);
 
     const arrowRef = useRef<HTMLDivElement>(null);
     const {refs, floatingStyles, middlewareData, placement, update} = useFloating({
@@ -205,12 +239,31 @@ export const TourOverlay = ({demoProjectId}: Props) => {
 
     const onNext = () => {
         if (active.terminal) { finish(); return; }
+        // Empty-tour "Weiter" sub-step → record it done; the next not-done step
+        // (via currentEmptyStep) becomes active. Demo linear step → advance index.
+        if (active.advanceId) { advanceEmptyStep(active.advanceId); return; }
         if (active.demoButton) { nextTourStep(); return; }
     };
     const showNextButton = active.terminal || active.demoButton;
 
+    // Back is only offered where it can't lie: demo linear steps (index−1), and
+    // empty "Weiter" sub-steps (pop the last confirmation → previous sub-step). It
+    // is never shown on empty state-steps (a saved field/scenario can't be undone).
+    const canBack = tourVariant === "demo"
+        ? tourStep > 0
+        : !!active.advanceId && tourAdvanced.length > 0;
+    const onBack = () => {
+        if (tourVariant === "demo") { prevTourStep(); return; }
+        unadvanceEmptyStep();
+    };
+
     const actions = (
         <div className={`tour-overlay__actions${active.terminal ? " tour-overlay__actions--end" : ""}`}>
+            {canBack && (
+                <button type="button" className="tour-overlay__back" onClick={onBack}>
+                    ⬅ Zurück
+                </button>
+            )}
             {/* In the final step "Tour pausieren" makes no sense – only "Fertig". */}
             {!active.terminal && (
                 <button type="button" className="tour-overlay__skip" onClick={suspend}>
@@ -232,7 +285,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
             <div className="tour-overlay tour-overlay--banner">
                 <div className="tour-overlay__tooltip tour-overlay__tooltip--banner">
                     <h3 className="tour-overlay__title">{active.title}</h3>
-                    <p className="tour-overlay__body">{active.body}</p>
+                    <p className="tour-overlay__body">{renderBody(active.body)}</p>
                     {actions}
                 </div>
             </div>
@@ -270,7 +323,7 @@ export const TourOverlay = ({demoProjectId}: Props) => {
                     }}
                 />
                 <h3 className="tour-overlay__title">{active.title}</h3>
-                <p className="tour-overlay__body">{active.body}</p>
+                <p className="tour-overlay__body">{renderBody(active.body)}</p>
                 {actions}
             </div>
         </div>

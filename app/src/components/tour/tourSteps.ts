@@ -9,6 +9,8 @@ export interface TourContext {
     projects: Project[];
     demoProjectId?: string;
     pathname: string;
+    /** IDs of empty-tour "Weiter" sub-steps already confirmed (useAppStore.tourAdvanced). */
+    advanced?: string[];
 }
 
 /**
@@ -36,6 +38,7 @@ export interface TourStep {
     target: string;
     title: string;
     /** Why-click-here text (German). */
+    /** Body text. The token `[locate]` is rendered as the map's crosshair icon. */
     body: string;
     placement?: Placement;
     /**
@@ -158,10 +161,17 @@ export interface EmptyStep {
     /** data-tour value of the element to highlight. */
     target: string;
     title: string;
+    /** Body text. The token `[locate]` is rendered as the map's crosshair icon. */
     body: string;
     placement?: Placement;
     /** true once the step is considered done based on the state. */
     done: (ctx: TourContext) => boolean;
+    /**
+     * "button": the step has no own state signal (a pure explainer, e.g. walking
+     * through the field form) and advances via a "Weiter" click, tracked in
+     * ctx.advanced. `done` for these is derived (advanced.includes(id)).
+     */
+    advance?: "button";
     /** Last step: "Fertig" instead of "Weiter". */
     terminal?: boolean;
     /**
@@ -177,6 +187,11 @@ const FARM = (): string => "/farm";
 const SCEN = (): string => "/";
 const PROJ = (ctx: TourContext): string => `/projects/${currentProjectId(ctx) ?? ""}`;
 
+/** "Weiter" sub-step done once confirmed – but hidden entirely once a field exists,
+ *  so a restart with data already present skips straight past the form walk-through. */
+const advanced = (id: string) => (ctx: TourContext): boolean =>
+    hasField(ctx) || !!ctx.advanced?.includes(id);
+
 export const emptySteps: EmptyStep[] = [
     {
         id: "farm-name", route: FARM, target: "farm-name",
@@ -186,10 +201,43 @@ export const emptySteps: EmptyStep[] = [
         done: hasFarmName,
     },
     {
-        id: "add-field", route: FARM, target: "add-field",
-        title: "Flächen anlegen",
-        body: "Legen Sie hier Ihre erste Fläche an – mit Standort (Karte) und Bodenklasse. Sie können mehrere Flächen anlegen. Daraus ermittelt die App Klimadaten und Wasserbedarf.",
+        id: "field-name", route: FARM, target: "field-name",
+        title: "Fläche anlegen",
+        body: "Öffnen Sie mit „+ Feld hinzufügen“ das Formular und legen Sie zuerst einen Namen für das Feld fest (z. B. „Nordfeld“). Ich führe Sie dann durch die weiteren Angaben.",
+        placement: "bottom",
+        advance: "button",
+        done: advanced("field-name"),
+    },
+    {
+        id: "field-area", route: FARM, target: "field-area",
+        title: "Größe der Fläche",
+        body: "Wie groß ist die Fläche? Geben Sie die Größe in Hektar (ha) ein.",
+        placement: "bottom",
+        advance: "button",
+        done: advanced("field-area"),
+    },
+    {
+        id: "field-location", route: FARM, target: "field-location",
+        title: "Standort festlegen",
+        body: "Platzieren Sie das Feld mit einem Klick auf der Karte – oder übernehmen Sie mit dem [locate]-Symbol (oben rechts auf der Karte) Ihre aktuelle Position.",
         placement: "top",
+        advance: "button",
+        done: advanced("field-location"),
+    },
+    {
+        id: "field-nfkwe", route: FARM, target: "field-nfkwe",
+        title: "Bodenklasse (nFKWe)",
+        body: "Die Bodenklasse wird – wenn möglich – automatisch aus dem Standort ermittelt; bei Bedarf können Sie sie anpassen. Liegt für den Ort kein Kartenwert vor, wählen Sie die Klasse bitte selbst.",
+        placement: "top",
+        advance: "button",
+        done: advanced("field-nfkwe"),
+    },
+    {
+        id: "field-save", route: FARM, target: "field-save",
+        title: "Fläche speichern",
+        body: "Speichern Sie die Fläche mit „Speichern“. Sie können anschließend weitere Flächen anlegen.",
+        placement: "top",
+        // Completes automatically once the field is saved (lands in the store).
         done: hasField,
     },
     {

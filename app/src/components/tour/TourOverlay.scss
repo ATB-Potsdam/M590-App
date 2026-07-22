@@ -84,6 +84,15 @@
         color: rgba(255, 255, 255, 0.92);
     }
 
+    // Crosshair icon inlined in body text – matches the map's locate button.
+    // Sits on the text baseline, sized to the surrounding line.
+    .tour-inline-icon {
+        width: 1.05em;
+        height: 1.05em;
+        vertical-align: -0.2em;
+        margin: 0 0.1em;
+    }
+
     &__actions {
         display: flex;
         justify-content: space-between;
@@ -96,7 +105,8 @@
         }
     }
 
-    &__skip {
+    &__skip,
+    &__back {
         background: none;
         border: none;
         padding: 0.25rem 0;
@@ -108,6 +118,12 @@
             color: #fff;
             text-decoration: underline;
         }
+    }
+
+    // Back sits first (left); it should hug the left edge, letting "Tour pausieren"
+    // and "Weiter" keep the space-between layout on the right.
+    &__back {
+        margin-right: auto;
     }
 
     // On the green bubble the primary button would vanish → invert it:

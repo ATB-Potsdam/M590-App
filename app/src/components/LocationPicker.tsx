@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import {forwardRef, useEffect, useImperativeHandle, useRef, useState, type RefObject} from "react";
 import {MapContainer, Marker, TileLayer, Tooltip, useMap, useMapEvents} from "react-leaflet";
 import type {GeoPoint} from "../types/farm";
+import {LocateIcon} from "./LocateIcon";
 import "./LocationPicker.scss";
 
 import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
@@ -133,14 +134,7 @@ export const LocationPicker = forwardRef<LocationPickerHandle, Props>(
                                 </path>
                             </svg>
                         ) : (
-                            // Location icon (⊙)
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <circle cx="12" cy="12" r="8" />
-                                <line x1="12" y1="2" x2="12" y2="8" />
-                                <line x1="12" y1="16" x2="12" y2="22" />
-                                <line x1="2" y1="12" x2="8" y2="12" />
-                                <line x1="16" y1="12" x2="22" y2="12" />
-                            </svg>
+                            <LocateIcon />
                         )}
                     </button>
                 )}
