@@ -70,6 +70,11 @@
         font-size: 12px;
     }
 
+    &__nfkwe-warning {
+        color: var(--color-warning) !important;
+        font-weight: 600;
+    }
+
     &__nfkwe-reset-btn {
         background: none;
         border: none;

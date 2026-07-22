@@ -92,12 +92,14 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
 
     const handleSubmit = (e: SubmitEvent) => {
         e.preventDefault();
-        if (!name || !areaHaValid || !location) return;
+        // nFkweClass is required (no silent default) – the save button is disabled
+        // until it is resolved (geo) or picked manually.
+        if (!name || !areaHaValid || !location || !nFkweClass) return;
         onSave({
             name,
             areaHa: areaHa as number,
             location,
-            nFkweClass: nFkweClass ?? "3a",
+            nFkweClass,
             nFkweClassSource: nFkweSource,
         });
     };
@@ -107,12 +109,12 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
         setNFkweSource('manual');
     };
 
-    const isValid = !!name && areaHaValid && !!location;
+    const isValid = !!name && areaHaValid && !!location && !!nFkweClass;
 
     return (
         <form onSubmit={handleSubmit} className={clsx("field-form", isValid && "field-form--valid")}>
             <div className="field-form__name-area-row">
-                <label className="field-form__name-label">
+                <label className="field-form__name-label" data-tour="field-name">
                     Feldname
                     <input
                         value={name}
@@ -122,7 +124,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                     />
                 </label>
 
-                <label className="field-form__area-label">
+                <label className="field-form__area-label" data-tour="field-area">
                     Fläche (ha)
                     <input
                         type="text"
@@ -136,39 +138,49 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                 </label>
             </div>
 
-            <p className={clsx("map")}>
-                Standort wählen – auf die Karte klicken:
-            </p>
-
-            <LocationPicker
-                ref={locationPickerRef}
-                value={location}
-                onChange={setLocation}
-                existingLocations={existingLocations}
-                onLocate={handleUseCurrentLocation}
-                locating={locating}
-            />
-
-            {location && (
-                <small>
-                    Lat: {formatNum(location.lat, 5)}, Lon: {formatNum(location.lon, 5)}
-                    {geoClimateClass
-                        ? <> · 🌿 Klimazone: <b>{geoClimateClass[0]}</b> (KWB: {formatNum(geoClimateClass[1], 0)})</>
-                        : <> · ⚠️ Klimazone für diesen Standort nicht verfügbar</>}
-                </small>
-            )}
-
-            <fieldset>
-                <legend>nFKWe-Klasse (Bodenwasser)</legend>
-                <p>
-                    Böden können lokal variieren – bitte bestätigen oder anpassen.
+            <div data-tour="field-location">
+                <p className={clsx("map")}>
+                    Standort wählen – auf die Karte klicken:
                 </p>
-                {geoNFkweClass && <p>Die ermittelte Bodenklasse an diesem Ort ist <b>{geoNFkweClass}</b>.</p>}
+
+                <LocationPicker
+                    ref={locationPickerRef}
+                    value={location}
+                    onChange={setLocation}
+                    existingLocations={existingLocations}
+                    onLocate={handleUseCurrentLocation}
+                    locating={locating}
+                />
+
+                {location && (
+                    <small>
+                        Lat: {formatNum(location.lat, 5)}, Lon: {formatNum(location.lon, 5)}
+                        {geoClimateClass
+                            ? <> · 🌿 Klimazone: <b>{geoClimateClass[0]}</b> (KWB: {formatNum(geoClimateClass[1], 0)})</>
+                            : <> · ⚠️ Klimazone für diesen Standort nicht verfügbar</>}
+                    </small>
+                )}
+            </div>
+
+            <fieldset data-tour="field-nfkwe">
+                <legend>nFKWe-Klasse (Bodenwasser)</legend>
+                {geoNFkweClass && (
+                    <p>
+                        Für diesen Standort wurde die Bodenklasse <b>{geoNFkweClass}</b> ermittelt.
+                        Böden können lokal variieren – bitte bestätigen oder anpassen.
+                    </p>
+                )}
+                {location && !nFkweClass && (
+                    <p className="field-form__nfkwe-warning">
+                        ⚠ Für diesen Standort liegt kein Kartenwert vor – bitte wählen Sie die Bodenklasse.
+                    </p>
+                )}
                 <InfoHint summary="Was bedeuten die Bodenklassen?">
                     <p>
                         Die nFKWe-Klasse beschreibt, wie viel Wasser der Boden pflanzenverfügbar
                         speichert – ein zentraler Eingangswert für den Zusatzwasserbedarf.
-                        Sie wird automatisch aus dem Standort ermittelt und kann angepasst werden.
+                        Sie wird – sofern für den Standort Kartendaten vorliegen – automatisch
+                        ermittelt und kann angepasst werden; andernfalls wählen Sie sie selbst.
                     </p>
                     <ul className="field-form__nfkwe-help-list">
                         {nFkweClassNames.map((cls) => (
@@ -212,7 +224,7 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
             </fieldset>
 
             <div className="field-form__actions">
-                <button type="submit" disabled={!name || !areaHaValid || !location}>
+                <button type="submit" data-tour="field-save" disabled={!isValid}>
                     Speichern
                 </button>
                 <button type="button" onClick={onCancel}>
