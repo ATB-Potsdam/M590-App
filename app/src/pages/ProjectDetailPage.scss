@@ -136,11 +136,11 @@
         }
     }
 
-    // Area + climate zone: float to the top-right of the whole tile (above the
-    // trash button), so the first line of the field name sits beside it and any
-    // following lines wrap to the full width beneath it. The negative right
-    // margin lets it reach the tile edge, escaping &__main's trash padding.
-    // Never breaks internally.
+    // Area + climate zone: float to the top-right, so the first line of the field
+    // name sits beside it and any following lines wrap to the full width beneath.
+    // It stays INSIDE &__main's 32px right padding (no negative margin) so it never
+    // overlaps the vertically-centred trash button, which on short rows sits near
+    // the top-right corner. Never breaks internally.
     &__meta {
         float: right;
         display: inline-flex;
@@ -150,7 +150,6 @@
         line-height: calc(15px * 1.4);
         gap: 8px;
         margin-left: 8px;
-        margin-right: -32px;
         white-space: nowrap;
         color: var(--color-text-secondary);
         font-size: 13px;
