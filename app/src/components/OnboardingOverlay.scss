@@ -1,4 +1,6 @@
 // src/components/OnboardingOverlay.scss
+@use "../variables" as *;
+
 .onboarding-overlay {
     position: fixed;
     inset: 0;
@@ -26,12 +28,11 @@
         color: var(--color-primary-dark);
     }
 
-    &__intro {
+    &__start {
         margin: 0 0 20px;
-        color: var(--color-text-secondary);
-        font-size: 0.95rem;
-        text-align: center;
-        line-height: 1.5;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     &__steps-heading {
@@ -91,126 +92,41 @@
     }
 
     &__faq-link {
+        @include btn-primary;
         margin-top: 10px;
         padding: 6px 16px;
-        background: var(--color-primary);
-        color: #fff;
-        -webkit-text-fill-color: #fff;
-        border: none;
-        border-radius: 6px;
         font-size: 0.82rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s;
-
-        &:hover {
-            background: var(--color-primary-dark);
-            border: none;
-        }
 
         &:disabled {
             background: var(--color-border);
             color: var(--color-text-muted);
+            -webkit-text-fill-color: var(--color-text-muted);
+            border-color: var(--color-border);
             cursor: not-allowed;
         }
-
-        &:focus-visible {
-            outline: 2px solid var(--color-primary);
-            outline-offset: 2px;
-        }
     }
 
-    &__logos {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid var(--color-border-light);
-    }
-
-    &__logo {
-        height: 22px;
-        width: auto;
-        opacity: 0.65;
-        transition: opacity 0.15s;
-
-        &:hover {
-            opacity: 1;
-        }
-    }
-
-    &__demo {
-        margin: 4px 0 16px;
-        padding: 12px;
-        background: var(--color-primary-bg-light);
-        border: 1px solid var(--color-primary-border);
-        border-radius: 8px;
-    }
-
-    &__demo-text {
-        margin: 0 0 10px;
+    &__start-lead {
+        margin: 0;
         font-size: 0.85rem;
         color: var(--color-text-subtle);
-    }
 
-    &__demo-btn {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        background: var(--color-primary-bg);
-        color: var(--color-primary-dark);
-        border: 1px solid var(--color-primary-border);
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s;
-
-        &:hover {
-            background: var(--color-primary-bg-light);
+        // Space between an onboarding action and the lead-in of the next one.
+        &:not(:first-of-type) {
+            margin-top: 4px;
         }
     }
 
-    &__tour-btn {
+    &__start-btn {
+        @include btn-primary;
         display: block;
         width: 100%;
-        margin: 16px 0;
-        padding: 12px;
-        background: var(--color-primary);
-        color: var(--color-bg);
-        border: none;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s;
-
-        &:hover {
-            background: var(--color-primary-dark);
-        }
     }
 
     &__dismiss {
+        @include btn-primary;
         display: block;
         width: 100%;
-        padding: 10px;
-        background: none;
-        color: var(--color-text-muted);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background 0.15s, color 0.15s;
-
-        &:hover {
-            background: var(--color-bg-surface);
-            color: var(--color-text);
-        }
-
-        &:active {
-            background: var(--color-bg-surface);
-        }
+        margin-top: 4px;
     }
 }

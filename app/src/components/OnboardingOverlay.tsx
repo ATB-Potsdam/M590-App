@@ -6,8 +6,6 @@ import {seedDemoData} from "../lib/demoData";
 import {allEmptyStepsDone, currentProjectId, isTourWalkable} from "./tour/tourSteps";
 import "./OnboardingOverlay.scss";
 
-const base = import.meta.env.BASE_URL;
-
 interface Props {
     onClose: () => void;
     /**
@@ -51,52 +49,60 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
 
     // Orientation walk-through uses the same (linear) flow as the demo walk-through.
     const tourVariant = tourMode === "empty" ? "empty" : "demo";
-    const tourLabel =
-        tourMode === "demo" ? "🧭 Rundgang durch die Beispieldaten"
-            : tourMode === "empty" ? "🧭 Schritt für Schritt anlegen (geführt)"
-                : "🧭 Kurzeinführung: die wichtigsten Stellen";
+    // Label: guided setup on empty data ("Erste Schritte"), otherwise a walk-through
+    // through existing data (demo or own complete data) → "Kurze Tour".
+    const tourLabel = tourMode === "empty" ? "Los geht's ➔" : "Kurze Tour ➔";
 
     // Close+navigate via onNavigate (without history.back()), otherwise the
     // FAQ navigation would be immediately undone.
     const goTo = (path: string) => onNavigate(path);
 
+    // Demo path: seed the example data and close. The floating TourStartButton /
+    // DemoHint then offer the walk-through through the freshly loaded example.
     const loadDemo = () => {
         seedDemoData(setFarm, setProjects, precipitationLookup, et0Lookup);
         // Offer the walk-through again (floating button), in case it was ended earlier.
         setTourCompleted(false);
-        // Close the overlay and stay on the farm page – without a farm the overlay
-        // is shown via /farm anyway. There the demo hint appears with
-        // "Weiter zum Szenario". The user sees their farm first.
         onClose();
     };
 
     return (
         <div className="onboarding-overlay" onClick={onClose}>
             <div className="onboarding-overlay__dialog" onClick={(e) => e.stopPropagation()}>
-                <h2 className="onboarding-overlay__title">Willkommen zur DWA-M 590 App</h2>
-                <p className="onboarding-overlay__intro">
-                    Diese App unterstützt Sie bei der Berechnung des Bewässerungsbedarfs
-                    landwirtschaftlicher Flächen nach dem DWA-Merkblatt M 590.
-                </p>
+                <h2 className="onboarding-overlay__title">Hilfe &amp; Erste Schritte</h2>
 
-                {tourMode && (
-                    <button
-                        className="onboarding-overlay__tour-btn"
-                        onClick={() => onStartTour(tourVariant)}
-                    >
-                        {tourLabel}
-                    </button>
-                )}
+                {(tourMode || !hasFarm) && (
+                    <div className="onboarding-overlay__start">
+                        {!hasFarm ? (
+                            <>
+                                <p className="onboarding-overlay__start-lead">
+                                    Lernen Sie die App an einem fertigen Beispiel kennen
+                                    (Kartoffel-Acker + Golfplatz):
+                                </p>
+                                <button className="onboarding-overlay__start-btn" onClick={loadDemo}>
+                                    Rundgang mit Beispieldaten ➔
+                                </button>
 
-                {!hasFarm && (
-                    <div className="onboarding-overlay__demo">
-                        <p className="onboarding-overlay__demo-text">
-                            Lieber erst ausprobieren? Laden Sie ein Beispiel mit fertigen
-                            Ergebnissen (Kartoffel-Acker + Golfplatz) – jederzeit löschbar.
-                        </p>
-                        <button className="onboarding-overlay__demo-btn" onClick={loadDemo}>
-                            Beispiel laden ➔
-                        </button>
+                                <p className="onboarding-overlay__start-lead">
+                                    Oder gleich mit eigenen Daten beginnen?
+                                </p>
+                                <button
+                                    className="onboarding-overlay__start-btn"
+                                    onClick={() => onStartTour("empty")}
+                                >
+                                    Los geht's ➔
+                                </button>
+                            </>
+                        ) : (
+                            tourMode && (
+                                <button
+                                    className="onboarding-overlay__start-btn"
+                                    onClick={() => onStartTour(tourVariant)}
+                                >
+                                    {tourLabel}
+                                </button>
+                            )
+                        )}
                     </div>
                 )}
 
@@ -167,17 +173,8 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                 </div>
 
                 <button className="onboarding-overlay__dismiss" onClick={onClose}>
-                    Verstanden
+                    Schließen
                 </button>
-
-                <div className="onboarding-overlay__logos">
-                    <a href="https://www.atb-potsdam.de" target="_blank" rel="noopener noreferrer">
-                        <img src={`${base}atb_logo.svg`} alt="ATB Leibniz-Institut für Agrartechnik und Bioökonomie" className="onboarding-overlay__logo" />
-                    </a>
-                    <a href="https://www.dwa.de" target="_blank" rel="noopener noreferrer">
-                        <img src={`${base}dwa-logo.svg`} alt="DWA Deutsche Vereinigung für Wasserwirtschaft" className="onboarding-overlay__logo" />
-                    </a>
-                </div>
             </div>
         </div>
     );
