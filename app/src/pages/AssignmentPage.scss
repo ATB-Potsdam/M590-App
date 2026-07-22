@@ -107,34 +107,26 @@
     }
 
     &__save {
+        @include btn-primary;
         margin-top: 8px;
         width: 100%;
         padding: 14px;
         font-size: 16px;
-        font-weight: 600;
-        background: var(--color-primary);
-        color: var(--color-bg);
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
 
         &:disabled,
         &--disabled {
             background: var(--color-border-medium);
+            border-color: var(--color-border-medium);
             cursor: not-allowed;
         }
     }
 
     &__cancel {
+        @include btn-ghost;
         margin-top: 8px;
         width: 100%;
         padding: 12px;
         font-size: 14px;
-        background: none;
-        color: var(--color-text-secondary);
-        border: 1px solid var(--color-border);
-        border-radius: 8px;
-        cursor: pointer;
     }
 
     &__save-hint {

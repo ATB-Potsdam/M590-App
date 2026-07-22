@@ -137,12 +137,11 @@
     }
 
     &__reset-btn {
-        background: none;
-        border: 1px solid var(--color-border-medium);
-        color: var(--color-text-muted);
+        @include btn-ghost;
         font-size: 0.85rem;
         padding: 6px 12px;
 
+        // Destructive trigger: hint the danger on hover.
         &:hover {
             border-color: var(--color-error);
             color: var(--color-error);
@@ -151,29 +150,16 @@
 
     &__reset-confirm,
     &__delete-confirm {
-        border: 1px solid var(--color-error-border);
-        border-radius: 8px;
-        padding: 12px;
+        @include callout-error;
         margin-top: 8px;
-        background: var(--color-error-bg);
 
         p {
             margin: 6px 0 10px;
-            font-size: 0.9rem;
-            color: var(--color-text-secondary);
         }
     }
 
     &__reset-confirm-btn {
-        background: var(--color-error);
-        color: #fff;
-        -webkit-text-fill-color: #fff;
-        border-color: var(--color-error);
-
-        &:hover {
-            background: var(--color-error-dark);
-            border-color: var(--color-error-dark);
-        }
+        @include btn-danger;
     }
 
     &__import-confirm {

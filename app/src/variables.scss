@@ -38,6 +38,7 @@
 
     // ── Accent (blue) ──
     --color-accent: #1565c0;
+    --color-accent-dark: #0d47a1;
     --color-accent-bg: #e3f2fd;
     --color-accent-bg-light: #f0f4ff;
     --color-accent-border: #c5cae9;
@@ -64,6 +65,27 @@
     --color-link: #646cff;
     --color-link-hover: #535bf2;
     --color-disabled: #ccc;
+
+    // ── Semantic roles ──────────────────────────────────────────────
+    // Three intents used throughout the app for callouts and emphasis.
+    // Aliases onto the palette groups above — do not introduce new hex here.
+    //   hint   → green (primary): tips, tours, "try this"
+    //   notice → blue  (accent):  neutral info / caution
+    //   error  → red   (error):   destructive actions, failures
+    --color-hint: var(--color-primary);
+    --color-hint-dark: var(--color-primary-dark);
+    --color-hint-bg: var(--color-primary-bg-light);
+    --color-hint-border: var(--color-primary-border);
+
+    --color-notice: var(--color-accent);
+    --color-notice-dark: var(--color-accent-dark);
+    --color-notice-bg: var(--color-accent-bg);
+    --color-notice-border: var(--color-accent-border);
+
+    // (error tokens already defined in the Error group above)
+
+    // Text painted on top of a solid coloured fill (buttons/pills).
+    --color-on-fill: #ffffff;
 }
 
 // Reusable field label style
@@ -73,4 +95,107 @@
     color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+}
+
+// ── Shared button variants ──────────────────────────────────────────
+// One source of truth for the button "weight" scale, independent of role
+// colour. `@use "../variables" as *;` then `@include btn-primary;` from a
+// component's BEM class. The base `button` element rules (index.scss)
+// supply radius/padding/font.
+//   primary   → solid green fill, the dialog/flow's main action
+//   secondary → pale green fill + border, an alternative action
+//   notice    → solid blue fill, an alternative path (distinct from primary)
+//   ghost     → text only, low emphasis / cancel
+//   danger    → solid red, destructive confirm
+@mixin btn-primary {
+    background: var(--color-primary);
+    color: var(--color-on-fill);
+    -webkit-text-fill-color: var(--color-on-fill);
+    border: 1px solid var(--color-primary);
+    font-weight: 600;
+
+    &:hover {
+        background: var(--color-primary-dark);
+        border-color: var(--color-primary-dark);
+    }
+}
+
+@mixin btn-secondary {
+    background: var(--color-primary-bg);
+    color: var(--color-primary-dark);
+    -webkit-text-fill-color: var(--color-primary-dark);
+    border: 1px solid var(--color-primary-border);
+    font-weight: 600;
+
+    &:hover {
+        background: var(--color-primary-bg-light);
+    }
+}
+
+@mixin btn-notice {
+    background: var(--color-notice);
+    color: var(--color-on-fill);
+    -webkit-text-fill-color: var(--color-on-fill);
+    border: 1px solid var(--color-notice);
+    font-weight: 600;
+
+    &:hover {
+        background: var(--color-notice-dark);
+        border-color: var(--color-notice-dark);
+    }
+}
+
+@mixin btn-ghost {
+    background: none;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+
+    &:hover {
+        background: var(--color-bg-surface);
+        color: var(--color-text);
+        border-color: var(--color-border-medium);
+    }
+}
+
+@mixin btn-danger {
+    background: var(--color-error);
+    color: var(--color-on-fill);
+    -webkit-text-fill-color: var(--color-on-fill);
+    border: 1px solid var(--color-error);
+    font-weight: 600;
+
+    &:hover {
+        background: var(--color-error-dark);
+        border-color: var(--color-error-dark);
+    }
+}
+
+// ── Shared callouts ─────────────────────────────────────────────────
+// Boxed contextual notes in the three semantic roles.
+//   hint   → green: tips, tours, "try this"
+//   notice → blue:  neutral info / caution
+//   error  → red:   destructive context, failures
+@mixin callout-base {
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+@mixin callout-hint {
+    @include callout-base;
+    background: var(--color-hint-bg);
+    border: 1px solid var(--color-hint-border);
+    color: var(--color-text-subtle);
+}
+@mixin callout-notice {
+    @include callout-base;
+    background: var(--color-notice-bg);
+    border: 1px solid var(--color-notice-border);
+    color: var(--color-text-subtle);
+}
+@mixin callout-error {
+    @include callout-base;
+    background: var(--color-error-bg);
+    border: 1px solid var(--color-error-border);
+    color: var(--color-text-secondary);
 }

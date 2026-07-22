@@ -1,4 +1,4 @@
-@use "./variables";
+@use "./variables" as vars;
 
 *,
 *::before,
@@ -85,3 +85,16 @@ textarea {
   outline: 1px solid var(--color-primary-border-strong);
   outline-offset: 2px;
 }
+
+// Convenience classes for the shared button/callout mixins (defined in
+// variables.scss) so plain markup can use them without a per-component
+// @include. Components with their own BEM class should @include instead.
+.btn--primary { @include vars.btn-primary; }
+.btn--secondary { @include vars.btn-secondary; }
+.btn--notice { @include vars.btn-notice; }
+.btn--ghost { @include vars.btn-ghost; }
+.btn--danger { @include vars.btn-danger; }
+
+.callout--hint { @include vars.callout-hint; }
+.callout--notice { @include vars.callout-notice; }
+.callout--error { @include vars.callout-error; }

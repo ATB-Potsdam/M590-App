@@ -1,4 +1,6 @@
 // src/pages/ProjectsPage.scss
+@use "../variables" as *;
+
 .project-list {
     list-style: none;
     margin: 0 0 16px;
@@ -86,16 +88,11 @@
 }
 
 .project-list__delete-confirm {
-    border: 1px solid var(--color-error-border);
-    border-radius: 8px;
-    padding: 12px;
+    @include callout-error;
     margin-top: 6px;
-    background: var(--color-error-bg);
 
     p {
         margin: 6px 0 10px;
-        font-size: 0.9rem;
-        color: var(--color-text-secondary);
     }
 }
 
@@ -106,13 +103,5 @@
 }
 
 .project-list__delete-confirm-btn {
-    background: var(--color-error);
-    color: #fff;
-    -webkit-text-fill-color: #fff;
-    border-color: var(--color-error);
-
-    &:hover {
-        background: var(--color-error-dark);
-        border-color: var(--color-error-dark);
-    }
+    @include btn-danger;
 }
