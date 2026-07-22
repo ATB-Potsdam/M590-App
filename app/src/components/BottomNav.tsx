@@ -3,8 +3,8 @@ import type {NavItem} from "../types/nav";
 import "./BottomNav.scss";
 
 const NAV_ITEMS: NavItem[] = [
-    {path: "/", label: "Szenarien", icon: "🌾"},
     {path: "/farm", label: "Betrieb", icon: "🏡"},
+    {path: "/", label: "Szenarien", icon: "🌾"},
 ];
 
 
