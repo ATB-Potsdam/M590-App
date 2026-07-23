@@ -55,6 +55,28 @@
         border-radius: 8px;
         padding: 10px 12px;
 
+        // Smoothly grow/shrink the answer. `interpolate-size` lets height animate
+        // to/from the intrinsic size; `::details-content` is the open/closed body.
+        // Both are progressive enhancements – unsupported browsers just toggle
+        // instantly, no layout break.
+        &::details-content {
+            block-size: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: block-size 0.22s ease, opacity 0.22s ease, content-visibility 0.22s allow-discrete;
+        }
+
+        &[open]::details-content {
+            block-size: auto;
+            opacity: 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &::details-content {
+                transition: none;
+            }
+        }
+
         summary {
             cursor: pointer;
             font-size: 0.9rem;

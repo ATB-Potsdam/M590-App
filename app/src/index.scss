@@ -11,6 +11,10 @@
   line-height: 1.5;
   font-weight: 400;
 
+  // Allow height/block-size to animate to/from intrinsic keywords (auto), used by
+  // the smooth <details> reveal. Progressive enhancement; ignored where unsupported.
+  interpolate-size: allow-keywords;
+
   color-scheme: light;
   color: var(--color-text);
   background-color: var(--color-bg);
