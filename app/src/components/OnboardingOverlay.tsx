@@ -109,7 +109,7 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                 <p className="onboarding-overlay__steps-heading">Häufige Fragen</p>
 
                 <div className="onboarding-overlay__faq">
-                    <details className="onboarding-overlay__faq-item">
+                    <details className="onboarding-overlay__faq-item" name="faq">
                         <summary>Wo lege ich eine Fläche an oder bearbeite sie?</summary>
                         <p>
                             Öffnen Sie unten in der Navigation den Tab
@@ -122,7 +122,7 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                         </button>
                     </details>
 
-                    <details className="onboarding-overlay__faq-item">
+                    <details className="onboarding-overlay__faq-item" name="faq">
                         <summary>Wie lege ich ein Szenario an?</summary>
                         <p>
                             Ein Szenario bündelt eine Berechnung (z. B. für ein bestimmtes
@@ -140,7 +140,7 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                         </button>
                     </details>
 
-                    <details className="onboarding-overlay__faq-item">
+                    <details className="onboarding-overlay__faq-item" name="faq">
                         <summary>Wie ändere ich eine Zuweisung?</summary>
                         <p>
                             Öffnen Sie unter <strong>🌾 Szenarien</strong> das Szenario und
@@ -156,7 +156,7 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                         </button>
                     </details>
 
-                    <details className="onboarding-overlay__faq-item">
+                    <details className="onboarding-overlay__faq-item" name="faq">
                         <summary>Wo sehe ich das Ergebnis und erzeuge das PDF?</summary>
                         <p>
                             Öffnen Sie unter <strong>🌾 Szenarien</strong> Ihr Szenario. In
