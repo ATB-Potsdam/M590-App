@@ -96,7 +96,7 @@ export const demoSteps: TourStep[] = [
         route: "/farm",
         target: "nav-scenarios",
         title: "Weiter zu den Szenarien",
-        body: "Tippen Sie unten auf Szenarien ➔ – dort stecken die Berechnungen für Ihre Flächen.",
+        body: "Tippen Sie unten auf „Szenarien“ – dort stecken die Berechnungen für Ihre Flächen.",
         placement: "top",
         advanceOn: "route",
     },
@@ -105,7 +105,7 @@ export const demoSteps: TourStep[] = [
         route: "/",
         target: "project-row",
         title: "Szenario öffnen",
-        body: "Öffnen Sie ein Szenario ➔, um die zugewiesenen Flächen und ihre Ergebnisse zu sehen.",
+        body: "Öffnen Sie ein Szenario mit einem Klick, um die zugewiesenen Flächen und ihre Ergebnisse zu sehen.",
         placement: "bottom",
         advanceOn: "route",
     },
@@ -243,7 +243,7 @@ export const emptySteps: EmptyStep[] = [
     {
         id: "nav-scenarios", route: FARM, target: "nav-scenarios",
         title: "Zu den Szenarien",
-        body: "Wechseln Sie unten zu Szenarien ➔ – dort legen Sie eine Bewässerungsberechnung an.",
+        body: "Wechseln Sie unten zu „Szenarien“ – dort legen Sie eine Bewässerungsberechnung an.",
         placement: "top",
         // Done once the user reaches the scenarios page (or beyond).
         done: (ctx) => ctx.pathname === "/" || onProjectDetail(ctx) || onAssignmentPage(ctx) || hasProject(ctx),

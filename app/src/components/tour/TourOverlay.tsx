@@ -127,6 +127,13 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         if (input && !host.contains(document.activeElement)) input.focus();
     }, [activeTarget, rect]);
 
+    // After a manual "Zurück", the route-advance effect must NOT immediately push
+    // forward again: stepping back decrements tourStep before the router settles on
+    // the previous route, so for one render the (new) current step sees the old URL
+    // still matching the next step's route and would re-advance. This holds the
+    // route we are returning to and suppresses advancing until the URL reaches it.
+    const backTargetRef = useRef<string | null>(null);
+
     const arrowRef = useRef<HTMLDivElement>(null);
     const {refs, floatingStyles, middlewareData, placement, update} = useFloating({
         strategy: "fixed",
@@ -199,9 +206,21 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         navigate(active.route);
     }, [active, location.pathname, navigate, tourVariant, tourStep, tourPid]);
 
+    // Drop any pending back-guard once the tour is no longer active, so it can't
+    // leak into a later run.
+    useEffect(() => {
+        if (!tourActive) backTargetRef.current = null;
+    }, [tourActive]);
+
     // Demo walk-through: route-based advancing (the user navigates themselves).
     useEffect(() => {
         if (!active || tourVariant !== "demo") return;
+        // A manual Back is in flight: don't advance until the URL has actually
+        // reached the step we went back to (then release the guard).
+        if (backTargetRef.current) {
+            if (location.pathname === backTargetRef.current) backTargetRef.current = null;
+            return;
+        }
         const steps = tourStepsFor("demo");
         const cur = steps[tourStep];
         if (!cur || cur.advanceOn !== "route") return;
@@ -253,7 +272,24 @@ export const TourOverlay = ({demoProjectId}: Props) => {
         ? tourStep > 0
         : !!active.advanceId && tourAdvanced.length > 0;
     const onBack = () => {
-        if (tourVariant === "demo") { prevTourStep(); return; }
+        if (tourVariant === "demo") {
+            // Route-advanced demo steps auto-advance when the URL matches the NEXT
+            // step's route. After stepping back we are usually still on that URL, so
+            // navigate to the previous step's own route first – otherwise the
+            // route-advance effect immediately fires nextTourStep() and Zurück
+            // appears to do nothing.
+            const steps = tourStepsFor("demo");
+            const prev = steps[tourStep - 1];
+            if (prev) {
+                const prevRoute = resolveRoute(prev.route, tourPid);
+                // Suppress the route-advance until we've actually landed on prevRoute
+                // (see backTargetRef) so we don't get bounced straight back forward.
+                backTargetRef.current = prevRoute;
+                if (location.pathname !== prevRoute) navigate(prevRoute);
+            }
+            prevTourStep();
+            return;
+        }
         unadvanceEmptyStep();
     };
 
