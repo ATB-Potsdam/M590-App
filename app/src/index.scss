@@ -94,6 +94,7 @@ textarea {
 .btn--notice { @include vars.btn-notice; }
 .btn--ghost { @include vars.btn-ghost; }
 .btn--danger { @include vars.btn-danger; }
+.btn--danger-outline { @include vars.btn-danger-outline; }
 
 .callout--hint { @include vars.callout-hint; }
 .callout--notice { @include vars.callout-notice; }

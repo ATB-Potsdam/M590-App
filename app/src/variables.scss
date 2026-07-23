@@ -170,6 +170,23 @@
     }
 }
 
+// Outlined destructive TRIGGER (reveals a confirm) – clearly red so it doesn't
+// read as disabled, but lighter than the solid-red confirm button itself.
+@mixin btn-danger-outline {
+    background: none;
+    color: var(--color-error);
+    -webkit-text-fill-color: var(--color-error);
+    border: 1px solid var(--color-error);
+    font-weight: 600;
+
+    &:hover {
+        background: var(--color-error);
+        color: var(--color-on-fill);
+        -webkit-text-fill-color: var(--color-on-fill);
+        border-color: var(--color-error);
+    }
+}
+
 // ── Shared callouts ─────────────────────────────────────────────────
 // Boxed contextual notes in the three semantic roles.
 //   hint   → green: tips, tours, "try this"

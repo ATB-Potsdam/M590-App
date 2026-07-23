@@ -137,15 +137,9 @@
     }
 
     &__reset-btn {
-        @include btn-ghost;
+        @include btn-danger-outline;
         font-size: 0.85rem;
         padding: 6px 12px;
-
-        // Destructive trigger: hint the danger on hover.
-        &:hover {
-            border-color: var(--color-error);
-            color: var(--color-error);
-        }
     }
 
     &__reset-confirm,
