@@ -219,6 +219,12 @@ export const PdfSummaryTable = ({data}: Props) => {
                     {totalAltWasserM3 > 0 ? " Netto-Antragsmenge wird nur bei vollst\u00E4ndigen Szenarien ausgewiesen." : ""}
                 </Text>
             )}
+            <Text style={[styles.sourceLine, {marginTop: 4}]}>
+                {"Normaljahr = Median der 30-j\u00E4hrigen KWBv-Reihe (50 % Versorgungssicherheit); "}
+                {"mittleres Trockenjahr = 20-%-Perzentil (80 % Versorgungssicherheit). "}
+                {"Das Merkblatt empfiehlt das mittlere Trockenjahr als Bemessungsgrundlage f\u00FCr "}
+                {"wasserrechtliche Gestattungen (DWA-M 590, Kapitel 3.5)."}
+            </Text>
         </View>
     );
 };

@@ -3,6 +3,7 @@ import {useState, useRef, useCallback, useEffect} from "react";
 import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {DemoHint} from "../components/DemoHint";
+import {InfoHint} from "../components/InfoHint";
 import {getModuleLabel, fieldTerm} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
@@ -541,6 +542,30 @@ export const ProjectDetailPage = () => {
                             </span>
                         </div>
                     )}
+
+                    <InfoHint summary="Normaljahr oder Trockenjahr – was gilt für mich?">
+                        Beide Werte werden immer berechnet; Sie müssen sich nicht vorab
+                        entscheiden.
+                        <br /><br />
+                        Das <strong>Normaljahr</strong> ist der Median einer 30-jährigen Reihe
+                        der klimatischen Wasserbilanz (KWBv) und entspricht einer 50-%-igen
+                        Versorgungssicherheit: statistisch kann in 5 von 10 Jahren der aktuelle
+                        Bedarf nicht vollständig gedeckt werden. Das{" "}
+                        <strong>mittlere Trockenjahr</strong> ist das 20-%-Perzentil derselben
+                        Reihe und entspricht 80 % Versorgungssicherheit – nur 2 von 10 Jahren
+                        sind so trocken, dass der Bedarf nicht gedeckt wird (Kapitel 3.5).
+                        <br /><br />
+                        Als Bemessungsgrundlage für wasserrechtliche Gestattungen{" "}
+                        <strong>empfiehlt das Merkblatt das mittlere Trockenjahr</strong>. Dazu
+                        wird angeregt, in der Gestattung ein Überschreiten um bis zu 25 % in
+                        einzelnen Jahren zuzulassen, solange das Mittel im gleitenden
+                        5-Jahres-Zeitraum die Menge für das mittlere Trockenjahr nicht
+                        übersteigt (Kapitel 3.5).
+                        <br /><br />
+                        Hinweis: Nur die Kulturmodule (Hauptkulturen, Gemüse/{'​'}Obst,
+                        Weinbau) liefern einen Trockenjahr-Wert; Sport- und Grünflächen werden
+                        nach Fläche und Niederschlag bemessen und kennen kein Trockenjahr.
+                    </InfoHint>
 
                 </section>
                 <button className="project-summary__print-btn" onClick={() => {
