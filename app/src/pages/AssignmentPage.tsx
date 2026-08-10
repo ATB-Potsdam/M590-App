@@ -27,6 +27,7 @@ import {calculateNaturrasen} from '../lib/calculations/naturrasen';
 import {calculateGolf, TABLE_35, type GolfAreaMode} from '../lib/calculations/golf';
 import {calculateKunstrasen} from '../lib/calculations/kunstrasen';
 import {calculateTennen} from '../lib/calculations/tennen';
+import {annualPrecipitationMm} from '../lib/calculations/annualPrecipitation';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {formatPeriod, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -199,8 +200,8 @@ export const AssignmentPage = () => {
         }
 
         if (module === 'weinbau' && field.climateDataStatus === 'done' && field.climateData && field.nFkweClass) {
-            const annualPrecipMm = field.climateData.precipitation
-                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+            if (annualPrecipMm === null) return null;
             const input = {
                 nFkweClass: field.nFkweClass as NFkweClassName,
                 annualPrecipMm,
@@ -228,8 +229,8 @@ export const AssignmentPage = () => {
 
         if (module === 'golf' && golfGreensM2 !== "" && golfTeeM2 !== "" && golfFairwayM2 !== ""
             && field.climateDataStatus === 'done' && field.climateData) {
-            const annualPrecipMm = field.climateData.precipitation
-                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+            if (annualPrecipMm === null) return null;
             const result = calculateGolf({annualPrecipMm, greensM2: golfGreensM2, teeM2: golfTeeM2, fairwayM2: golfFairwayM2});
             return {type: 'golf' as const, normal: result, dry: undefined};
         }
@@ -240,15 +241,15 @@ export const AssignmentPage = () => {
         }
 
         if (module === 'naturrasen' && field.climateDataStatus === 'done' && field.climateData) {
-            const annualPrecipMm = field.climateData.precipitation
-                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+            if (annualPrecipMm === null) return null;
             const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
             return {type: 'naturrasen' as const, normal: result, dry: undefined};
         }
 
         if (module === 'tennen' && field.climateDataStatus === 'done' && field.climateData) {
-            const annualPrecipMm = field.climateData.precipitation
-                .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+            const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+            if (annualPrecipMm === null) return null;
             const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
             return {type: 'tennen' as const, normal: result, dry: undefined};
         }

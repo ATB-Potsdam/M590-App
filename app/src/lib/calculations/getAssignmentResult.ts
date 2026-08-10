@@ -12,6 +12,7 @@ import {calculateNaturrasen, type NaturrasenResult} from "./naturrasen";
 import {calculateGolf, type GolfResult} from "./golf";
 import {calculateKunstrasen, type KunstrasenResult} from "./kunstrasen";
 import {calculateTennen, type TennenResult} from "./tennen";
+import {annualPrecipitationMm} from "./annualPrecipitation";
 
 export interface AssignmentResult {
     normal?: HauptkulturenResult | GemueseObstResult | WeinbauResult | GruenflaechenResult | NaturrasenResult | GolfResult | KunstrasenResult | TennenResult;
@@ -79,8 +80,8 @@ export const getAssignmentResult = (
         field.climateData &&
         field.nFkweClass
     ) {
-        const annualPrecipMm = field.climateData.precipitation
-            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+        if (annualPrecipMm === null) return null;
 
         const input = {
             nFkweClass: field.nFkweClass as NFkweClassName,
@@ -121,8 +122,8 @@ export const getAssignmentResult = (
         field.climateDataStatus === "done" &&
         field.climateData
     ) {
-        const annualPrecipMm = field.climateData.precipitation
-            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+        if (annualPrecipMm === null) return null;
         const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
         return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }
@@ -135,8 +136,8 @@ export const getAssignmentResult = (
         field.climateDataStatus === "done" &&
         field.climateData
     ) {
-        const annualPrecipMm = field.climateData.precipitation
-            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+        if (annualPrecipMm === null) return null;
         const result = calculateGolf({
             annualPrecipMm,
             greensM2: fa.golfGreensM2,
@@ -164,8 +165,8 @@ export const getAssignmentResult = (
         field.climateDataStatus === "done" &&
         field.climateData
     ) {
-        const annualPrecipMm = field.climateData.precipitation
-            .reduce((sum: number, v: number | null) => sum + (v ?? 0), 0);
+        const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
+        if (annualPrecipMm === null) return null;
         const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
         return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
     }

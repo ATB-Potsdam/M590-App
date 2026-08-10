@@ -53,8 +53,17 @@ const isValidClimateClass = (v: unknown): boolean =>
 const isValidClimateData = (v: unknown): boolean => {
     if (!v || typeof v !== "object") return false;
     const d = v as Record<string, unknown>;
-    return Array.isArray(d.precipitation) && d.precipitation.length === 12
-        && Array.isArray(d.et0) && d.et0.length === 12;
+    const precipitation: unknown[] | null = Array.isArray(d.precipitation) ? d.precipitation : null;
+    if (!precipitation || precipitation.length !== 12) return false;
+    if (!(Array.isArray(d.et0) && d.et0.length === 12)) return false;
+
+    // Precipitation must cover the whole year. Data written before the raster was
+    // rebuilt as `full_year` has null for Nov–Feb; it passes the length check but
+    // yields an eight-month "annual" sum, which under-classifies the site and
+    // inflates demand for the sports/green modules. Treat it as stale so the
+    // caller resets the status to "idle" and refreshClimateData() refetches it.
+    const winterMonths = [0, 1, 10, 11]; // Jan, Feb, Nov, Dec
+    return winterMonths.every((i) => typeof precipitation[i] === "number");
 };
 
 // Sanitize loaded data against schema changes to prevent crashes on stale localStorage.

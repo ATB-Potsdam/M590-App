@@ -4,7 +4,10 @@ import type {RasterLookup, RasterMeta} from "../types/raster";
 
 const basename = import.meta.env.BASE_URL;
 
-export const precipRasterUrl = (basename + "/data/precip_1991-2020_mar_oct").replace(/\/+/, "/");;
+// Precipitation covers the full year: the sport/green modules need a genuine annual
+// sum for their precipitation class. ET₀ stays March–October — it is only used for the
+// monthly KWB correction over a crop's irrigation period, never summed annually.
+export const precipRasterUrl = (basename + "/data/precip_1991-2020_full_year").replace(/\/+/, "/");;
 export const et0RasterUrl = (basename + "/data/et0_1991-2020_mar_oct").replace(/\/+/, "/");;
 
 

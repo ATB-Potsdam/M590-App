@@ -12,7 +12,7 @@ RASTER_CONFIGS = {
     "precip": {
         "url_path": "grids_germany/multi_annual/precipitation/",
         "filename_tpl": "grids_germany_multi_annual_precipitation_{period}_{month:02d}.asc",
-        "out_stem_tpl": "precip_{period}_mar_oct",
+        "out_stem_tpl": "precip_{period}_{span}",
         "scale": 1.0,
         "unit": "mm",
         "description": "Niederschlagshöhe (30-jähriges Mittel)",
@@ -20,7 +20,7 @@ RASTER_CONFIGS = {
     "et0": {
         "url_path": "grids_germany/multi_annual/evapo_p/",
         "filename_tpl": "grids_germany_multi_annual_evapo_p_{period}_{month:02d}.asc",
-        "out_stem_tpl": "et0_{period}_mar_oct",
+        "out_stem_tpl": "et0_{period}_{span}",
         "scale": 0.1,
         "unit": "mm",
         "description": "Potentielle Evapotranspiration Gras Penman-Monteith (ET₀)",
@@ -119,7 +119,13 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    out_stem = cfg["out_stem_tpl"].format(period=args.period)
+    # Encode the real month span in the filename — a hardcoded "mar_oct" silently
+    # lies as soon as --months changes, and the app sums whatever it is given.
+    MONTH_ABBR = ["jan", "feb", "mar", "apr", "may", "jun",
+                  "jul", "aug", "sep", "oct", "nov", "dec"]
+    span = ("full_year" if month_list == list(range(1, 13))
+            else f"{MONTH_ABBR[m_start - 1]}_{MONTH_ABBR[m_end - 1]}")
+    out_stem = cfg["out_stem_tpl"].format(period=args.period, span=span)
     bin_path  = out_dir / f"{out_stem}.bin"
     meta_path = out_dir / f"{out_stem}.meta.json"
 
