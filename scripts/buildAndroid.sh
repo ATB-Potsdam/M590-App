@@ -1,0 +1,194 @@
+#!/bin/bash
+#
+# Build the Android release bundle (.aab) for upload to the Play Console,
+# headlessly — no Android Studio involved.
+#
+# Usage:
+#   scripts/buildAndroid.sh             # release .aab; prompts for the password
+#   scripts/buildAndroid.sh --apk       # debug APK for sideloading instead
+#
+#   # unattended (CI): the prompt is skipped when the variables are already set
+#   M590_KEYSTORE_PASSWORD=... M590_KEY_PASSWORD=... scripts/buildAndroid.sh
+#
+# Signing material never lives in the repository. The keystore path and alias
+# default to the values below; the passwords are prompted for, or taken from the
+# environment / android/keystore.properties (gitignored). Without them the build
+# would still run but produce an UNSIGNED bundle, which the Play Console rejects,
+# so the release path refuses to continue.
+#
+# Three environment obstacles are handled here because each one cost a debugging
+# session before:
+#
+#   - `cap sync` needs Node >= 22 while the project otherwise runs on Node 21
+#     (which also blocks the vite/react-router majors). Without the sync,
+#     capacitor-cordova-android-plugins/ and the web assets under
+#     app/android/app/src/main/assets/public/ are missing and Gradle fails.
+#   - Gradle needs JDK 21. The system default here is JDK 25, which the Android
+#     Gradle Plugin does not accept, so JAVA_HOME is pinned explicitly.
+#   - The build needs SDK platform 36 (targetSdk 36 is a Play requirement).
+#     Its absence surfaces as a confusing "failed to find target" from Gradle,
+#     so it is checked up front.
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+readonly KEYSTORE_DEFAULT="$HOME/andoid-keystore/DWA-M590.jks"
+# Unverified: the keystore is password-protected, so the alias could not be read
+# when this was written. If Gradle reports "No key with alias ... found", list the
+# real one with
+#   keytool -list -keystore "$KEYSTORE_DEFAULT"
+# and either fix this default or pass M590_KEY_ALIAS=... for the build.
+readonly KEY_ALIAS_DEFAULT="dwa-m590"
+readonly NODE_VERSION=22
+readonly JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk
+readonly ANDROID_SDK="${ANDROID_HOME:-/opt/android-sdk}"
+readonly COMPILE_SDK=36
+
+fail() { echo "BUILD ABORTED: $*" >&2; exit 1; }
+info() { echo "==> $*"; }
+
+target=bundle
+case "${1:-}" in
+    --apk) target=apk ;;
+    "") ;;
+    *) fail "unknown argument '$1' (expected --apk or nothing)" ;;
+esac
+
+# --- Toolchain checks --------------------------------------------------------
+
+[ -d "$JAVA_HOME_21" ] || fail "JDK 21 not found at $JAVA_HOME_21. Gradle/AGP does not accept the newer default JDK."
+export JAVA_HOME="$JAVA_HOME_21"
+
+[ -d "$ANDROID_SDK" ] || fail "Android SDK not found at $ANDROID_SDK. Set ANDROID_HOME."
+export ANDROID_HOME="$ANDROID_SDK"
+
+[ -d "$ANDROID_SDK/platforms/android-$COMPILE_SDK" ] || fail \
+    "SDK platform $COMPILE_SDK is missing. Install it with:
+    sdkmanager \"platforms;android-$COMPILE_SDK\" \"build-tools;$COMPILE_SDK.0.0\""
+
+# app/android/local.properties tells Gradle where the SDK is; it is gitignored,
+# so a fresh clone has to be told once.
+if [ ! -f app/android/local.properties ]; then
+    info "writing app/android/local.properties (sdk.dir=$ANDROID_SDK)"
+    echo "sdk.dir=$ANDROID_SDK" > app/android/local.properties
+fi
+
+# --- Node 22 for the Capacitor sync -----------------------------------------
+
+if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env)"
+    fnm use "$NODE_VERSION" >/dev/null 2>&1 || fail "fnm cannot select Node $NODE_VERSION. Install it: fnm install $NODE_VERSION"
+elif [ -s /usr/share/nvm/init-nvm.sh ]; then
+    # shellcheck disable=SC1091
+    . /usr/share/nvm/init-nvm.sh
+    nvm use "$NODE_VERSION" >/dev/null || fail "nvm cannot select Node $NODE_VERSION."
+fi
+
+node_major="$(node -p 'process.versions.node.split(".")[0]')"
+[ "$node_major" -ge "$NODE_VERSION" ] || fail \
+    "Node $node_major is active but 'cap sync' needs >= $NODE_VERSION. Install fnm/nvm or switch manually."
+info "Node $(node -v), JDK 21, SDK $ANDROID_SDK"
+
+# --- Signing -----------------------------------------------------------------
+
+# Only relevant for the release bundle; the debug APK uses the debug keystore.
+if [ "$target" = bundle ]; then
+    export M590_KEYSTORE="${M590_KEYSTORE:-$KEYSTORE_DEFAULT}"
+    export M590_KEY_ALIAS="${M590_KEY_ALIAS:-$KEY_ALIAS_DEFAULT}"
+
+    if [ ! -f "$M590_KEYSTORE" ]; then
+        fail "keystore not found at $M590_KEYSTORE. Set M590_KEYSTORE to its location."
+    fi
+
+    # Passwords come from the environment (CI) or, failing that, an interactive
+    # prompt. Prompting is preferred day to day: an inline M590_..._PASSWORD=...
+    # ends up in the shell history, and an exported one is readable via
+    # /proc/<pid>/environ. Read from /dev/tty rather than stdin so the prompt
+    # still works when the script's stdin is redirected, and only when a
+    # terminal is actually attached — otherwise an unattended run would block
+    # forever instead of failing.
+    # /dev/tty can exist but not be openable (cron, a detached process), so test
+    # by actually opening it rather than with -e.
+    has_tty=no
+    if (: < /dev/tty) 2>/dev/null; then
+        has_tty=yes
+    fi
+
+    if [ -z "${M590_KEYSTORE_PASSWORD:-}" ]; then
+        [ "$has_tty" = yes ] || fail \
+            "M590_KEYSTORE_PASSWORD is not set and there is no terminal to prompt on.
+    Set M590_KEYSTORE_PASSWORD and M590_KEY_PASSWORD in the environment for unattended builds."
+        printf 'Keystore password for %s: ' "$(basename "$M590_KEYSTORE")" > /dev/tty
+        IFS= read -rs M590_KEYSTORE_PASSWORD < /dev/tty
+        echo > /dev/tty
+        [ -n "$M590_KEYSTORE_PASSWORD" ] || fail "no keystore password entered."
+    fi
+
+    if [ -z "${M590_KEY_PASSWORD:-}" ]; then
+        if [ "$has_tty" = yes ]; then
+            printf 'Password for key "%s" [empty = same as keystore]: ' "$M590_KEY_ALIAS" > /dev/tty
+            IFS= read -rs M590_KEY_PASSWORD < /dev/tty
+            echo > /dev/tty
+        fi
+        # Most keystores use one password for both; treat an empty answer as
+        # "same as the store password" rather than as an empty key password.
+        M590_KEY_PASSWORD="${M590_KEY_PASSWORD:-$M590_KEYSTORE_PASSWORD}"
+    fi
+
+    export M590_KEYSTORE_PASSWORD M590_KEY_PASSWORD
+
+    # Fail before the multi-minute build rather than at the signing step at the
+    # very end, which is where a wrong password would otherwise surface.
+    if ! "$JAVA_HOME/bin/keytool" -list -keystore "$M590_KEYSTORE" -alias "$M590_KEY_ALIAS" \
+            -storepass "$M590_KEYSTORE_PASSWORD" > /dev/null 2>&1; then
+        fail "cannot open $M590_KEYSTORE with alias '$M590_KEY_ALIAS' and the given password.
+    List the aliases with: keytool -list -keystore \"$M590_KEYSTORE\"
+    Then pass the right one via M590_KEY_ALIAS=..."
+    fi
+    info "keystore unlocked, alias '$M590_KEY_ALIAS'"
+fi
+
+# --- Build -------------------------------------------------------------------
+
+cd app
+
+info "installing dependencies (yarn --immutable)"
+yarn install --immutable
+
+info "building web assets (vite, mode=android)"
+yarn build --mode android
+
+info "syncing web assets into the Android project (cap sync)"
+yarn cap:sync:android
+
+cd android
+
+if [ "$target" = apk ]; then
+    info "assembling debug APK"
+    ./gradlew assembleDebug
+    artifact=app/build/outputs/apk/debug/app-debug.apk
+else
+    info "building signed release bundle"
+    ./gradlew bundleRelease
+    artifact=app/build/outputs/bundle/release/app-release.aab
+fi
+
+[ -f "$artifact" ] || fail "expected artifact $artifact was not produced."
+
+# --- Verify ------------------------------------------------------------------
+
+# A missing signingConfig makes Gradle's signRelease* task a silent no-op, so the
+# signature is verified rather than assumed.
+if [ "$target" = bundle ]; then
+    if unzip -l "$artifact" | grep -qE 'META-INF/.*\.(RSA|DSA|EC)$'; then
+        info "bundle is signed"
+    else
+        fail "$artifact is UNSIGNED — the Play Console will reject it. Check the signing environment variables."
+    fi
+fi
+
+echo
+info "$(cd "$PWD" && pwd)/$artifact"
+ls -lh "$artifact" | awk '{print "    size: " $5}'
+grep -E 'versionCode|versionName' app/build.gradle | sed 's/^ */    /'

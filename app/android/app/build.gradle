@@ -1,5 +1,23 @@
 apply plugin: 'com.android.application'
 
+// Release signing material is supplied from outside the repository: either via
+// environment variables (M590_KEYSTORE / M590_KEYSTORE_PASSWORD / M590_KEY_ALIAS /
+// M590_KEY_PASSWORD) or a gitignored android/keystore.properties. When neither is
+// present the release build stays unsigned instead of failing, so debug builds and
+// CI checks still work on machines without the upload key.
+def keystorePropsFile = rootProject.file("keystore.properties")
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+def signingValue = { String env, String prop ->
+    System.getenv(env) ?: keystoreProps.getProperty(prop)
+}
+
+def storePath = signingValue("M590_KEYSTORE", "storeFile")
+def hasSigningKey = storePath != null && !storePath.isEmpty() && file(storePath).exists()
+
 android {
     namespace "de.runlevel3.m590"
     compileSdk rootProject.ext.compileSdkVersion
@@ -16,10 +34,24 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    if (hasSigningKey) {
+        signingConfigs {
+            release {
+                storeFile file(storePath)
+                storePassword signingValue("M590_KEYSTORE_PASSWORD", "storePassword")
+                keyAlias signingValue("M590_KEY_ALIAS", "keyAlias")
+                keyPassword signingValue("M590_KEY_PASSWORD", "keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasSigningKey) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
