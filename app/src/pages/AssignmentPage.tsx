@@ -336,7 +336,7 @@ export const AssignmentPage = () => {
                             }}
                         >
                             <span className="module-tile__icon">{m.icon}</span>
-                            <span className="module-tile__label">{m.label}</span>
+                            <span className="module-tile__label">{m.longLabel ?? m.label}</span>
                         </button>
                     ))}
                 </div>
@@ -348,10 +348,19 @@ export const AssignmentPage = () => {
             {showCategoryPicker && (
                 <section className="assignment-section">
                     <h2>2. Kategorie</h2>
+                    <InfoHint summary="Welche Kulturen stecken in welcher Kategorie?">
+                        Dieses Modul umfasst nicht nur Gemüse und Obst, sondern auch
+                        Medizinal-, Agrar- und Futterpflanzen – also alle Kulturen, die nicht
+                        zu den Hauptkulturen, zum Weinbau oder zu den Sport- und Grünflächen
+                        gehören. Berechnet wird hier nach der KWB-Korrektur gegenüber dem
+                        Referenzstandort Potsdam (Kapitel 4.3), nicht nach den
+                        KWBv-Klassentabellen.
+                    </InfoHint>
                     <div className="option-list">
                         {PLANT_CATEGORIES.filter((c) => c.type !== 'hauptkulturen').map((cat) => (
                             <button key={cat.type} className="option-btn" onClick={() => setPlantCategory(cat.type)}>
-                                {cat.icon} {cat.label}
+                                <span className="option-btn__label">{cat.icon} {cat.label}</span>
+                                <span className="option-btn__desc">{cat.description}</span>
                             </button>
                         ))}
                     </div>

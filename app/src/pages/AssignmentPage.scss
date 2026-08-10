@@ -183,6 +183,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    // Labels differ in length (one word up to "Gemüse/Obst & Sonderkulturen"); keep the
+    // icons on one line by pinning the label block to the bottom of an even-height tile.
+    justify-content: flex-start;
+    height: 100%;
     gap: 4px;
     padding: 12px 8px;
     border: 2px solid var(--color-border);
@@ -243,6 +247,19 @@
 
     &:active {
         background: var(--color-bg-surface);
+    }
+
+    // Two-line variant (category picker): label plus a short "what belongs here" note.
+    &__label {
+        display: block;
+    }
+
+    &__desc {
+        display: block;
+        margin-top: 2px;
+        color: var(--color-text-muted);
+        font-size: 0.85em;
+        line-height: 1.35;
     }
 
     &--active {

@@ -4,12 +4,25 @@ import type {ModuleType} from "../types/project";
 export interface ModuleDefinition {
     type: ModuleType;
     icon: string;
+    /** Short label — used in tables, badges and the PDF, where width is tight. */
     label: string;
+    /**
+     * Long label for the module picker, where there is room to be precise.
+     * Only set where the short label understates the module's scope.
+     */
+    longLabel?: string;
 }
 
 export const MODULES: ModuleDefinition[] = [
     {type: "hauptkulturen", icon: "🌾", label: "Hauptkulturen"},
-    {type: "gemuese_obst", icon: "🥦", label: "Gemüse/​Obst"},
+    // Covers far more than vegetables and fruit — also medicinal, agricultural and
+    // fodder plants (see PLANT_CATEGORIES). The picker says so, otherwise users search
+    // for e.g. Soja or Hopfen in the wrong module. The short label stays short because
+    // it also renders in the summary table, the module badges and the PDF.
+    {
+        type: "gemuese_obst", icon: "🥦", label: "Gemüse/​Obst",
+        longLabel: "Gemüse/​Obst & Sonderkulturen",
+    },
     {type: "weinbau", icon: "🍷", label: "Weinbau"},
     {type: "gruenflaechen", icon: "🌿", label: "Grünflächen"},
     {type: "naturrasen", icon: "⚽", label: "Naturrasensportplatz"},
