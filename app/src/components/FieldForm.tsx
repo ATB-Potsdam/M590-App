@@ -19,14 +19,17 @@ interface Props {
     onCancel: () => void;
 }
 
-// Short description + soil-index range (Bodenzahl, BZ) per nFKWe class — helps users
-// without a soil-science background (e.g. golf-course planners) with classification.
-const NFKWE_CLASS_DESC: Record<NFkweClassName, string> = {
-    "1-2": "vorwiegend sandige Böden",
-    "3a": "schwach lehmige Sande",
-    "3b": "lehmige Böden",
-    "4": "stark lehmige/​schluffige Böden",
-    "5": "tiefgründige Löss-/​Lehmböden",
+// The Merkblatt defines the nFKWe classes solely by usable field capacity (mm), soil
+// index (Bodenzahl, BZ) and MMK site types — never by a texture ("grobe Bodenart")
+// label. Earlier versions showed app-authored texture blurbs ("vorwiegend sandige
+// Böden" …), which conflicted with the data: class 1-2 legitimately contains the clay
+// type K1a and class 3b K1b/K1c — clay soils can have a low nFKWe too. Derive the
+// description from the actual class criteria instead.
+const nfkweRangeLabel = (cls: NFkweClassName): string => {
+    const [min, max] = nFkweClasses[cls][0];
+    if (min <= 0) return `nFKWe <${max} mm`;
+    if (!Number.isFinite(max)) return `nFKWe >${min} mm`;
+    return `nFKWe ${min}–${max} mm`;
 };
 
 const bzRangeLabel = (cls: NFkweClassName): string => {
@@ -35,6 +38,10 @@ const bzRangeLabel = (cls: NFkweClassName): string => {
     if (!Number.isFinite(max)) return `BZ >${min}`;
     return `BZ ${min}–${max}`;
 };
+
+// A few MMK site types as concrete examples — the Merkblatt's own classification aid.
+const mmkExamples = (cls: NFkweClassName): string =>
+    nFkweClasses[cls][2].slice(0, 3).join(", ");
 
 export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
@@ -185,10 +192,20 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                     <ul className="field-form__nfkwe-help-list">
                         {nFkweClassNames.map((cls) => (
                             <li key={cls}>
-                                <b>Klasse {cls}</b>: {NFKWE_CLASS_DESC[cls]} ({bzRangeLabel(cls)})
+                                <b>Klasse {cls}</b>: {nfkweRangeLabel(cls)} · {bzRangeLabel(cls)}
+                                <br />
+                                <span className="field-form__nfkwe-help-mmk">
+                                    z. B. Standorttypen {mmkExamples(cls)}
+                                </span>
                             </li>
                         ))}
                     </ul>
+                    <p>
+                        Maßgeblich ist allein die nutzbare Feldkapazität, nicht die Bodenart:
+                        Auch Tonböden können eine geringe nFKWe haben und fallen dann in eine
+                        niedrige Klasse. Klasse 1-2 fasst die Klassen 1 und 2 des Merkblatts
+                        zusammen.
+                    </p>
                 </InfoHint>
                 <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
