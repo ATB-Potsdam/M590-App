@@ -191,12 +191,38 @@ keystore is opened before the build starts, so a wrong password or alias fails i
 seconds instead of at the signing step minutes later.
 
 Signing material never lives in the repository. The keystore defaults to
-`~/andoid-keystore/DWA-M590.jks`; override with `M590_KEYSTORE` /
-`M590_KEY_ALIAS`, or put `storeFile`/`storePassword`/`keyAlias`/`keyPassword`
-into `app/android/keystore.properties` (gitignored). A release build without
-these produces an **unsigned** bundle that the Play Console rejects — Gradle's
-`signReleaseBundle` task is a silent no-op when no `signingConfig` is set, so
-the script verifies the signature rather than assuming it.
+`app/android/upload-keystore.jks` with alias `upload` — what
+`scripts/createUploadKeystore.sh` writes — and both are gitignored. Override with
+`M590_KEYSTORE` / `M590_KEY_ALIAS`, or put
+`storeFile`/`storePassword`/`keyAlias`/`keyPassword` into
+`app/android/keystore.properties` (also gitignored).
+
+Use an **absolute** path for `storeFile`: Gradle resolves a relative one against
+`app/android/app/`, not the repo root. A path that misses there used to disable
+signing silently; the build now fails with the resolved path instead. The build
+script always passes an absolute path.
+
+A release build without signing material produces an **unsigned** bundle that the
+Play Console rejects — Gradle's `signReleaseBundle` task is a silent no-op when
+no `signingConfig` is set, so the script verifies the signature rather than
+assuming it.
+
+### Replacing a lost upload key
+
+If the upload key's password is lost, `scripts/createUploadKeystore.sh` generates
+a replacement and prints the steps to register it. It writes
+`app/android/upload-keystore.jks` (gitignored, mode 600) plus the
+`upload_certificate.pem` that the Play Console asks for.
+
+This only works with **Play App Signing** enabled — Google then holds the actual
+app signing key, and the upload key merely authenticates uploads, so resetting it
+does not change the signature users see and installed apps keep updating. Verify
+under *Release → Setup → App integrity → App signing* before generating anything;
+without it, a new key cannot replace the original and the app would need a new
+package name.
+
+The build script never creates a keystore on its own: a bundle signed by an
+unregistered key looks fine locally and fails only at upload.
 
 Setting up the SDK once, on a machine that has none:
 

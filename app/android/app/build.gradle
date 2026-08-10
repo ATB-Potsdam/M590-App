@@ -16,7 +16,18 @@ def signingValue = { String env, String prop ->
 }
 
 def storePath = signingValue("M590_KEYSTORE", "storeFile")
-def hasSigningKey = storePath != null && !storePath.isEmpty() && file(storePath).exists()
+def hasSigningKey = storePath != null && !storePath.isEmpty()
+
+// A configured-but-unresolvable keystore is always a mistake, and letting it
+// through would disable signing silently: the build still succeeds and the
+// unsigned bundle is only rejected on upload. Note that Gradle resolves a
+// relative path against this module directory (app/android/app/), not the repo
+// root, so prefer an absolute path.
+if (hasSigningKey && !file(storePath).exists()) {
+    throw new GradleException(
+        "M590_KEYSTORE/storeFile points at '${storePath}', which does not exist " +
+        "(resolved to '${file(storePath).absolutePath}'). Use an absolute path.")
+}
 
 android {
     namespace "de.runlevel3.m590"

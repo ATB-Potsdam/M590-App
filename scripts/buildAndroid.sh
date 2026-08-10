@@ -33,13 +33,12 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-readonly KEYSTORE_DEFAULT="$HOME/andoid-keystore/DWA-M590.jks"
-# Unverified: the keystore is password-protected, so the alias could not be read
-# when this was written. If Gradle reports "No key with alias ... found", list the
-# real one with
-#   keytool -list -keystore "$KEYSTORE_DEFAULT"
-# and either fix this default or pass M590_KEY_ALIAS=... for the build.
-readonly KEY_ALIAS_DEFAULT="dwa-m590"
+# The upload key created by scripts/createUploadKeystore.sh, which replaced the
+# old ~/andoid-keystore/DWA-M590.jks after its password was lost. Both values
+# match what that script writes; override per build with M590_KEYSTORE /
+# M590_KEY_ALIAS if a different key is ever needed.
+readonly KEYSTORE_DEFAULT="app/android/upload-keystore.jks"
+readonly KEY_ALIAS_DEFAULT="upload"
 readonly NODE_VERSION=22
 readonly JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk
 readonly ANDROID_SDK="${ANDROID_HOME:-/opt/android-sdk}"
@@ -94,11 +93,25 @@ info "Node $(node -v), JDK 21, SDK $ANDROID_SDK"
 
 # Only relevant for the release bundle; the debug APK uses the debug keystore.
 if [ "$target" = bundle ]; then
-    export M590_KEYSTORE="${M590_KEYSTORE:-$KEYSTORE_DEFAULT}"
+    M590_KEYSTORE="${M590_KEYSTORE:-$KEYSTORE_DEFAULT}"
+    # Gradle resolves a relative storeFile against app/android/app/, not the repo
+    # root, and a path that misses there disables signing *silently* — the build
+    # succeeds and the bundle is unsigned. Always hand Gradle an absolute path.
+    case "$M590_KEYSTORE" in
+        /*) ;;
+        *) M590_KEYSTORE="$PWD/$M590_KEYSTORE" ;;
+    esac
+    export M590_KEYSTORE
     export M590_KEY_ALIAS="${M590_KEY_ALIAS:-$KEY_ALIAS_DEFAULT}"
 
+    # A keystore is deliberately NOT auto-created here: generating signing material
+    # as a side effect of a build produces a bundle signed by a key nobody has
+    # registered, and that only surfaces as a rejection at upload time.
     if [ ! -f "$M590_KEYSTORE" ]; then
-        fail "keystore not found at $M590_KEYSTORE. Set M590_KEYSTORE to its location."
+        fail "keystore not found at $M590_KEYSTORE.
+    Point M590_KEYSTORE at an existing one, or — if the upload key is lost —
+    create a replacement and register it with the Play Console:
+        scripts/createUploadKeystore.sh"
     fi
 
     # Passwords come from the environment (CI) or, failing that, an interactive
