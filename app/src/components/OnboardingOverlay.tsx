@@ -125,10 +125,13 @@ export const OnboardingOverlay = ({onClose, onNavigate, onStartTour, hasDemo}: P
                     <details className="onboarding-overlay__faq-item" name="faq">
                         <summary>Wie lege ich ein Szenario an?</summary>
                         <p>
-                            Ein Szenario bündelt eine Berechnung (z. B. für ein bestimmtes
-                            Jahr). Öffnen Sie unten in der Navigation den Tab
-                            <strong> 🌾 Szenarien</strong> und legen Sie es dort über
+                            Ein Szenario ist eine <strong>Nutzungsvariante</strong> Ihrer Flächen
+                            – z. B. eine andere Fruchtfolge. Öffnen Sie unten in der Navigation
+                            den Tab <strong>🌾 Szenarien</strong> und legen Sie es dort über
                             „+ Neues Szenario“ an; anschließend weisen Sie ihm Ihre Flächen zu.
+                            Standort, Bodenklasse und Klimadaten gehören zur Fläche und gelten
+                            in allen Szenarien gleich. Normal- und Trockenjahr werden immer
+                            beide berechnet – das ist keine Szenario-Wahl.
                         </p>
                         <button
                             className="onboarding-overlay__faq-link"

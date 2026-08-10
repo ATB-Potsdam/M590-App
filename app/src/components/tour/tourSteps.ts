@@ -251,7 +251,7 @@ export const emptySteps: EmptyStep[] = [
     {
         id: "add-scenario", route: SCEN, target: "add-scenario",
         title: "Szenario anlegen",
-        body: "Legen Sie mit „+ Neues Szenario“ Ihre erste Berechnung an (z. B. für ein bestimmtes Jahr).",
+        body: "Legen Sie mit „+ Neues Szenario“ Ihre erste Nutzungsvariante an (z. B. eine Fruchtfolge).",
         placement: "top",
         done: hasProject,
     },

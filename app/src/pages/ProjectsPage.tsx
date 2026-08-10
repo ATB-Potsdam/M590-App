@@ -1,6 +1,7 @@
 // src/pages/ProjectsPage.tsx
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router";
+import {InfoHint} from "../components/InfoHint";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {ProjectForm} from "../components/ProjectForm";
 import {useFarm} from "../hooks/useFarm";
@@ -48,6 +49,19 @@ export const ProjectsPage = () => {
             <h1>Szenarien</h1>
 
             <OnboardingBanner />
+
+            <InfoHint summary="Wofür sind Szenarien da?">
+                Ein Szenario ist eine <strong>Nutzungsvariante</strong> Ihrer Flächen. Von
+                Szenario zu Szenario ändern sich nur die Zuweisungen: welche Flächen enthalten
+                sind, welches Nutzungsmodul und welche Kultur sie haben und welche Zuschläge
+                gesetzt sind. So können Sie z. B. zwei Fruchtfolgen anlegen und vergleichen,
+                wie sich der Zusatzwasserbedarf ändert.
+                <br /><br />
+                Standort, Bodenklasse und Klimadaten gehören dagegen zur <strong>Fläche</strong>
+                {" "}und sind in allen Szenarien gleich – ein Szenario ist deshalb weder ein Jahr
+                noch ein Trocken-/Normalfall: <strong>Normal- und Trockenjahr werden immer beide
+                berechnet</strong> und nebeneinander ausgewiesen.
+            </InfoHint>
 
             {projects.length === 0 && !showForm && (
                 <p className="projects-page__empty">

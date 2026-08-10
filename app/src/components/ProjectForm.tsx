@@ -53,7 +53,7 @@ export const ProjectForm = ({
                             <input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                placeholder={`z. B. Bewässerung ${new Date().getFullYear()}`}
+                                placeholder={`z. B. Fruchtfolge ${new Date().getFullYear()}`}
                                 required
                             />
                         </td>
@@ -65,7 +65,7 @@ export const ProjectForm = ({
                                 value={description}
                                 ref={autoResize}
                                 onChange={(e) => { setDescription(e.target.value); autoResize(e.target); }}
-                                placeholder="z. B. Trockenjahr-Szenario"
+                                placeholder="z. B. Variante mit mehr Kartoffeln"
                                 rows={1}
                             />
                         </td>
