@@ -46,6 +46,7 @@ export const getAssignmentResult = (
             isTablePotato: fa.isTablePotato,
             isSummerCereal: fa.isSummerCereal,
             userCustomMm: fa.userCustomMm,
+            spanPosition: fa.spanPosition,
         };
 
         const {normal, dry} = calculateHauptkulturenBoth(input);
@@ -68,6 +69,7 @@ export const getAssignmentResult = (
             et0: field.climateData.et0,
             surchargeEmergence: fa.surchargeEmergence,
             userCustomMm: fa.userCustomMm,
+            spanPosition: fa.spanPosition,
         };
 
         const {normal, dry} = calculateGemueseObstBoth(input);

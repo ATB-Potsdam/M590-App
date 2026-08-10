@@ -6,6 +6,7 @@ import {type Range} from "../../types/dataTypes";
 import type {IrrigationPeriod} from "../../types/project";
 import {getMonthWeights} from "./irrigationWeights";
 import {nFkweToRawIndex} from "./nFkweMapping";
+import {applySpanPosition} from "./spanPosition";
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
@@ -20,6 +21,9 @@ export interface GemueseObstInput {
     et0: MonthValueType;
     // Surcharges (Spec Kapitel 4.3 only allows Auflaufbewässerung A/J — no Zwischenfrucht surcharge)
     surchargeEmergence: number;
+    // Position within the literature span (0 = min, 0.5 = mean, 1 = max).
+    // undefined keeps the full span.
+    spanPosition?: number;
     // User-defined (fallback if no literature value): mm/a
     userCustomMm?: number;
 }
@@ -43,6 +47,10 @@ export interface GemueseObstResult {
     optionalSurchargeMm: number;
     surchargeEmergenceMm: number;
     totalSurchargeMm: number;
+    // Full literature span before a span position is applied
+    literatureRangeMm: Range;
+    // Applied span position, if any (0 = min, 0.5 = mean, 1 = max)
+    spanPosition?: number;
     totalRangeMm: Range;
     totalRangeM3: Range;
     scenario: Scenario;
@@ -61,8 +69,7 @@ const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10]
 export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult => {
     const {
         plant, nFkweClass, areaHa, scenario, irrigationPeriod,
-        precipitation, et0, surchargeEmergence, userCustomMm,
-    } = input;
+        precipitation, et0, surchargeEmergence, userCustomMm, spanPosition} = input;
 
     const rawData = allOtherPlants[plant];
     if (!rawData) {
@@ -71,7 +78,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         return {
             baseRangeMm: zero, deltaKwb: 0, correctionMm: 0, ajSuggestedMm: null,
             optionalSurchargeMm: 0, surchargeEmergenceMm: 0,
-            totalSurchargeMm: 0, totalRangeMm: zero,
+            totalSurchargeMm: 0, literatureRangeMm: zero, totalRangeMm: zero,
             totalRangeM3: zero, scenario, monthlyRows: [], hasValue: false,
             isUserCustom: false, userCustomMm: 0,
         };
@@ -129,7 +136,11 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     const totalSurchargeMm = optionalSurchargeMm;
 
     const correctedBase = addRange(baseRangeMm, correctionMm);
-    const totalRangeMm = cropRange(addRange(correctedBase, totalSurchargeMm));
+    const literatureRangeMm = cropRange(addRange(correctedBase, totalSurchargeMm));
+    // A user value is already a point value — a span position would be meaningless.
+    const totalRangeMm = isUserCustom
+        ? literatureRangeMm
+        : applySpanPosition(literatureRangeMm, spanPosition);
     const totalRangeM3 = mmToM3(totalRangeMm, areaHa);
 
     return {
@@ -140,6 +151,8 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         optionalSurchargeMm,
         surchargeEmergenceMm,
         totalSurchargeMm,
+        literatureRangeMm,
+        spanPosition: isUserCustom ? undefined : spanPosition,
         totalRangeMm,
         totalRangeM3,
         scenario,

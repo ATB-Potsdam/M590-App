@@ -28,6 +28,7 @@ import {calculateGolf, TABLE_35, type GolfAreaMode} from '../lib/calculations/go
 import {calculateKunstrasen} from '../lib/calculations/kunstrasen';
 import {calculateTennen} from '../lib/calculations/tennen';
 import {annualPrecipitationMm} from '../lib/calculations/annualPrecipitation';
+import {SPAN_POSITIONS} from '../lib/calculations/spanPosition';
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName, VegetableName} from '../types/dataTypes';
 import type {IrrigationPeriod, ModuleType, PlantCategory} from '../types/project';
 import {formatPeriod, periodToKey, timeRangeToPeriod} from '../utils/irrigationPeriod';
@@ -62,6 +63,8 @@ export const AssignmentPage = () => {
     const [isTablePotato, setIsTablePotato] = useState(assignment?.isTablePotato ?? true);
     const [isSummerCereal, setIsSummerCereal] = useState(assignment?.isSummerCereal ?? false);
     const [userCustomMm, setUserCustomMm] = useState<number | "">(assignment?.userCustomMm ?? "");
+    // Chosen value within the literature span (undefined = show the full span)
+    const [spanPosition, setSpanPosition] = useState<number | undefined>(assignment?.spanPosition);
     const [isJunganlage, setIsJunganlage] = useState(assignment?.isJunganlage ?? false);
     // Grünflächen (green spaces) FLL factors
     const [fllVegetation, setFllVegetation] = useState<FllVegetation | undefined>(assignment?.fllVegetation);
@@ -179,6 +182,7 @@ export const AssignmentPage = () => {
                 isTablePotato,
                 isSummerCereal,
                 userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
+                spanPosition,
             };
             const {normal, dry} = calculateHauptkulturenBoth(input);
             return {type: 'hauptkulturen' as const, normal, dry};
@@ -194,6 +198,7 @@ export const AssignmentPage = () => {
                 et0: field.climateData.et0,
                 surchargeEmergence,
                 userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
+                spanPosition,
             };
             const {normal, dry} = calculateGemueseObstBoth(input);
             return {type: 'gemuese_obst' as const, normal, dry};
@@ -269,6 +274,7 @@ export const AssignmentPage = () => {
             isTablePotato,
             isSummerCereal,
             userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
+            spanPosition,
             isJunganlage,
             fllVegetation,
             fllMoisture,
@@ -862,6 +868,58 @@ export const AssignmentPage = () => {
                             areaHa={field.areaHa}
                         />
                     )}
+                </section>
+            )}
+
+            {/* Pick a value inside the literature span (Merkblatt Kapitel 4.2.2 allows it) */}
+            {result && (result.type === 'hauptkulturen' || result.type === 'gemuese_obst') && result.normal &&
+                ('literatureRangeMm' in result.normal) && result.normal.hasValue &&
+                !result.normal.isUserCustom &&
+                result.normal.literatureRangeMm[0] !== result.normal.literatureRangeMm[1] && (
+                <section className="assignment-section">
+                    <h2>Wert innerhalb der Spanne</h2>
+                    <InfoHint summary="Warum eine Spanne – und welchen Wert nehme ich?">
+                        Die Tabellenwerte des Merkblatts sind Spannen, weil innerhalb einer
+                        nFKWe-Klasse noch erhebliche Unterschiede bestehen: Klasse 1-2 reicht von
+                        unter 50 bis 90 mm nutzbarer Feldkapazität. Böden am unteren Rand der
+                        Klasse brauchen mehr Zusatzwasser als solche am oberen.
+                        <br /><br />
+                        Für die wasserrechtliche Beantragung dürfen pauschalierte Werte innerhalb
+                        der angegebenen Spannen herangezogen werden (Kapitel 4.2.2). Sie können
+                        hier einen Wert festlegen; die vollständige Spanne bleibt in den
+                        Berechnungsgrundlagen sichtbar.
+                    </InfoHint>
+                    <div className="option-list assignment-page__span-options">
+                        {SPAN_POSITIONS.map((sp) => (
+                            <button
+                                key={sp.value}
+                                type="button"
+                                className={`option-btn${spanPosition === sp.value ? ' option-btn--active' : ''}`}
+                                onClick={() => setSpanPosition(sp.value)}
+                            >
+                                {sp.label}
+                                <span className="assignment-page__span-value">
+                                    {formatNum(
+                                        Math.round(
+                                            result.normal!.literatureRangeMm[0]
+                                            + (result.normal!.literatureRangeMm[1] - result.normal!.literatureRangeMm[0]) * sp.value
+                                        ), 0
+                                    )} mm/a
+                                </span>
+                            </button>
+                        ))}
+                        <button
+                            type="button"
+                            className={`option-btn${spanPosition === undefined ? ' option-btn--active' : ''}`}
+                            onClick={() => setSpanPosition(undefined)}
+                        >
+                            Ganze Spanne
+                            <span className="assignment-page__span-value">
+                                {formatNum(result.normal.literatureRangeMm[0], 0)}–
+                                {formatNum(result.normal.literatureRangeMm[1], 0)} mm/a
+                            </span>
+                        </button>
+                    </div>
                 </section>
             )}
 

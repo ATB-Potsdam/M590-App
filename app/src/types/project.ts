@@ -51,6 +51,13 @@ export interface FieldAssignment {
      * Only effective when the table value is null (hasValue=false).
      */
     userCustomMm?: number;
+    /**
+     * Chosen position within the literature span: 0 = minimum, 0.5 = mean, 1 = maximum.
+     * undefined keeps the full span (previous behaviour). Distinct from userCustomMm,
+     * which replaces a *missing* table value — this picks inside an existing one, as
+     * DWA-M 590 Kapitel 4.2.2 permits for water-rights applications.
+     */
+    spanPosition?: number;
     isJunganlage?: boolean;
     // Grünflächen FLL factors
     fllVegetation?: "rasen" | "stauden" | "baeume";

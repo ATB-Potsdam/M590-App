@@ -1,6 +1,7 @@
 // src/lib/calculations/hauptkulturen.ts
 import {additionWaterDryYear, additionWaterNormYear, type CropAdditionalWater} from "../../constants/soilConstants";
 import type {CropName, KwbZone, NFkweClassName, Range, Scenario} from "../../types/dataTypes";
+import {applySpanPosition} from "./spanPosition";
 
 export interface HauptkulturenInput {
     crop: CropName;
@@ -18,6 +19,9 @@ export interface HauptkulturenInput {
     // Sommergetreide (e.g. Sommerhafer) for "sonst. Getreide" — unlocks the
     // optional surcharges. undefined = false.
     isSummerCereal?: boolean;
+    // Position within the literature span (0 = min, 0.5 = mean, 1 = max).
+    // undefined keeps the full span.
+    spanPosition?: number;
     // User-defined (fallback if no literature value): mm/a
     userCustomMm?: number;
 }
@@ -37,6 +41,11 @@ export interface HauptkulturenResult {
     surchargeHeavySoilMm: number;
     // Total surcharge (mm)
     totalSurchargeMm: number;
+    // Full literature span incl. surcharges, before a span position is applied.
+    // Keeps the underlying range visible once the user picks a single value.
+    literatureRangeMm: Range;
+    // Applied span position, if any (0 = min, 0.5 = mean, 1 = max)
+    spanPosition?: number;
     // Total demand (mm/a) as a Range
     totalRangeMm: Range;
     // Water demand (m³/a) as a Range
@@ -94,7 +103,7 @@ const getTableValue = (
 export const calculateHauptkulturen = (input: HauptkulturenInput): HauptkulturenResult => {
     const {crop, nFkweClass, kwbZone, areaHa, scenario,
         surchargeIntermediate, surchargeEmergence, surchargeHeavySoil,
-        isTablePotato, isSummerCereal, userCustomMm} = input;
+        isTablePotato, isSummerCereal, userCustomMm, spanPosition} = input;
 
     const baseRangeMmRaw = getTableValue(kwbZone, crop, nFkweClass, scenario);
     const hasLiteratureValue = baseRangeMmRaw !== null;
@@ -122,10 +131,14 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
 
     const totalSurchargeMm = autoSurchargeMm + optionalSurchargeMm;
 
-    const totalRangeMm: Range = [
+    const literatureRangeMm: Range = [
         baseRangeMm[0] + totalSurchargeMm,
         baseRangeMm[1] + totalSurchargeMm,
     ];
+    // A user value is already a point value — a span position would be meaningless.
+    const totalRangeMm: Range = isUserCustom
+        ? literatureRangeMm
+        : applySpanPosition(literatureRangeMm, spanPosition);
 
     // mm/a × ha × 10 = m³/a
     const totalRangeM3: Range = [
@@ -142,6 +155,8 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
         surchargeEmergenceMm,
         surchargeHeavySoilMm,
         totalSurchargeMm,
+        literatureRangeMm,
+        spanPosition: isUserCustom ? undefined : spanPosition,
         totalRangeMm,
         totalRangeM3,
         scenario,

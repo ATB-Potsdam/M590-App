@@ -304,3 +304,17 @@
     font-size: inherit;
     text-decoration: underline;
 }
+
+// Span-position picker: label plus the resulting value, stacked in the button.
+.assignment-page__span-options .option-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.assignment-page__span-value {
+    color: var(--color-text-muted);
+    font-size: 0.9em;
+    font-variant-numeric: tabular-nums;
+}

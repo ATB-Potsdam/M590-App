@@ -50,6 +50,12 @@ export const HauptkulturenResultCard = ({result, dryResult, fieldName, cropName,
         {/* Block 2: Calculation basis (Berechnungsgrundlagen) */}
         <details className="result-card__block result-card__details">
             <summary>Berechnungsgrundlagen</summary>
+            {result.spanPosition !== undefined && (
+                <div className="result-card__value-row">
+                    <span>Literaturspanne (gewählter Wert)</span>
+                    <span>{formatRange(result.literatureRangeMm, "mm/a")}</span>
+                </div>
+            )}
             <div className="result-card__value-row">
                 <span>{dryResult && "Normal: "}{result.isUserCustom ? "Benutzerdefinierter Wert" : "Tabellenwert (Basis)"}</span>
                 <span>
