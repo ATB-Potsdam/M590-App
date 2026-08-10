@@ -234,7 +234,7 @@ In the assignment list pills: `k. W.` shown instead of values when `hasValue ===
 
 - `VITE_BASE_PATH` env var controls the app's base URL path (for subdirectory deployment).
 - Spec document is in `doc/M 590 Vorlage Gelbdruck_neu.md` — the authoritative source for all table values and calculation methods.
-- The `scripts/copyToTesla.sh` and `scripts/build.sh` scripts are deployment helpers, not part of the standard dev workflow.
+- `scripts/deploy.sh` builds and rsyncs to the live host; it aborts if the `.fgb` layers are git-lfs pointers or the precipitation raster is not the twelve-month one. `scripts/build.sh` builds the WASM lookup and runs its C/Python tests. Neither is part of the standard dev workflow.
 - Open ranges (e.g. "> 250 mm/a") use `isOpenRange: boolean` + `max === null` in table definitions; display with `>` prefix.
 - Precipitation classes shared across naturrasen/golf/tennen: `NaturrasenPrecipClass` from `naturrasen.ts`, helper `toNaturrasenPrecipClass()`.
 - **No async/await**: Prefer `Promise.then()/catch()/finally()` chains over `async/await` syntax.

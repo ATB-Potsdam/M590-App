@@ -137,12 +137,24 @@ once per machine and again whenever the Rust source changes.
 
 ### Deployment
 
-`scripts/syncWithTesla.sh` runs `yarn build` and rsyncs `app/dist/` to the live
-host. Vite copies `app/public/data/` into `dist/`, so **whatever is in that
-directory at build time is what goes live** — including a stale or wrongly
-generated raster. Deploy only from a machine whose geodata is complete and
-current, and prefer `./scripts/build_all.sh` over hand-rolled `build_raster.py`
-invocations so the month ranges stay right.
+```bash
+./scripts/deploy.sh
+```
+
+Runs `yarn build` and rsyncs `app/dist/` to the live host. Vite copies
+`app/public/data/` into `dist/`, so **whatever is in that directory at build time
+is what goes live** — including a stale or wrongly generated raster.
+
+The script therefore refuses to deploy unless the geodata checks out, before the
+build and again on `dist/` afterwards:
+
+- Both `.fgb` layers exist and start with the FlatGeobuf magic bytes. This catches
+  the git-lfs case, where a clone made without lfs leaves 132-byte pointer files
+  that build fine and break the polygon lookup at runtime.
+- The precipitation raster covers months 1–12, not just Mar–Oct.
+
+Each failure names the fix (`git lfs pull` or `./scripts/build_all.sh`) and exits
+non-zero before anything is uploaded.
 
 Mobile builds:
 
