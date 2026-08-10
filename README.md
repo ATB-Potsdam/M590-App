@@ -13,7 +13,6 @@ Live: https://dwa.runlevel3.de
 app/         React/TypeScript front-end (Vite, Capacitor wrapper for Android/iOS)
 rust/        WebAssembly polygon lookup (FlatGeobuf + point-in-polygon)
 scripts/     Build/deploy helpers
-data/        Local staging copy of the geodata sources (not tracked)
 web/         Static demo of the WASM polygon lookup
 images/      App icons and marketing assets
 ```
@@ -114,9 +113,7 @@ committed via git-lfs rather than passed between machines by hand; `git clone`
 with lfs installed brings them down ready to use.
 
 They are the one exception to the `app/public/data/` ignore rule (see
-`.gitattributes` and `.gitignore`). Everything else in that directory is
-generated. `/data/` at the repository root is an older local staging copy of the
-same two files and stays ignored.
+`.gitattributes` and `.gitignore`). Everything else in that directory is generated.
 
 **3. WASM lookup module — required for the build to succeed:**
 
