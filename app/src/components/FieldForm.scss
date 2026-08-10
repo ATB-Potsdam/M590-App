@@ -90,8 +90,11 @@
     }
 
     &__nfkwe-help-list {
+        // No bullets: the InfoHint body is centred, so default markers end up stranded
+        // at the far-left padding edge, detached from the text they belong to.
         margin: 6px 0 0;
-        padding-left: 18px;
+        padding-left: 0;
+        list-style: none;
 
         li {
             margin-bottom: 6px;

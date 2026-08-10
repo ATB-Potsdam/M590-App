@@ -40,8 +40,10 @@ const bzRangeLabel = (cls: NFkweClassName): string => {
 };
 
 // A few MMK site types as concrete examples — the Merkblatt's own classification aid.
+// Joined with "·", not ",": several codes contain an internal comma ("Lö1a, l",
+// "K1b, t"), so a comma-separated list would read as twice as many entries.
 const mmkExamples = (cls: NFkweClassName): string =>
-    nFkweClasses[cls][2].slice(0, 3).join(", ");
+    nFkweClasses[cls][2].slice(0, 3).join(" · ");
 
 export const FieldForm = ({initialValues, existingLocations = [], onSave, onCancel}: Props) => {
     const [name, setName] = useState(initialValues?.name ?? "");
