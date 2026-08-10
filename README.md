@@ -31,11 +31,38 @@ yarn build      # Production build
 yarn lint       # ESLint
 ```
 
-### First checkout: geodata is not in the repository
+### Bootstrapping a new development machine
 
-`app/public/data/` is gitignored (see `.gitignore`), so a fresh clone builds an
-app that loads but cannot resolve a location: no climate zone, no soil class, no
-precipitation. Four kinds of file have to be present there.
+A fresh clone is **not** enough to build. Two directories are required but not in
+the repository: `app/public/data/` (gitignored) and `app/src/pkg/` (untracked).
+
+| Missing | Effect |
+|---|---|
+| `app/src/pkg/` | **`yarn build` fails.** `lib/polylookup.ts` imports it statically. |
+| `Klimaraeume.fgb`, `nfkwe.fgb` | App runs; no climate zone, soil class must be set by hand. |
+| `precip_*`, `et0_*` rasters | App runs; no precipitation or ET₀, so most modules cannot calculate. |
+
+Short version, in order:
+
+```bash
+git clone git@github.com:ATB-Potsdam/M590-App.git && cd M590-App
+
+# 1. WASM lookup module — required, or the build fails
+cd rust && rustup target add wasm32-unknown-unknown && cargo install wasm-pack
+wasm-pack build --release --target web && cp -r pkg ../app/src/ && cd ..
+
+# 2. Climate rasters — downloads from DWD CDC, a few minutes
+./scripts/build_all.sh
+
+# 3. Polygon layers — no build recipe, copy from a machine that has them
+mkdir -p app/public/data
+scp <host>:<repo>/app/public/data/{Klimaraeume.fgb,nfkwe.fgb} app/public/data/
+
+# 4. App
+cd app && yarn install && yarn dev
+```
+
+Details on each step follow.
 
 **1. Climate rasters — generated, run this:**
 
@@ -81,13 +108,34 @@ recipe in this repository — copy them from another machine or from `data/`, wh
 is the local staging directory they were produced in. Without them, every field
 falls back to a manual soil-class choice and has no climate zone.
 
-**3. WASM lookup module** — `app/src/pkg/` and `app/public/data/polylookup_bg-*.wasm`
-come from the Rust crate in `rust/`; see the (currently disabled) build block at
-the top of `scripts/build.sh` for the `wasm-pack` invocation.
+**3. WASM lookup module — required for the build to succeed:**
 
-Deployment (`scripts/syncWithTesla.sh`) rsyncs `app/dist/`, into which Vite copies
-`app/public/data/` — so whatever is in that directory at build time is what goes
-live. Build on a machine whose geodata is complete and current.
+`app/src/pkg/` holds the point-in-polygon lookup compiled from the Rust crate in
+`rust/`. `app/src/lib/polylookup.ts` imports it statically ("so Vite bundles it"),
+so without it `yarn build` fails — unlike the data files, whose absence only
+degrades the running app.
+
+```bash
+cd rust
+rustup target add wasm32-unknown-unknown
+cargo install wasm-pack
+wasm-pack build --release --target web
+cp -r pkg ../app/src/          # also ../web/ for the standalone WASM demo
+```
+
+The same commands sit in a disabled `if false` block at the top of
+`scripts/build.sh`; that script otherwise builds and runs the C/Python lookup
+tests. Neither `rust/pkg/` nor `app/src/pkg/` is tracked, so this step is needed
+once per machine and again whenever the Rust source changes.
+
+### Deployment
+
+`scripts/syncWithTesla.sh` runs `yarn build` and rsyncs `app/dist/` to the live
+host. Vite copies `app/public/data/` into `dist/`, so **whatever is in that
+directory at build time is what goes live** — including a stale or wrongly
+generated raster. Deploy only from a machine whose geodata is complete and
+current, and prefer `./scripts/build_all.sh` over hand-rolled `build_raster.py`
+invocations so the month ranges stay right.
 
 Mobile builds:
 
