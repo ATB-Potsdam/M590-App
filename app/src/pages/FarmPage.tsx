@@ -377,6 +377,11 @@ export const FarmPage = () => {
             )}
 
             <h2 className="farm-page__fields-heading">Daten exportieren/{'\u200b'}importieren</h2>
+            <p className="farm-page__export-hint">
+                Ihre Eingaben liegen ausschlie\u00dflich lokal in diesem Browser \u2013 sie gehen
+                verloren, wenn Sie die Browserdaten l\u00f6schen. Exportieren Sie regelm\u00e4\u00dfig eine
+                Sicherung; dieselbe Datei \u00fcbertr\u00e4gt Ihre Daten auch auf ein anderes Ger\u00e4t.
+            </p>
             <div className="farm-page__export-import">
                 <button onClick={handleExport} disabled={!farm.name.trim() || farm.fields.length === 0}>📤 Daten exportieren</button>
                 <button onClick={() => fileInputRef.current?.click()}>📥 Daten importieren</button>

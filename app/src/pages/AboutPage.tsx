@@ -118,6 +118,30 @@ export const AboutPage = () => {
         </section>
 
         <section className="info-page__section">
+            <h2>Wo werden meine Daten gespeichert?</h2>
+            <p>
+                Ihre Eingaben werden automatisch gespeichert – ausschließlich lokal in diesem
+                Browser auf diesem Gerät. Es werden keine Daten an einen Server übertragen.
+                Eine Anmeldung ist nicht nötig, und Sie müssen die App dafür nicht
+                herunterladen: Sie können sie einfach im Browser weiterverwenden, Ihre
+                Szenarien sind beim nächsten Aufruf wieder da.
+            </p>
+            <p>
+                Weil die Daten im Browser liegen, gehen sie verloren, wenn Sie die
+                Browserdaten für diese Seite löschen. Sichern Sie Ihre Arbeit deshalb
+                regelmäßig über <strong>Betrieb ➔ Daten exportieren</strong>. Die Exportdatei
+                (JSON) dient zugleich als Sicherung und als Weg, Ihre Daten auf ein anderes
+                Gerät zu übertragen – dort über „Daten importieren“ wieder einlesen.
+            </p>
+            <p>
+                Zusätzlich lässt sich die App auf dem Startbildschirm ablegen und dann auch
+                ohne Internetverbindung nutzen. Für neu angelegte Flächen werden Klima- und
+                Bodendaten allerdings online nachgeladen; bereits angelegte Flächen bleiben
+                offline vollständig nutzbar.
+            </p>
+        </section>
+
+        <section className="info-page__section">
             <h2>Datenquellen</h2>
             <ul>
                 <li>

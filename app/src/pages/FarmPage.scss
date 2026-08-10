@@ -93,6 +93,13 @@
         width: 100%;
     }
 
+    &__export-hint {
+        margin: 4px 0 0;
+        color: var(--color-text-muted);
+        font-size: 13px;
+        text-align: center;
+    }
+
     &__export-import {
         display: flex;
         justify-content: center;
