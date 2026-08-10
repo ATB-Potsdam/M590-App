@@ -40,8 +40,17 @@ cd "$(dirname "$0")/.."
 readonly KEYSTORE_DEFAULT="app/android/upload-keystore.jks"
 readonly KEY_ALIAS_DEFAULT="upload"
 readonly NODE_VERSION=22
-readonly JAVA_HOME_21=/usr/lib/jvm/java-21-openjdk
-readonly ANDROID_SDK="${ANDROID_HOME:-/opt/android-sdk}"
+# ANDROID_HOME wins; otherwise try the usual locations. ~/Android/Sdk is what the
+# command-line tools and Android Studio both use by default, /opt/android-sdk is
+# the common system-wide install.
+if [ -n "${ANDROID_HOME:-}" ]; then
+    ANDROID_SDK="$ANDROID_HOME"
+elif [ -d "$HOME/Android/Sdk" ]; then
+    ANDROID_SDK="$HOME/Android/Sdk"
+else
+    ANDROID_SDK=/opt/android-sdk
+fi
+readonly ANDROID_SDK
 readonly COMPILE_SDK=36
 
 fail() { echo "BUILD ABORTED: $*" >&2; exit 1; }
@@ -56,7 +65,38 @@ esac
 
 # --- Toolchain checks --------------------------------------------------------
 
-[ -d "$JAVA_HOME_21" ] || fail "JDK 21 not found at $JAVA_HOME_21. Gradle/AGP does not accept the newer default JDK."
+# Gradle/AGP needs JDK 21 specifically; newer defaults are rejected. The install
+# path differs per distribution (java-21-openjdk-amd64 on Debian/Ubuntu,
+# java-21-openjdk on Arch, /usr/lib/jvm/jdk-21* elsewhere), so search rather than
+# hardcode, and honour an explicit JAVA_HOME_21 if the caller sets one.
+find_jdk21() {
+    if [ -n "${JAVA_HOME_21:-}" ]; then
+        [ -x "$JAVA_HOME_21/bin/javac" ] && { echo "$JAVA_HOME_21"; return 0; }
+        return 1
+    fi
+    # A JAVA_HOME already pointing at a 21 JDK wins — the caller chose it.
+    if [ -n "${JAVA_HOME:-}" ] && [ -x "$JAVA_HOME/bin/javac" ] \
+       && "$JAVA_HOME/bin/javac" -version 2>&1 | grep -q " 21\."; then
+        echo "$JAVA_HOME"; return 0
+    fi
+    local candidate
+    for candidate in /usr/lib/jvm/java-21-openjdk-amd64 \
+                     /usr/lib/jvm/java-21-openjdk \
+                     /usr/lib/jvm/java-1.21.0-openjdk-amd64 \
+                     /usr/lib/jvm/jdk-21* \
+                     /usr/lib/jvm/temurin-21* \
+                     /Library/Java/JavaVirtualMachines/*-21.jdk/Contents/Home; do
+        [ -x "$candidate/bin/javac" ] || continue
+        "$candidate/bin/javac" -version 2>&1 | grep -q " 21\." || continue
+        echo "$candidate"; return 0
+    done
+    return 1
+}
+
+JAVA_HOME_21="$(find_jdk21 || true)"
+[ -n "$JAVA_HOME_21" ] || fail \
+    "no JDK 21 found. Gradle/AGP does not accept newer JDKs.
+    Install one (Debian/Ubuntu: apt install openjdk-21-jdk) or point JAVA_HOME_21 at it."
 export JAVA_HOME="$JAVA_HOME_21"
 
 [ -d "$ANDROID_SDK" ] || fail "Android SDK not found at $ANDROID_SDK. Set ANDROID_HOME."
@@ -75,8 +115,16 @@ fi
 
 # --- Node 22 for the Capacitor sync -----------------------------------------
 
+# fnm is usually put on PATH by an interactive shell's rc file, which does not run
+# for a script, so look in its default install location too.
+if ! command -v fnm >/dev/null 2>&1; then
+    for fnm_dir in "${FNM_PATH:-}" "$HOME/.local/share/fnm" "$HOME/.fnm"; do
+        [ -n "$fnm_dir" ] && [ -x "$fnm_dir/fnm" ] && { PATH="$fnm_dir:$PATH"; break; }
+    done
+fi
+
 if command -v fnm >/dev/null 2>&1; then
-    eval "$(fnm env)"
+    eval "$(fnm env --shell bash)"
     fnm use "$NODE_VERSION" >/dev/null 2>&1 || fail "fnm cannot select Node $NODE_VERSION. Install it: fnm install $NODE_VERSION"
 elif [ -s /usr/share/nvm/init-nvm.sh ]; then
     # shellcheck disable=SC1091
@@ -87,7 +135,7 @@ fi
 node_major="$(node -p 'process.versions.node.split(".")[0]')"
 [ "$node_major" -ge "$NODE_VERSION" ] || fail \
     "Node $node_major is active but 'cap sync' needs >= $NODE_VERSION. Install fnm/nvm or switch manually."
-info "Node $(node -v), JDK 21, SDK $ANDROID_SDK"
+info "Node $(node -v), JDK 21 ($JAVA_HOME_21), SDK $ANDROID_SDK"
 
 # --- Signing -----------------------------------------------------------------
 
