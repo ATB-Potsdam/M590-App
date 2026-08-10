@@ -548,16 +548,16 @@ export const ProjectDetailPage = () => {
                         entscheiden.
                         <br /><br />
                         Das <strong>Normaljahr</strong> ist der Median einer 30-jährigen Reihe
-                        der klimatischen Wasserbilanz (KWBv) und entspricht einer 50-%-igen
+                        der klimatischen Wasserbilanz (KWBv) und entspricht einer 50%igen
                         Versorgungssicherheit: statistisch kann in 5 von 10 Jahren der aktuelle
                         Bedarf nicht vollständig gedeckt werden. Das{" "}
-                        <strong>mittlere Trockenjahr</strong> ist das 20-%-Perzentil derselben
-                        Reihe und entspricht 80 % Versorgungssicherheit – nur 2 von 10 Jahren
+                        <strong>mittlere Trockenjahr</strong> ist das 20%-Perzentil derselben
+                        Reihe und entspricht 80% Versorgungssicherheit – nur 2 von 10 Jahren
                         sind so trocken, dass der Bedarf nicht gedeckt wird (Kapitel 3.5).
                         <br /><br />
                         Als Bemessungsgrundlage für wasserrechtliche Gestattungen{" "}
                         <strong>empfiehlt das Merkblatt das mittlere Trockenjahr</strong>. Dazu
-                        wird angeregt, in der Gestattung ein Überschreiten um bis zu 25 % in
+                        wird angeregt, in der Gestattung ein Überschreiten um bis zu 25% in
                         einzelnen Jahren zuzulassen, solange das Mittel im gleitenden
                         5-Jahres-Zeitraum die Menge für das mittlere Trockenjahr nicht
                         übersteigt (Kapitel 3.5).
