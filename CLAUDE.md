@@ -3,6 +3,23 @@
 Repository-wide guidance for Claude Code. See `app/CLAUDE.md` for the detailed
 frontend/app architecture notes.
 
+## This repository is public
+
+`ATB-Potsdam/M590-App` is publicly readable. Internal documentation therefore
+lives in the **private** companion repository `M590-doc`, cloned into the
+gitignored `app/doc/`:
+
+```bash
+git clone git@github.com:ATB-Potsdam/M590-doc.git app/doc
+```
+
+It holds the tester correspondence (`feedback/`, real names and assessments), the
+DWA-M 590 Gelbdruck draft (third-party copyright) and the internal specs quoting
+it. **Never commit that material here** — not the files, not quotations from
+them. Referencing a path (e.g. "see `app/doc/feedback/README.md`") in a code
+comment is fine; pasting the content is not. The two repositories push
+separately: when a change spans both, push both.
+
 ## Language
 
 **Everything written in this repository must be in English.** This applies to:

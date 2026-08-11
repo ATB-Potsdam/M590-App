@@ -233,7 +233,7 @@ In the assignment list pills: `k. W.` shown instead of values when `hasValue ===
 ## Key Conventions
 
 - `VITE_BASE_PATH` env var controls the app's base URL path (for subdirectory deployment).
-- Spec document is in `doc/M 590 Vorlage Gelbdruck_neu.md` — the authoritative source for all table values and calculation methods.
+- Spec document is `M 590 Vorlage Gelbdruck_neu.md` — the authoritative source for all table values and calculation methods. It lives in the **private** companion repository `M590-doc`, not here (third-party copyright), together with the tester correspondence and the internal specs that quote it. Clone it to `app/doc/` (gitignored): `git clone git@github.com:ATB-Potsdam/M590-doc.git app/doc`. Never copy its content into this repository.
 - `scripts/deploy.sh` builds and rsyncs to the live host; it aborts if the `.fgb` layers are git-lfs pointers or the precipitation raster is not the twelve-month one. `scripts/build.sh` builds the WASM lookup and runs its C/Python tests. Neither is part of the standard dev workflow.
 - Open ranges (e.g. "> 250 mm/a") use `isOpenRange: boolean` + `max === null` in table definitions; display with `>` prefix.
 - Precipitation classes shared across naturrasen/golf/tennen: `NaturrasenPrecipClass` from `naturrasen.ts`, helper `toNaturrasenPrecipClass()`.

@@ -6,3 +6,10 @@ data.raw/
 # into, so the !negations below would not work.
 app/public/data/*
 !app/public/data/*.fgb
+
+# Internal documentation lives in the private companion repository M590-doc
+# (tester correspondence, the DWA-M 590 Gelbdruck draft and the specs quoting
+# it). Clone it here:
+#   git clone git@github.com:ATB-Potsdam/M590-doc.git app/doc
+# Nothing from it may be committed to this public repository.
+app/doc/
