@@ -11,10 +11,15 @@
 #   M590_KEYSTORE_PASSWORD=... M590_KEY_PASSWORD=... scripts/buildAndroid.sh
 #
 # Signing material never lives in the repository. The keystore path and alias
-# default to the values below; the passwords are prompted for, or taken from the
-# environment / android/keystore.properties (gitignored). Without them the build
-# would still run but produce an UNSIGNED bundle, which the Play Console rejects,
-# so the release path refuses to continue.
+# default to the values below. The passwords are resolved in this order:
+#
+#   1. the environment (M590_KEYSTORE_PASSWORD / M590_KEY_PASSWORD) — for CI
+#   2. app/android/keystore.properties, if present — gitignored, chmod 600,
+#      sourced as shell (see scripts/keystore.properties.example)
+#   3. an interactive prompt
+#
+# Without them the build would still run but produce an UNSIGNED bundle, which
+# the Play Console rejects, so the release path refuses to continue.
 #
 # Three environment obstacles are handled here because each one cost a debugging
 # session before:
@@ -39,6 +44,10 @@ cd "$(dirname "$0")/.."
 # M590_KEY_ALIAS if a different key is ever needed.
 readonly KEYSTORE_DEFAULT="app/android/upload-keystore.jks"
 readonly KEY_ALIAS_DEFAULT="upload"
+
+# Optional, gitignored file holding the signing passwords so they need not be
+# retyped for every build. Sourced as shell; see the signing block below.
+readonly KEYSTORE_PROPS="app/android/keystore.properties"
 readonly NODE_VERSION=22
 # ANDROID_HOME wins; otherwise try the usual locations. ~/Android/Sdk is what the
 # command-line tools and Android Studio both use by default, /opt/android-sdk is
@@ -176,10 +185,50 @@ if [ "$target" = bundle ]; then
         has_tty=yes
     fi
 
+    # Between the environment and the prompt sits an optional properties file, so
+    # the passwords can be stored once on a workstation instead of retyped per
+    # build. It is gitignored (app/android/.gitignore) and read with `.` rather
+    # than parsed, so only shell-assignment syntax belongs in it:
+    #
+    #   M590_KEYSTORE_PASSWORD=...
+    #   M590_KEY_PASSWORD=...          # omit if identical to the store password
+    #
+    # The environment still wins, so a CI run or a one-off override is unaffected
+    # by a file left on disk. Refuse a world/group-readable file: the whole point
+    # is to keep the password off other users' terminals, and 0644 here would be
+    # a false sense of safety rather than an inconvenience.
+    if [ -f "$KEYSTORE_PROPS" ]; then
+        # stat drops leading zeros (a 0600 file reports "600", a 0044 one "44"),
+        # so pad to three digits before splitting off the group/other digits.
+        perms=$(stat -c%a "$KEYSTORE_PROPS")
+        case "${#perms}" in
+            1) perms="00$perms" ;;
+            2) perms="0$perms" ;;
+        esac
+        if [ "${perms#?}" != "00" ]; then
+            fail "$KEYSTORE_PROPS is accessible to group or others (mode $perms).
+    Restrict it before building:  chmod 600 \"$KEYSTORE_PROPS\""
+        fi
+        # Sourcing overwrites variables unconditionally, so stash whatever the
+        # environment already provided and restore it afterwards — otherwise a
+        # stored password would silently beat an explicit inline override, which
+        # is the opposite of the documented precedence.
+        env_store="${M590_KEYSTORE_PASSWORD:-}"
+        env_key="${M590_KEY_PASSWORD:-}"
+        # shellcheck source=/dev/null
+        . "$KEYSTORE_PROPS"
+        # Plain `[ ... ] && assignment` would return non-zero when the test fails
+        # and trip `set -e`, so keep these as full if-blocks.
+        if [ -n "$env_store" ]; then M590_KEYSTORE_PASSWORD="$env_store"; fi
+        if [ -n "$env_key" ]; then M590_KEY_PASSWORD="$env_key"; fi
+        info "read signing passwords from $KEYSTORE_PROPS"
+    fi
+
     if [ -z "${M590_KEYSTORE_PASSWORD:-}" ]; then
         [ "$has_tty" = yes ] || fail \
-            "M590_KEYSTORE_PASSWORD is not set and there is no terminal to prompt on.
-    Set M590_KEYSTORE_PASSWORD and M590_KEY_PASSWORD in the environment for unattended builds."
+            "no keystore password available and there is no terminal to prompt on.
+    Either set M590_KEYSTORE_PASSWORD and M590_KEY_PASSWORD in the environment,
+    or put them in $KEYSTORE_PROPS (chmod 600)."
         printf 'Keystore password for %s: ' "$(basename "$M590_KEYSTORE")" > /dev/tty
         IFS= read -rs M590_KEYSTORE_PASSWORD < /dev/tty
         echo > /dev/tty
