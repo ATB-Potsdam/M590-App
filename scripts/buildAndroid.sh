@@ -21,6 +21,11 @@
 # Without them the build would still run but produce an UNSIGNED bundle, which
 # the Play Console rejects, so the release path refuses to continue.
 #
+# Each release build raises versionCode in app/android/app/build.gradle, because
+# Play refuses an upload at a versionCode it has already accepted. versionName is
+# NOT touched here — it tracks the deployed web release; move it with `yarn bump`.
+# The bumped build.gradle is a real edit and wants committing with the release.
+#
 # Three environment obstacles are handled here because each one cost a debugging
 # session before:
 #
@@ -279,6 +284,25 @@ if [ "$target" = apk ]; then
     ./gradlew assembleDebug
     artifact=app/build/outputs/apk/debug/app-debug.apk
 else
+    # The Play Console rejects an upload whose versionCode it has already seen, so
+    # every release bundle needs a fresh one. Without this the second build of a
+    # version produced a bundle that looked fine and failed at upload time.
+    #
+    # Only versionCode moves here. versionName stays put on purpose: it ties the
+    # bundle to the deployed web release (and to app/release-notes/<version>.*),
+    # and a build must not silently claim a version the website does not serve.
+    # Use `yarn bump` to move versionName — that bumps versionCode too, so a
+    # bump-then-build sequence advances it once via bump and once here, which is
+    # harmless: uniqueness is all Play requires, not contiguity.
+    current_code=$(grep -oP 'versionCode \K\d+' app/build.gradle)
+    [ -n "$current_code" ] || fail "could not read versionCode from app/build.gradle."
+    next_code=$((current_code + 1))
+    # Match the exact line to avoid touching a comment that mentions versionCode.
+    sed -i -E "s/^([[:space:]]*)versionCode[[:space:]]+${current_code}\$/\1versionCode ${next_code}/" app/build.gradle
+    grep -q "versionCode ${next_code}" app/build.gradle \
+        || fail "failed to raise versionCode from ${current_code} to ${next_code}."
+    info "versionCode ${current_code} → ${next_code}"
+
     info "building signed release bundle"
     ./gradlew bundleRelease
     artifact=app/build/outputs/bundle/release/app-release.aab
