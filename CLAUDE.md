@@ -20,6 +20,23 @@ them. Referencing a path (e.g. "see `app/doc/feedback/README.md`") in a code
 comment is fine; pasting the content is not. The two repositories push
 separately: when a change spans both, push both.
 
+## Tester feedback tracker
+
+Whenever a change addresses a point from the tester correspondence — or a point's
+status moves (implemented, blocked, question sent, answered) — **update the
+feedback tracker in the same batch of work**, in the private `app/doc/` repo:
+
+1. Edit the `ITEMS` list in `app/doc/feedback/make_tracker.py` — that file is the
+   source, `Feedback-Tracker.xlsx` is generated and must never be hand-edited.
+2. Regenerate: `uv run app/doc/feedback/make_tracker.py`.
+3. Keep `app/doc/feedback/README.md` in step: the correspondence table and the
+   "Open questions" list.
+4. Commit both the script and the regenerated `.xlsx` in `app/doc/`.
+
+In the "Umgesetzt in" column name the **released version** (e.g. `0.1.42 (…)`)
+once the change has shipped, not just the reply it was announced in — the point of
+the column is to tell a tester which version to verify against.
+
 ## Language
 
 **Everything written in this repository must be in English.** This applies to:
