@@ -298,6 +298,23 @@ if [ "$target" = bundle ]; then
     fi
 fi
 
+# Put the release notes beside the bundle, so whoever uploads to the Play Console
+# has the "What's new" text to hand instead of reconstructing it from git log. The
+# tracked copy under app/release-notes/ is the original; this one lands in
+# build/outputs/, which Gradle wipes on a clean build.
+if [ "$target" = bundle ]; then
+    version=$(grep -oP 'versionName "\K[^"]+' app/build.gradle)
+    notes="../release-notes/$version.md"
+    if [ -f "$notes" ]; then
+        cp "$notes" "$(dirname "$artifact")/RELEASE-NOTES-$version.md"
+        info "release notes copied next to the bundle"
+    else
+        # Not fatal: the bundle is fine, but the upload step would be missing its
+        # store text, so say so rather than failing silently.
+        info "NOTE: no release notes at app/release-notes/$version.md — create one before uploading"
+    fi
+fi
+
 echo
 info "$(cd "$PWD" && pwd)/$artifact"
 ls -lh "$artifact" | awk '{print "    size: " $5}'
