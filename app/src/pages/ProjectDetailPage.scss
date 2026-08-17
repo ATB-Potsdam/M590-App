@@ -364,10 +364,11 @@
         }
     }
 
-    &__mma {
-        font-size: 12px;
-        font-weight: normal;
-        color: var(--color-text-secondary);
+    &__table-footnote {
+        margin: 8px 0 0;
+        font-size: 11px;
+        line-height: 1.45;
+        color: var(--color-text-muted);
     }
 
     &__partial {

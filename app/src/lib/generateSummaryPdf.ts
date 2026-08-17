@@ -13,16 +13,13 @@ export interface SummaryPdfData {
     project: Project;
     farm: Farm;
     assignmentResults: (AssignmentResult | null)[];
-    // Pre-computed totals from sumResults()
-    normalMm: [number, number] | null;
+    // Pre-computed totals from sumResults(). m³/a only — a mm/a total would mix
+    // reference areas across modules (see ProjectDetailPage).
     normalM3: [number, number] | null;
-    dryMm: [number, number] | null;
     dryM3: [number, number] | null;
     totalAltWasserM3: number;
     nettoM3: [number, number] | null;
-    nettoMm: [number, number] | null;
     nettoDryM3: [number, number] | null;
-    nettoDryMm: [number, number] | null;
     // Derived scalars
     totalAreaHa: number;
     pendingCount: number;

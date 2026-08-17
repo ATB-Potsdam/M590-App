@@ -47,6 +47,14 @@ const AGRICULTURAL_MODULES: ReadonlySet<ModuleType> = new Set([
     "hauptkulturen", "gemuese_obst", "weinbau",
 ]);
 
+// Modules whose mm/a is referenced to irrigated sub-areas rather than the field
+// area: golf splits the course into greens/tees/fairways (Table 35) and averages
+// mm/a over their sum, which is well below the field area entered by the user.
+// Its mm/a therefore cannot be compared with the field-referenced mm/a of the
+// other modules — flag it where both appear side by side.
+export const isSubAreaModule = (type: ModuleType | undefined): boolean =>
+    type === "golf";
+
 // Suitable area label for a context without agricultural modules
 // (e.g. pure golf-course projects). `modules` = all modules used in the context.
 export const fieldTerm = (

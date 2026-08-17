@@ -4,7 +4,7 @@ import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {DemoHint} from "../components/DemoHint";
 import {InfoHint} from "../components/InfoHint";
-import {getModuleLabel, fieldTerm} from "../constants/modules";
+import {getModuleLabel, fieldTerm, isSubAreaModule} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
@@ -81,7 +81,7 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalM3, normalAreaHa, dryM3, dryAreaHa, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
+    const {normalM3, dryM3, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
         assignmentResults.filter((r): r is AssignmentResult => r !== null)
     );
 
@@ -98,6 +98,7 @@ export const ProjectDetailPage = () => {
     const projectModules = project.fieldAssignments.map((fa) => fa.module);
     const term = fieldTerm(projectModules);
     const termPlural = fieldTerm(projectModules, true);
+    const hasSubAreaModule = projectModules.some(isSubAreaModule);
 
     // Only show netto deduction when ALL assigned fields contribute to that scenario
     const nettoM3: [number, number] | null = normalCount === assignedCount ? nettoM3Raw : null;
@@ -109,19 +110,14 @@ export const ProjectDetailPage = () => {
     const totalAreaHa = project.fieldAssignments
         .reduce((sum, fa) => sum + (farm.fields.find((f) => f.id === fa.fieldId)?.areaHa ?? 0), 0);
 
-    // mm/a totals: derived from m³/a ÷ (contributing area × 10) — summing mm/a across fields is meaningless
-    const normalMm: [number, number] | null = normalM3 && normalAreaHa > 0
-        ? [Math.round(normalM3[0] / (normalAreaHa * 10)), Math.round(normalM3[1] / (normalAreaHa * 10))]
-        : null;
-    const dryMm: [number, number] | null = dryM3 && dryAreaHa > 0
-        ? [Math.round(dryM3[0] / (dryAreaHa * 10)), Math.round(dryM3[1] / (dryAreaHa * 10))]
-        : null;
-    const nettoMm: [number, number] | null = nettoM3 && normalAreaHa > 0
-        ? [Math.round(nettoM3[0] / (normalAreaHa * 10)), Math.round(nettoM3[1] / (normalAreaHa * 10))]
-        : null;
-    const nettoDryMm: [number, number] | null = nettoDryM3 && dryAreaHa > 0
-        ? [Math.round(nettoDryM3[0] / (dryAreaHa * 10)), Math.round(nettoDryM3[1] / (dryAreaHa * 10))]
-        : null;
+    // No mm/a on the totals rows. A project total in mm/a would divide the summed m³/a
+    // by the summed area, but the per-assignment mm/a values are not all referenced to
+    // the field area: golf reports mm/a over its irrigated sub-areas (greens/tees/
+    // fairways, TABLE_35), which are much smaller than the field. Mixing the two
+    // denominators made the total look smaller than every single row (tester feedback
+    // 2026-08-07, app/doc/feedback/2026-08-07-sabine-heumann.md). m³/a is the figure
+    // the Antragsmenge is based on and sums without ambiguity, so the totals show only
+    // that; per-assignment mm/a stays visible in each row and on the result cards.
 
     return (
         <div className="page">
@@ -423,7 +419,10 @@ export const ProjectDetailPage = () => {
                                                     {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
                                                         <div className="project-summary__two-line">
                                                             <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
-                                                            <span>{formatRange(result.normal.totalRangeMm, "mm/a")}</span>
+                                                            <span>
+                                                                {formatRange(result.normal.totalRangeMm, "mm/a")}
+                                                                {isSubAreaModule(fa.module) && <sup>†</sup>}
+                                                            </span>
                                                         </div>
                                                     ) : result?.normal ? "k. W." : "–"}
                                                 </td>
@@ -431,7 +430,10 @@ export const ProjectDetailPage = () => {
                                                     {result?.dry && (!('hasValue' in result.dry) || result.dry.hasValue) ? (
                                                         <div className="project-summary__two-line">
                                                             <span>{formatRange(result.dry.totalRangeM3, "m³/a")}</span>
-                                                            <span>{formatRange(result.dry.totalRangeMm, "mm/a")}</span>
+                                                            <span>
+                                                                {formatRange(result.dry.totalRangeMm, "mm/a")}
+                                                                {isSubAreaModule(fa.module) && <sup>†</sup>}
+                                                            </span>
                                                         </div>
                                                     ) : result?.dry ? "k. W." : "–"}
                                                 </td>
@@ -451,20 +453,10 @@ export const ProjectDetailPage = () => {
                                         <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} {termPlural})</strong></td>
                                         <td><strong>{formatNum(totalAreaHa, 2)} ha</strong></td>
                                         <td>
-                                            {normalM3 ? (
-                                                <div className="project-summary__two-line">
-                                                    <span>{formatRange(normalM3, "m³/a")}</span>
-                                                    {normalMm && <span>{formatRange(normalMm, "mm/a")}</span>}
-                                                </div>
-                                            ) : "–"}
+                                            {normalM3 ? formatRange(normalM3, "m³/a") : "–"}
                                         </td>
                                         <td>
-                                            {dryM3 ? (
-                                                <div className="project-summary__two-line">
-                                                    <span>{formatRange(dryM3, "m³/a")}</span>
-                                                    {dryMm && <span>{formatRange(dryMm, "mm/a")}</span>}
-                                                </div>
-                                            ) : "–"}
+                                            {dryM3 ? formatRange(dryM3, "m³/a") : "–"}
                                         </td>
                                         {totalAltWasserM3 > 0 && (
                                             <td><strong>−{formatNum(totalAltWasserM3, 0)} m³/a</strong></td>
@@ -473,6 +465,15 @@ export const ProjectDetailPage = () => {
                                 </tfoot>
                             </table>
                         </div>
+                        {hasSubAreaModule && (
+                            <p className="project-summary__table-footnote">
+                                † Beim Golfplatz bezieht sich der mm/a-Wert auf die
+                                bewässerten Teilflächen (Grüns, Abschläge, Fairways),
+                                nicht auf die gesamte Flächengröße. Die m³/a-Werte sind
+                                bei allen Nutzungen direkt vergleichbar und werden
+                                aufsummiert.
+                            </p>
+                        )}
                         </div>
                     </details>
 
@@ -485,7 +486,6 @@ export const ProjectDetailPage = () => {
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(normalM3, "m³/a")}</strong>
-                                {normalMm && <span className="project-summary__mma">{formatRange(normalMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -497,7 +497,6 @@ export const ProjectDetailPage = () => {
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(dryM3, "m³/a")}</strong>
-                                {dryMm && <span className="project-summary__mma">{formatRange(dryMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -512,7 +511,6 @@ export const ProjectDetailPage = () => {
                             <span>Netto-Antragsmenge (Normaljahr)</span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(nettoM3, "m³/a")}</strong>
-                                {nettoMm && <span className="project-summary__mma">{formatRange(nettoMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -521,7 +519,6 @@ export const ProjectDetailPage = () => {
                             <span>Netto-Antragsmenge (Trockenjahr)</span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(nettoDryM3, "m³/a")}</strong>
-                                {nettoDryMm && <span className="project-summary__mma">{formatRange(nettoDryMm, "mm/a")}</span>}
                             </span>
                         </div>
                     )}
@@ -578,8 +575,8 @@ export const ProjectDetailPage = () => {
                         project,
                         farm,
                         assignmentResults,
-                        normalMm, normalM3, dryMm, dryM3,
-                        totalAltWasserM3, nettoM3, nettoMm, nettoDryM3, nettoDryMm,
+                        normalM3, dryM3,
+                        totalAltWasserM3, nettoM3, nettoDryM3,
                         totalAreaHa,
                         pendingCount,
                         normalCount,
