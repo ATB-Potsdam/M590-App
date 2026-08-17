@@ -1,21 +1,34 @@
 # Release notes
 
-One file per released version (`<version>.md`), holding the text to paste into the
-Play Console's "What's new in this release" field plus a record of what the build
-actually contained.
+Two files per released version:
 
-`scripts/buildAndroid.sh` copies the matching file next to the generated
-`app-release.aab` so the notes travel with the artefact. That copy lives under
+- **`<version>.txt`** — the store text in the locale-tagged form the Play Console
+  takes verbatim. Paste the whole file, tags included:
+
+  ```
+  <de-DE>
+  Korrektur der Zusammenfassung
+  …
+  </de-DE>
+  ```
+
+- **`<version>.md`** — the human-readable record: what the build contained, what it
+  did not, and the same store text quoted for context.
+
+`scripts/buildAndroid.sh` copies both next to the generated `app-release.aab` so
+the notes travel with the artefact. Those copies live under
 `app/android/app/build/`, which is gitignored and wiped by a clean build — the
-version here is the one that is kept.
+files here are the originals.
 
 Conventions:
 
-- The pasteable block is **German** (the store listing's language) and must stay
-  within Play's **500-character** limit. Note the measured length next to the
-  heading so the next editor knows the remaining budget.
-- Describe user-visible changes only in that block. Build tooling and internal
-  refactors belong in the "What is in this build" section below it, not in the
-  store text.
-- Record anything committed *after* the bundle was built under "Not in this
-  build", so it is obvious what a rebuild would add.
+- Store text is **German** (`de-DE`, the store listing's language). Each locale
+  block has its own **500-character** budget, counted on the text *inside* the
+  tags; the tags do not count. Measure rather than estimate, and note the count in
+  the `.md` — a plausible-looking guess was over the limit once already.
+- **Do not wrap lines inside a tag block.** A hard wrap becomes a visible line
+  break in the store listing.
+- Describe user-visible changes only in the store text. Build tooling and internal
+  refactors belong in the `.md`'s "What is in this build" section.
+- Record anything committed *after* the bundle was built, so it is obvious what a
+  rebuild would add — and check whether the deployed web app matches.

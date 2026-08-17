@@ -304,14 +304,23 @@ fi
 # build/outputs/, which Gradle wipes on a clean build.
 if [ "$target" = bundle ]; then
     version=$(grep -oP 'versionName "\K[^"]+' app/build.gradle)
-    notes="../release-notes/$version.md"
-    if [ -f "$notes" ]; then
-        cp "$notes" "$(dirname "$artifact")/RELEASE-NOTES-$version.md"
+    outdir=$(dirname "$artifact")
+    copied=no
+    # Two files per version: the .txt is the <de-DE>…</de-DE> block the Play
+    # Console takes verbatim, the .md is the human-readable record of the release.
+    for ext in txt md; do
+        notes="../release-notes/$version.$ext"
+        if [ -f "$notes" ]; then
+            cp "$notes" "$outdir/RELEASE-NOTES-$version.$ext"
+            copied=yes
+        fi
+    done
+    if [ "$copied" = yes ]; then
         info "release notes copied next to the bundle"
     else
         # Not fatal: the bundle is fine, but the upload step would be missing its
         # store text, so say so rather than failing silently.
-        info "NOTE: no release notes at app/release-notes/$version.md — create one before uploading"
+        info "NOTE: no release notes at app/release-notes/$version.{txt,md} — create one before uploading"
     fi
 fi
 
