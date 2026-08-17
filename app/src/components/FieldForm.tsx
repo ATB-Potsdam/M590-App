@@ -209,6 +209,37 @@ export const FieldForm = ({initialValues, existingLocations = [], onSave, onCanc
                         zusammen.
                     </p>
                 </InfoHint>
+                {/*
+                  Tester feedback 2026-08-07 (Heumann): the class comes from a single map
+                  click, so on a field spanning several soil units it is close to
+                  arbitrary — and it feeds straight into the water demand. Averaging
+                  several sample points would change the data model and the Merkblatt
+                  itself assumes one class per field, so this prompts the user to sample
+                  manually instead. See app/doc/feedback/2026-08-17-antwort-heumann.md.
+                */}
+                <InfoHint summary="Mein Schlag hat verschiedene Böden – welche Klasse nehme ich?">
+                    <p>
+                        Die Klasse wird über <strong>einen</strong> Punkt bestimmt – den
+                        Standort, den Sie auf der Karte gewählt haben. Umfasst ein größerer
+                        Schlag mehrere Bodeneinheiten, kann die nFKWe innerhalb der Fläche
+                        deutlich schwanken; der Kartenwert eines einzelnen Punktes ist dann
+                        nicht zwingend repräsentativ.
+                    </p>
+                    <p>
+                        Wir empfehlen daher: Setzen Sie den Standort probeweise an mehreren
+                        Stellen des Schlages und beobachten Sie, welche Klasse jeweils
+                        ermittelt wird. So erkennen Sie die Streuung und können anschließend
+                        eine <strong>mittlere bzw. repräsentative Klasse</strong> wählen –
+                        bei Bedarf abweichend vom Kartenwert, indem Sie die Klasse unten
+                        manuell festlegen.
+                    </p>
+                    <p>
+                        Da die nFKWe-Klasse unmittelbar in den Zusatzwasserbedarf eingeht,
+                        lohnt sich dieser Schritt bei heterogenen Schlägen. Sehr
+                        unterschiedliche Teilflächen können Sie alternativ als getrennte
+                        Flächen anlegen.
+                    </p>
+                </InfoHint>
                 <div className={clsx("field-set")}>
                     {nFkweClassNames.map((cls) => (
                         <label
