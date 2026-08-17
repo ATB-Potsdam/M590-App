@@ -5,8 +5,12 @@
     &__summary {
         cursor: pointer;
         color: var(--color-link);
-        display: inline-flex;
-        align-items: center;
+        // Icon in its own column, so a wrapped label keeps a straight left text
+        // edge instead of flowing back under the glyph. `align-items: flex-start`
+        // (not center) is the point: centring put the icon halfway down the whole
+        // block once the label wrapped on narrow phone screens.
+        display: flex;
+        align-items: flex-start;
         gap: 4px;
         list-style: none;
 
@@ -21,6 +25,17 @@
 
     &__icon {
         font-size: 12px;
+        // Own column: never shrink, and match the label's line box so the glyph
+        // sits on the first line rather than at the very top of the flex item.
+        flex: 0 0 auto;
+        line-height: 1.5;
+    }
+
+    &__label {
+        // Takes the remaining width so wrapped lines stay left-aligned with the
+        // first line, clear of the icon column.
+        flex: 1 1 auto;
+        line-height: 1.5;
     }
 
     &__body {

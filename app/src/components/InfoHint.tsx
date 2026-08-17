@@ -17,7 +17,9 @@ export const InfoHint = ({summary = "Warum fragen wir das?", children}: Props) =
     <details className="info-hint">
         <summary className="info-hint__summary">
             <span className="info-hint__icon" aria-hidden>ℹ️</span>
-            {summary}
+            {/* The label needs its own element: as a bare text node it cannot be a
+                flex column, and a wrapped line would run back under the icon. */}
+            <span className="info-hint__label">{summary}</span>
         </summary>
         <div className="info-hint__body">{children}</div>
     </details>
