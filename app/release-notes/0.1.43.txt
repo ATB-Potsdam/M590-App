@@ -1,0 +1,7 @@
+<de-DE>
+Verbesserungen
+
+• Android: Die Zurück-Taste führt wieder eine Ebene zurück, statt die App zu schließen.
+• Android: Nach einem Update aus dem Play Store erscheint kein irreführender Hinweis „Update verfügbar“ mehr.
+• Hinweistexte: Das Info-Symbol steht nun auch bei mehrzeiligen Überschriften auf der ersten Zeile.
+</de-DE>
