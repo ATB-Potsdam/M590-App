@@ -15,7 +15,7 @@ const nm = path.join(appDir, "node_modules");
 // LICENSE resolved automatically; entries with `text` inline a fallback.
 const pkgs = [
   "react", "react-dom", "react-router", "zustand",
-  "@capacitor/core", "@capacitor/filesystem", "@capacitor/geolocation",
+  "@capacitor/app", "@capacitor/core", "@capacitor/filesystem", "@capacitor/geolocation",
   "@capacitor/share", "@capacitor/android", "@capacitor/ios",
   "vite", "@react-pdf/renderer", "proj4", "uuid", "clsx",
   "react-icons", "@floating-ui/react", "leaflet", "react-leaflet",

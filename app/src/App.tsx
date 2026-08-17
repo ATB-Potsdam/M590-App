@@ -24,6 +24,7 @@ import {ProjectDetailPage} from './pages/ProjectDetailPage';
 import {ProjectsPage} from './pages/ProjectsPage';
 import {useAppStore} from './stores/useAppStore';
 import {useLocalStore} from './stores/useLocalStore';
+import {useNativeBackButton} from './hooks/useNativeBackButton';
 
 const SPLASH_MIN_DURATION_MS = 2000;
 
@@ -39,6 +40,9 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
+    // Android hardware back: without this the press exits the app (no-op on web).
+    useNativeBackButton();
+
     const layer = useAppStore((state) => state.climateLayer);
     const precipitationLookup = useAppStore((state) => state.precipitationLookup);
     const et0Lookup = useAppStore((state) => state.et0Lookup);
