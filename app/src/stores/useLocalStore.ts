@@ -43,6 +43,16 @@ const VALID_MODULES: string[] = [
     "naturrasen", "golf", "kunstrasen", "tennen",
 ];
 
+/**
+ * Bump whenever the climate rasters change in a way that moves results, so
+ * fields created against the old data are re-read instead of silently keeping
+ * stale values (`refreshClimateData` only touches fields not marked "done").
+ *
+ * 2 — 0.1.44: ET₀ switched from `multi_annual/evapo_p` (AMBAV/Haude) to FAO-56
+ *     and precipitation to HYRAS, as M 590 Kapitel 4.1.3 prescribes.
+ */
+export const CLIMATE_DATA_VERSION = 2;
+
 /** Validate that climateClass is a proper [zone, kwb] tuple */
 const isValidClimateClass = (v: unknown): boolean =>
     Array.isArray(v) && v.length === 2
@@ -81,8 +91,11 @@ export const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknow
                     // Validate climateClass tuple structure
                     const climateClass = isValidClimateClass(f.climateClass)
                         ? f.climateClass : undefined;
-                    // Validate climateData structure
+                    // Validate climateData structure. Data written against an
+                    // older raster generation is discarded even when structurally
+                    // valid — it is the right shape but the wrong numbers.
                     const climateData = isValidClimateData(f.climateData)
+                        && f.climateDataVersion === CLIMATE_DATA_VERSION
                         ? f.climateData : undefined;
 
                     return {
@@ -90,6 +103,7 @@ export const sanitize = <K extends keyof LocalStorageTypes>(key: K, data: unknow
                         nFkweClass,
                         climateClass,
                         climateData,
+                        climateDataVersion: climateData ? CLIMATE_DATA_VERSION : undefined,
                         areaHa: typeof f.areaHa === "number" && isFinite(f.areaHa) ? f.areaHa : 0,
                         // If status says "done" but the data is actually missing, reset to "idle"
                         // so the app re-fetches it rather than crashing on undefined access.

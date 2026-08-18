@@ -2,7 +2,7 @@
 import {v4 as uuidv4} from "uuid";
 import {latLonToClimateClass} from "../lib/tools";
 import {useAppStore} from "../stores/useAppStore";
-import {useLocalStore} from "../stores/useLocalStore";
+import {CLIMATE_DATA_VERSION, useLocalStore} from "../stores/useLocalStore";
 import type {Farm, Field, FieldInput} from "../types/farm";
 import type {RasterLookup} from "../types/raster";
 
@@ -30,7 +30,7 @@ export const useFarm = () => {
                 ...prev,
                 fields: prev.fields.map((f) =>
                     f.id === id
-                        ? {...f, climateData: {precipitation, et0}, climateDataStatus: "done" as const}
+                        ? {...f, climateData: {precipitation, et0}, climateDataVersion: CLIMATE_DATA_VERSION, climateDataStatus: "done" as const}
                         : f
                 ),
             }));
@@ -164,7 +164,7 @@ export const refreshClimateData = (
                     ...prev,
                     fields: prev.fields.map((pf) =>
                         pf.id === f.id
-                            ? {...pf, climateData: {precipitation, et0}, climateDataStatus: "done" as const}
+                            ? {...pf, climateData: {precipitation, et0}, climateDataVersion: CLIMATE_DATA_VERSION, climateDataStatus: "done" as const}
                             : pf
                     ),
                 }));

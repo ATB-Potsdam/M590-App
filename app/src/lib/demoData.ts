@@ -3,6 +3,7 @@ import {v4 as uuidv4} from "uuid";
 import type {Farm, Field} from "../types/farm";
 import type {FieldAssignment, Project} from "../types/project";
 import type {RasterLookup} from "../types/raster";
+import {CLIMATE_DATA_VERSION} from "../stores/useLocalStore";
 import {latLonToClimateClass} from "./tools";
 
 // Demo data for getting to know the app. Uses real sites near the ATB in the
@@ -116,6 +117,7 @@ export const seedDemoData = (
                     precipitation: precipitationLookup.getValues(f.location.lon, f.location.lat),
                     et0: et0Lookup.getValues(f.location.lon, f.location.lat),
                 },
+                climateDataVersion: CLIMATE_DATA_VERSION,
                 climateDataStatus: "done",
             };
         } catch {
