@@ -75,34 +75,61 @@ Details on each step follow.
 ```
 
 `build_all.sh` is only a wrapper: it creates `scripts/.venv`, installs
-`scripts/requirements.txt` (numpy), and then calls `scripts/build_raster.py` once
-per raster. That script does the work — it downloads the monthly `.asc.gz` grids
-from `opendata.dwd.de` (CDC), stacks them into a compact `uint16` binary and
-writes a `.meta.json` describing grid, CRS, scale and the months contained.
-Together ~20 downloads, a few minutes. Reproducible: the same period and month
-range yield byte-identical output (verified by checksum).
+`scripts/requirements.txt` (numpy, netCDF4), and then calls
+`scripts/build_raster_nc.py` once per raster. That script downloads the DWD
+NetCDF products, aggregates them to a 30-year monthly mean, and writes a compact
+`uint16` binary plus a `.meta.json` describing grid, CRS and the months contained.
 
-To rebuild a single raster, call it directly — numpy is the only dependency:
+**Which products, and why it matters.** Kapitel 4.1.3 of the Merkblatt names the
+two inputs to the KWB explicitly, and the tables in Kapitel 4.2/4.3 are declared
+valid *only* for them:
+
+| Raster | Product | CDC path |
+|---|---|---|
+| `preciphyras` | HYRAS v6.1, monthly sums | `grids_germany/monthly/hyras_de/precipitation/` |
+| `et0fao` | FAO-56 grass reference ET₀ (Allen et al. 1998) | `grids_germany/daily/evaporation_fao/` |
+
+Earlier versions used `multi_annual/precipitation` and `multi_annual/evapo_p`.
+The latter is **AMBAV/Haude — a different evaporation model, not FAO-56**, which
+put the ΔKWB correction in `gemuese_obst` on a basis the Merkblatt does not
+permit. Do not switch back; `scripts/deploy.sh` fails the deploy if
+`meta.json → source` does not name the right product.
+
+The two rasters do **not** share a grid: FAO-56 is 654 × 866 on EPSG:31467,
+HYRAS is 665 × 890 on EPSG:3035 (ETRS89-LAEA). The app reprojects each raster
+independently from `meta.crs`, so this is fine — but a new CRS must be added to
+`CRS_DEFS` in `app/src/lib/rasterData.ts`, which otherwise throws on load.
+
+To rebuild a single raster, call it directly:
 
 ```bash
-python3 scripts/build_raster.py --type precip --months 1-12     # writes app/public/data/
-python3 scripts/build_raster.py --type et0    --months 3-10
-python3 scripts/build_raster.py --type precip --months 1-12 --out-dir /tmp/x   # elsewhere
+python3 scripts/build_raster_nc.py --type precip_hyras --months 1-12
+python3 scripts/build_raster_nc.py --type et0_fao      --months 3-10
+python3 scripts/build_raster_nc.py --type et0_fao --months 3-10 --out-dir /tmp/x
 ```
 
-Downloads are cached under `scripts/.cache/<type>/`, so a re-run after a failed
-network fetch resumes rather than starting over. The output filename encodes the
-month span (`_full_year`, `_mar_oct`), so a changed `--months` cannot silently
-overwrite a raster with different coverage — but note that `app/src/lib/rasterData.ts`
-hardcodes the two expected basenames, so a different span needs that file updated
-as well.
+FAO-56 is published only as daily grids, so the 30-year monthly mean means
+streaming **~12 GB** (30 × ~395 MB). Years are downloaded one at a time and
+deleted after use, so peak disk stays at ~400 MB; pass `--keep-cache` to keep
+them for a rebuild and `--cache-dir` to place them on a roomier disk. HYRAS is a
+single ~700 MB file already aggregated to monthly sums. Expect roughly 15–30
+minutes on a fast connection.
+
+The output filename encodes the month span (`_full_year`, `_mar_oct`), so a
+changed `--months` cannot silently overwrite a raster with different coverage —
+but note that `app/src/lib/rasterData.ts` hardcodes the two expected basenames,
+so a different span needs that file updated as well.
 
 The two month ranges differ on purpose and must not be unified:
 
 | Raster | Months | Why |
 |---|---|---|
-| `precip` | 1–12 | The sport/green modules classify by **annual** precipitation (Tabelle 33/34/36, "je nach Höhe des Jahresniederschlags"). A Mar–Oct sum is 150–350 mm short and overstates demand by a whole precipitation class. |
-| `et0` | 3–10 | Only used for the monthly KWB correction over a crop's irrigation period (`gemuese_obst`); never summed annually. |
+| `preciphyras` | 1–12 | The sport/green modules classify by **annual** precipitation (Tabelle 33/34/36, "je nach Höhe des Jahresniederschlags"). A Mar–Oct sum is 150–350 mm short and overstates demand by a whole precipitation class. |
+| `et0fao` | 3–10 | Only used for the monthly KWB correction over a crop's irrigation period (`gemuese_obst`); never summed annually. |
+
+`scripts/build_raster.py` (the older ASCII/`multi_annual` builder) is kept for
+reference and for comparing against the previous data basis. Its output is not
+what the app ships.
 
 **2. Polygon layers — stored in git-lfs, nothing to run:**
 
