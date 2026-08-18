@@ -1,6 +1,0 @@
-<de-DE>
-Fehlerbehebung
-
-• Die App fragt nach einer Aktualisierung nicht mehr nach: Eine neuere Fassung wird beim Start automatisch geladen.
-• Android: Nach einem Update aus dem Play Store erschien fälschlich der Hinweis „Update verfügbar“. Das tritt nicht mehr auf.
-</de-DE>

@@ -330,29 +330,22 @@ if [ "$target" = bundle ]; then
     version=$(grep -oP 'versionName "\K[^"]+' app/build.gradle)
     outdir=$(dirname "$artifact")
 
-    # PENDING.txt accumulates the store text of every release since the last Play
-    # upload, so it is pasted whole and then emptied — see app/release-notes/README.md.
-    # It is NOT per-version: several web releases usually ship in one upload.
-    pending="../release-notes/PENDING.txt"
-    if [ -f "$pending" ]; then
+    # STORE-TEXT.txt is the "What's new" text as it currently stands: newest
+    # bullets appended, oldest dropped to stay under Play's limit. It is never
+    # emptied, so it is always ready to paste — see app/release-notes/README.md.
+    store_text="../release-notes/STORE-TEXT.txt"
+    if [ -f "$store_text" ]; then
         # Over 500 characters the Play Console truncates mid-sentence, which is
         # only noticed once users read it. Fail here instead.
-        if ! python3 ../../scripts/check-release-notes.py "$pending"; then
-            fail "PENDING.txt is over the Play Console's 500-character limit — shorten it before uploading."
+        if ! python3 ../../scripts/check-release-notes.py "$store_text"; then
+            fail "STORE-TEXT.txt is over the Play Console's 500-character limit — drop the oldest bullets."
         fi
-        # A file with a heading but no bullets is the post-upload state, not a
-        # release note. Copying it would put an empty "What's new" beside the
-        # bundle and invite pasting it.
-        if ! grep -q '^[[:space:]]*•' "$pending"; then
-            info "NOTE: PENDING.txt has no bullets yet — nothing user-visible since the last upload; not copied"
-        else
-            cp "$pending" "$outdir/RELEASE-NOTES-$version.txt"
-            info "release notes copied next to the bundle"
-        fi
+        cp "$store_text" "$outdir/RELEASE-NOTES-$version.txt"
+        info "store text copied next to the bundle"
     else
         # Not fatal: the bundle is fine, but the upload step would be missing its
         # store text, so say so rather than failing silently.
-        info "NOTE: no app/release-notes/PENDING.txt — create one before uploading"
+        info "NOTE: no app/release-notes/STORE-TEXT.txt — the upload would have no What's-new text"
     fi
 
     # The per-version .md, when one exists, is the technical record; ship it too.
