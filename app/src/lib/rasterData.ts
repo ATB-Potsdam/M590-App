@@ -4,11 +4,18 @@ import type {RasterLookup, RasterMeta} from "../types/raster";
 
 const basename = import.meta.env.BASE_URL;
 
+// Both rasters are the products Kapitel 4.1.3 names for the KWB: HYRAS for
+// precipitation and FAO-56 grass reference ET₀ for evaporation. The earlier
+// `precip_*`/`et0_*` files came from multi_annual/precipitation and
+// multi_annual/evapo_p — the latter is AMBAV/Haude, a different evaporation
+// model — which put the ΔKWB correction on the wrong basis (see
+// scripts/build_raster_nc.py).
+//
 // Precipitation covers the full year: the sport/green modules need a genuine annual
 // sum for their precipitation class. ET₀ stays March–October — it is only used for the
 // monthly KWB correction over a crop's irrigation period, never summed annually.
-export const precipRasterUrl = (basename + "/data/precip_1991-2020_full_year").replace(/\/+/, "/");;
-export const et0RasterUrl = (basename + "/data/et0_1991-2020_mar_oct").replace(/\/+/, "/");;
+export const precipRasterUrl = (basename + "/data/preciphyras_1991-2020_full_year").replace(/\/+/, "/");;
+export const et0RasterUrl = (basename + "/data/et0fao_1991-2020_mar_oct").replace(/\/+/, "/");;
 
 
 // Bekannte CRS-Definitionen – bei Bedarf erweiterbar
@@ -18,6 +25,11 @@ const CRS_DEFS: Record<string, string> = {
         "+ellps=bessel +datum=potsdam +units=m +no_defs",
     "EPSG:25832":
         "+proj=utm +zone=32 +ellps=GRS80 +datum=ETRS89 +units=m +no_defs",
+    // HYRAS ships on the ETRS89-LAEA grid, not Gauss-Krüger like the older
+    // multi_annual products — so the two rasters no longer share a projection.
+    "EPSG:3035":
+        "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 " +
+        "+ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs",
 };
 
 const ensureCrs = (crs: string): void => {

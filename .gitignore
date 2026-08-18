@@ -13,3 +13,8 @@ app/public/data/*
 #   git clone git@github.com:ATB-Potsdam/M590-doc.git app/doc
 # Nothing from it may be committed to this public repository.
 app/doc/
+
+# Raster build cache. build_raster_nc.py streams ~12 GB of daily FAO-56 NetCDF
+# through here; only the aggregated output under app/public/data/ is committed.
+.rastercache/
+scripts/.venv/
