@@ -1,3 +1,4 @@
+import {hardResetAndReload} from "../lib/swRegistration";
 import "./SplashScreen.scss";
 
 const base = import.meta.env.BASE_URL;
@@ -34,16 +35,7 @@ export const SplashScreen = ({state, errorMessage, loadProgress, onDismissed}: P
                 <button
                     type="button"
                     className="splash__error-button"
-                    onClick={() => {
-                        const done = () => window.location.reload();
-                        if (!("serviceWorker" in navigator)) return done();
-                        navigator.serviceWorker.getRegistrations()
-                            .then((rs) => Promise.all(rs.map((r) => r.unregister())))
-                            .then(() => "caches" in window
-                                ? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k))))
-                                : undefined)
-                            .then(done, done);
-                    }}
+                    onClick={() => void hardResetAndReload()}
                 >
                     Neu laden
                 </button>

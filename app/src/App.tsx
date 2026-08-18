@@ -16,6 +16,7 @@ import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm'
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
+import {hardResetAndReload} from './lib/swRegistration';
 import {AboutPage} from './pages/AboutPage';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
@@ -93,12 +94,28 @@ const App = () => {
                 track(createRasterLookup(et0RasterUrl), 3),
             ])
                 .then(([climateLayer, nfkweLayer, precipitationLookup, et0Lookup]) => {
+                    // Loaded fine, so arm the one-shot recovery again for any
+                    // future failure in this tab.
+                    sessionStorage.removeItem("dwa_sw_recovery_attempted");
                     useAppStore.setState({climateLayer, nfkweLayer, precipitationLookup, et0Lookup});
                     splashReadyRef.current = true;
                     setSplashState((s) => s === "loading" ? "ready" : s);
                     tryFinishSplash();
                 })
                 .catch((e) => {
+                    // Nearly always a stale service worker serving the previous
+                    // release's file list. Nothing the user did causes it and no
+                    // plain reload fixes it, so recover once automatically rather
+                    // than showing an error only Shift-Reload could clear. The
+                    // flag makes it strictly one attempt — if the reload lands in
+                    // the same state, show the error and its button instead of
+                    // looping.
+                    const RETRY_KEY = "dwa_sw_recovery_attempted";
+                    if (!sessionStorage.getItem(RETRY_KEY)) {
+                        sessionStorage.setItem(RETRY_KEY, "1");
+                        void hardResetAndReload();
+                        return;
+                    }
                     setSplashError("Laden fehlgeschlagen: " + (e?.message ?? String(e)));
                     setSplashState("error");
                     addMessage({type: "error", message: ["Laden fehlgeschlagen: " + (e?.message ?? String(e))]});

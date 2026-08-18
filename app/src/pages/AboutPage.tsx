@@ -5,7 +5,7 @@ import {BackButton} from "../components/BackButton";
 import {IosInstallOverlay} from "../components/IosInstallOverlay";
 import {useInstallApp} from "../hooks/useInstallApp";
 import {isNative} from "../lib/nativeShare";
-import {getSwRegistration} from "../lib/swRegistration";
+import {getSwRegistration, hardResetAndReload} from "../lib/swRegistration";
 import "./AboutPage.scss";
 
 type UpdateCheckState = "idle" | "checking" | "uptodate" | "found" | "error";
@@ -93,11 +93,27 @@ export const AboutPage = () => {
                     <p className="info-page__update-status">✓ Sie verwenden bereits die aktuelle Version.</p>
                 )}
                 {updateState === "found" && (
-                    <p className="info-page__update-status">Ein Update wurde gefunden. Die Aktualisierungsleiste oben führt Sie durch das Neuladen.</p>
+                    <p className="info-page__update-status">Ein Update wurde gefunden. Klicken Sie auf „Jetzt aktualisieren“ oder nutzen Sie die Aktualisierungsleiste oben.</p>
                 )}
                 {updateState === "error" && (
-                    <p className="info-page__update-status">Prüfung fehlgeschlagen. Bitte später erneut versuchen.</p>
+                    <p className="info-page__update-status">Prüfung fehlgeschlagen. Bitte erneut versuchen oder unten neu laden.</p>
                 )}
+                {/* Always offered, not only when an update was found: a worker can
+                    get stuck in a state where nothing is `waiting`, so neither the
+                    banner nor the check above can move it. This forces the issue
+                    and is the in-app equivalent of Shift-Reload, which users
+                    cannot be expected to know about. */}
+                <button
+                    type="button"
+                    className="info-page__install-btn"
+                    onClick={() => void hardResetAndReload()}
+                >
+                    {updateState === "found" ? "Jetzt aktualisieren" : "App neu laden (Zwischenspeicher leeren)"}
+                </button>
+                <p className="info-page__update-hint">
+                    Leert den Zwischenspeicher und lädt die App neu. Ihre Daten
+                    (Betriebe, Flächen, Szenarien) bleiben dabei erhalten.
+                </p>
             </section>
         )}
 

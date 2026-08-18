@@ -61,6 +61,14 @@
         text-align: left;
     }
 
+    &__update-hint {
+        margin-top: 6px !important;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+        align-self: stretch;
+        text-align: left;
+    }
+
     &__install-btn {
         @include btn-primary;
         padding: 10px 24px;
