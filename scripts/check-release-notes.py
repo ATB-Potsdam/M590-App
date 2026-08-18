@@ -25,8 +25,11 @@ BLOCK = re.compile(r"<([a-zA-Z-]+)>(.*?)</\1>", re.DOTALL)
 
 def check(path: Path) -> bool:
     if not path.exists():
-        print(f"{path}: missing")
-        return False
+        # Absent is the normal state right after a Play upload: the file is
+        # pasted and deleted, and the next user-visible change recreates it.
+        # Only an over-budget file is a failure.
+        print(f"{path.name}: not present — nothing pending since the last upload")
+        return True
 
     text = path.read_text(encoding="utf-8")
     blocks = BLOCK.findall(text)

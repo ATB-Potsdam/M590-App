@@ -1,9 +1,0 @@
-<de-DE>
-Aktualisierte Klimadaten
-
-• Die Klimatische Wasserbilanz beruht jetzt auf den im DWA-M 590 vorgesehenen DWD-Daten: Niederschlag aus HYRAS, Verdunstung nach FAO-56.
-• Der Zusatzwasserbedarf bei „Gemüse/Obst“ und „Grünflächen“ fällt dadurch meist höher aus als bisher.
-• Vorhandene Flächen werden automatisch umgestellt, Ihre Daten bleiben erhalten.
-• Lädt die App nach einem Update eine ältere Fassung, startet sie einmalig neu.
-• Kapitelverweise folgen der korrigierten Fassung des Merkblatts.
-</de-DE>
