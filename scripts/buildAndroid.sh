@@ -340,8 +340,15 @@ if [ "$target" = bundle ]; then
         if ! python3 ../../scripts/check-release-notes.py "$pending"; then
             fail "PENDING.txt is over the Play Console's 500-character limit — shorten it before uploading."
         fi
-        cp "$pending" "$outdir/RELEASE-NOTES-$version.txt"
-        info "release notes copied next to the bundle"
+        # A file with a heading but no bullets is the post-upload state, not a
+        # release note. Copying it would put an empty "What's new" beside the
+        # bundle and invite pasting it.
+        if ! grep -q '^[[:space:]]*•' "$pending"; then
+            info "NOTE: PENDING.txt has no bullets yet — nothing user-visible since the last upload; not copied"
+        else
+            cp "$pending" "$outdir/RELEASE-NOTES-$version.txt"
+            info "release notes copied next to the bundle"
+        fi
     else
         # Not fatal: the bundle is fine, but the upload step would be missing its
         # store text, so say so rather than failing silently.

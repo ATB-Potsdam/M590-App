@@ -45,6 +45,13 @@ def check(path: Path) -> bool:
         if n > LIMIT:
             ok = False
 
+        # A file holding only a heading would be pasted as an empty "What's new".
+        # That is the state right after an upload, so it is not an error on its
+        # own — but it must not travel next to a bundle as if it were finished.
+        bullets = [ln for ln in body.splitlines() if ln.lstrip().startswith("•")]
+        if not bullets:
+            print("  note: no bullets yet — nothing user-visible since the last upload")
+
         # A hard wrap inside the block shows up as a line break in the store, so
         # long bullets must stay on one line. Blank lines and the heading are fine.
         for line in body.strip().splitlines():

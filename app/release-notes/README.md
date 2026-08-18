@@ -27,8 +27,15 @@ so the state lives in the filesystem rather than in someone's memory.
 
 ## Appending
 
+The file is pasted **verbatim**, so it contains nothing but the locale block — no
+comments, no notes to self. Between uploads it sits with a heading and no bullets;
+that is the empty state, and `buildAndroid.sh` will not copy it next to a bundle
+until it has at least one bullet.
+
 - One bullet per user-visible change, in the same `<de-DE>…</de-DE>` block. Do not
   start a second block, and do not add a second heading.
+- Adjust the heading when it stops fitting — `Verbesserungen`, `Fehlerbehebung`,
+  `Aktualisierte Klimadaten` have all been used.
 - Write for someone who does not know the app changed. "Der Zusatzwasserbedarf
   fällt meist höher aus" — not "FAO-56 statt evapo_p".
 - If a later change supersedes an earlier bullet, **edit that bullet** rather than
