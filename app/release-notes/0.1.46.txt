@@ -1,0 +1,6 @@
+<de-DE>
+Verbesserungen
+
+• Falls die App nach einer Aktualisierung nicht mehr richtig lädt, behebt sie das jetzt selbst und startet einmalig neu.
+• Unter „Über die App“ gibt es zusätzlich die Schaltfläche „App neu laden“, die den Zwischenspeicher leert. Ihre Betriebe, Flächen und Szenarien bleiben dabei erhalten.
+</de-DE>
