@@ -14,9 +14,10 @@ import {TourResumeButton} from './components/tour/TourResumeButton';
 import {TourStartButton} from './components/tour/TourStartButton';
 import {refreshClimateClass, refreshClimateData, useFarm} from './hooks/useFarm';
 import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
+import {isNative} from './lib/nativeShare';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
-import {hardResetAndReload} from './lib/swRegistration';
+import {hardResetAndReload, hasDowngraded, isStuckOnOldVersion, rememberRunningVersion} from './lib/swRegistration';
 import {AboutPage} from './pages/AboutPage';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
@@ -70,6 +71,36 @@ const App = () => {
         }
     };
 
+    // A version mismatch at startup means this client is running something other
+    // than what the server serves — almost always a stale worker handing out the
+    // previous release. Recover silently: reset and reload, no banner, no error.
+    // The banner is for a deploy that lands mid-session (see UpdateBanner), which
+    // is a different situation and does want asking first.
+    //
+    // Two signals, cheapest first:
+    //   1. the running bundle is OLDER than the one that last ran on this device
+    //      — a downgrade, which only a stale cache can cause, no network needed;
+    //   2. the server advertises a different version and no update is staged.
+    // Acted on at most once per tab, so a genuinely broken deploy shows the real
+    // error instead of reload-looping.
+    useEffect(() => {
+        const KEY = "dwa_sw_recovery_attempted";
+        if (isNative() || sessionStorage.getItem(KEY)) return;
+
+        const recover = () => {
+            sessionStorage.setItem(KEY, "1");
+            void hardResetAndReload();
+        };
+
+        if (hasDowngraded(__APP_VERSION__)) {
+            recover();
+            return;
+        }
+        void isStuckOnOldVersion(__APP_VERSION__).then((stuck) => {
+            if (stuck && !sessionStorage.getItem(KEY)) recover();
+        });
+    }, []);
+
     useEffect(() => {
         if (!layer) {
             setTimeout(() => {
@@ -97,6 +128,9 @@ const App = () => {
                     // Loaded fine, so arm the one-shot recovery again for any
                     // future failure in this tab.
                     sessionStorage.removeItem("dwa_sw_recovery_attempted");
+                    // Record what ran, so a later start that comes up OLDER can
+                    // recognise itself as a stale cache without asking the server.
+                    rememberRunningVersion(__APP_VERSION__);
                     useAppStore.setState({climateLayer, nfkweLayer, precipitationLookup, et0Lookup});
                     splashReadyRef.current = true;
                     setSplashState((s) => s === "loading" ? "ready" : s);

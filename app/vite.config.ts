@@ -4,6 +4,29 @@ import {defineConfig, loadEnv} from 'vite';
 import {VitePWA} from 'vite-plugin-pwa';
 import pkg from './package.json' with {type: 'json'};
 
+/**
+ * Emit `data/version.json` carrying the version this build was cut from.
+ *
+ * It goes under `data/` on purpose: that directory is excluded from the service
+ * worker precache (`globIgnores`) and there is no runtimeCaching, so it is the
+ * one path a stale client is guaranteed to fetch from the network rather than
+ * from its own cache. `__APP_VERSION__` is inlined at build time, so a client
+ * running an old bundle reports the OLD version — comparing the two is what
+ * makes a stuck worker detectable from inside the running app.
+ */
+function versionPlugin(version: string): Plugin {
+  return {
+    name: 'version-file',
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'data/version.json',
+        source: JSON.stringify({version}, null, 2) + '\n',
+      });
+    },
+  };
+}
+
 function seoPlugin(appUrl: string, indexableRoutes: string[]): Plugin {
   // appUrl already includes the base path (e.g. https://example.com/tmp/dwa/).
   // Routes like '/about' are absolute from the origin, so we strip the leading
@@ -45,6 +68,7 @@ export default defineConfig(({mode}) => {
     },
     plugins: [
       seoPlugin(appUrl, ['/about', '/privacy']),
+      versionPlugin(pkg.version),
       react(),
       VitePWA({
         registerType: 'prompt',

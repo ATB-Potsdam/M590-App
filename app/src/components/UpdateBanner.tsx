@@ -33,12 +33,14 @@ const UpdateBannerWeb = () => {
                 registration.update().catch(() => {/* offline / transient */});
             }, 10 * 60 * 1000);
 
-            // If a waiting worker is already there at registration time
-            // (e.g. user came back to a tab where the update happened in
-            // the background), surface the banner immediately.
-            if (registration.waiting) {
-                setNeedRefresh(true);
-            }
+            // Deliberately NOT surfacing an already-waiting worker here. A
+            // mismatch that exists at startup is handled in App.tsx, which
+            // resets and reloads silently — asking the user to click
+            // "Aktualisieren" for something they never saw change is noise, and
+            // in the stuck case the banner could not fix it anyway (nothing is
+            // `waiting`, so it never appeared). The banner is reserved for a
+            // deploy that lands while the app is open, which the updatefound
+            // listener below catches.
             registration.addEventListener("updatefound", () => {
                 const newWorker = registration.installing;
                 if (!newWorker) return;
