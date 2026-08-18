@@ -1,7 +1,0 @@
-<de-DE>
-Korrektur der Zusammenfassung
-
-• Die Gesamtsummen wiesen einen unplausiblen mm/a-Wert aus: Bei gemischten Nutzungen konnte die Summe kleiner sein als jede einzelne Fläche. Die Summenzeilen zeigen jetzt nur noch m³/a.
-• Beim Golfplatz ist ausgewiesen, dass sich mm/a auf die bewässerten Teilflächen bezieht, nicht auf die gesamte Platzfläche.
-• Neuer Hinweis zur Wahl der nFKWe-Klasse bei Schlägen mit verschiedenen Böden.
-</de-DE>

@@ -1,6 +1,0 @@
-<de-DE>
-Fehlerbehebung
-
-• Nach einer Aktualisierung konnte beim ersten Start die Meldung „Laden fehlgeschlagen“ erscheinen, weil noch zwischengespeicherte Daten der Vorversion verwendet wurden. Das tritt nun nicht mehr auf.
-• Sollte das Laden einmal fehlschlagen, gibt es jetzt eine Schaltfläche „Neu laden“, die den Zwischenspeicher leert und die App neu startet.
-</de-DE>

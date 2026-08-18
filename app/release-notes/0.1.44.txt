@@ -1,7 +1,0 @@
-<de-DE>
-Aktualisierte Klimadaten
-
-• Die Klimatische Wasserbilanz beruht jetzt auf den im DWA-M 590 vorgesehenen DWD-Daten: Niederschlag aus HYRAS, Verdunstung nach FAO-56.
-• Dadurch ändern sich die Ergebnisse bei „Gemüse/Obst & Sonderkulturen“ und „Grünflächen“: Der Zusatzwasserbedarf fällt in der Regel höher aus als bisher.
-• Bereits angelegte Flächen werden automatisch auf die neuen Daten umgestellt. Werte aus früheren Versionen sind daher nicht mehr vergleichbar.
-</de-DE>

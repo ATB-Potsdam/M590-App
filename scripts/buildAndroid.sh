@@ -329,22 +329,28 @@ fi
 if [ "$target" = bundle ]; then
     version=$(grep -oP 'versionName "\K[^"]+' app/build.gradle)
     outdir=$(dirname "$artifact")
-    copied=no
-    # Two files per version: the .txt is the <de-DE>…</de-DE> block the Play
-    # Console takes verbatim, the .md is the human-readable record of the release.
-    for ext in txt md; do
-        notes="../release-notes/$version.$ext"
-        if [ -f "$notes" ]; then
-            cp "$notes" "$outdir/RELEASE-NOTES-$version.$ext"
-            copied=yes
+
+    # PENDING.txt accumulates the store text of every release since the last Play
+    # upload, so it is pasted whole and then emptied — see app/release-notes/README.md.
+    # It is NOT per-version: several web releases usually ship in one upload.
+    pending="../release-notes/PENDING.txt"
+    if [ -f "$pending" ]; then
+        # Over 500 characters the Play Console truncates mid-sentence, which is
+        # only noticed once users read it. Fail here instead.
+        if ! python3 ../../scripts/check-release-notes.py "$pending"; then
+            fail "PENDING.txt is over the Play Console's 500-character limit — shorten it before uploading."
         fi
-    done
-    if [ "$copied" = yes ]; then
+        cp "$pending" "$outdir/RELEASE-NOTES-$version.txt"
         info "release notes copied next to the bundle"
     else
         # Not fatal: the bundle is fine, but the upload step would be missing its
         # store text, so say so rather than failing silently.
-        info "NOTE: no release notes at app/release-notes/$version.{txt,md} — create one before uploading"
+        info "NOTE: no app/release-notes/PENDING.txt — create one before uploading"
+    fi
+
+    # The per-version .md, when one exists, is the technical record; ship it too.
+    if [ -f "../release-notes/$version.md" ]; then
+        cp "../release-notes/$version.md" "$outdir/RELEASE-NOTES-$version.md"
     fi
 fi
 
