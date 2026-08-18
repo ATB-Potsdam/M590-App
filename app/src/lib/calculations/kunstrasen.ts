@@ -1,5 +1,5 @@
 // src/lib/calculations/kunstrasen.ts
-// DWA-M 590, Kap. 4.4.5: artificial turf areas (Kunststoffrasenflächen)
+// DWA-M 590, Kap. 4.5.5: artificial turf areas (Kunststoffrasenflächen)
 // Wetting water demand = weeks × mm/week × area / 1000
 import type {Range} from "../../types/dataTypes";
 

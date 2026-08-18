@@ -12,7 +12,7 @@ pip install -r "$dir/requirements.txt"
 
 period="1991-2020"
 
-# Both rasters come from the products M 590 Kapitel 4.1.3 names -- HYRAS for
+# Both rasters come from the products M 590 Kapitel 4.2.3 names -- HYRAS for
 # precipitation, FAO-56 grass reference for ET0 -- via build_raster_nc.py.
 # build_raster.py is kept for the older multi_annual ASCII grids, but its output
 # is NOT what the app ships: multi_annual/evapo_p is AMBAV/Haude, a different

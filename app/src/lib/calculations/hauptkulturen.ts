@@ -60,7 +60,7 @@ export interface HauptkulturenResult {
     userCustomMm: number;
 }
 
-// Automatic surcharge per crop (Spec Kapitel 4.2.2):
+// Automatic surcharge per crop (Spec Kapitel 4.3.2):
 // - Speisekartoffeln: +20 mm/a
 // - Körnermais (vs. Silomais): +20 mm/a
 const AUTO_SURCHARGE_MM: Partial<Record<CropName, number>> = {

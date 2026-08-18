@@ -1,5 +1,5 @@
 // src/lib/calculations/tennen.ts
-// DWA-M 590, Kap. 4.4.5, Tabelle 36: Tennenflächen
+// DWA-M 590, Kap. 4.5.5, Tabelle 36: Tennenflächen
 import type {Range} from "../../types/dataTypes";
 import {toNaturrasenPrecipClass} from "./naturrasen";
 import type {NaturrasenPrecipClass} from "./naturrasen";

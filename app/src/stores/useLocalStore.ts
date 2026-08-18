@@ -49,7 +49,7 @@ const VALID_MODULES: string[] = [
  * stale values (`refreshClimateData` only touches fields not marked "done").
  *
  * 2 — 0.1.44: ET₀ switched from `multi_annual/evapo_p` (AMBAV/Haude) to FAO-56
- *     and precipitation to HYRAS, as M 590 Kapitel 4.1.3 prescribes.
+ *     and precipitation to HYRAS, as M 590 Kapitel 4.2.3 prescribes.
  */
 export const CLIMATE_DATA_VERSION = 2;
 

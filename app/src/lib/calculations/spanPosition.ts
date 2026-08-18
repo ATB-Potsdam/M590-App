@@ -15,7 +15,7 @@ export const SPAN_POSITIONS: {value: SpanPosition; label: string;}[] = [
 /**
  * Collapse a literature span to a single value.
  *
- * The Merkblatt explicitly allows this (Kapitel 4.2.2): "Für die wasserrechtliche
+ * The Merkblatt explicitly allows this (Kapitel 4.3.2): "Für die wasserrechtliche
  * Beantragung des Zusatzwasserbedarfs können pauschalierte Werte innerhalb der
  * angegebenen Spannen … herangezogen werden."
  *

@@ -19,7 +19,7 @@ export interface GemueseObstInput {
     // Site climate data (from Field)
     precipitation: MonthValueType;
     et0: MonthValueType;
-    // Surcharges (Spec Kapitel 4.3 only allows Auflaufbewässerung A/J — no Zwischenfrucht surcharge)
+    // Surcharges (Spec Kapitel 4.4 only allows Auflaufbewässerung A/J — no Zwischenfrucht surcharge)
     surchargeEmergence: number;
     // Position within the literature span (0 = min, 0.5 = mean, 1 = max).
     // undefined keeps the full span.
@@ -129,7 +129,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
     // AJ suggestion from constant (vegetables only)
     const ajSuggestedMm = (rawVegetableDataAj as Record<string, number | null>)[plant] ?? null;
 
-    // Optional surcharges (only Auflaufbewässerung — Spec Kapitel 4.3)
+    // Optional surcharges (only Auflaufbewässerung — Spec Kapitel 4.4)
     const surchargeEmergenceMm = surchargeEmergence;
     const optionalSurchargeMm = surchargeEmergenceMm;
 

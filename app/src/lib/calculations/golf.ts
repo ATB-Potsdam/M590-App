@@ -1,5 +1,5 @@
 // src/lib/calculations/golf.ts
-// DWA-M 590, Kap. 4.4.4, Tables 34 and 35: golf courses
+// DWA-M 590, Kap. 4.5.4, Tables 34 and 35: golf courses
 import type {Range} from "../../types/dataTypes";
 import {toNaturrasenPrecipClass, type NaturrasenPrecipClass} from "./naturrasen";
 

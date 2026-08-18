@@ -49,7 +49,7 @@ export const MODULE_SOURCES: Record<ModuleType, SourceReference> = {
         id: "dwa-m590-kr",
         shortName: "DWA-M 590",
         fullName: "DWA-Merkblatt M 590",
-        tables: "Kap. 4.4.5",
+        tables: "Kap. 4.5.5",
     },
     tennen: {
         id: "din-18035-tn",

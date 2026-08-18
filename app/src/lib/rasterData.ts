@@ -4,7 +4,7 @@ import type {RasterLookup, RasterMeta} from "../types/raster";
 
 const basename = import.meta.env.BASE_URL;
 
-// Both rasters are the products Kapitel 4.1.3 names for the KWB: HYRAS for
+// Both rasters are the products Kapitel 4.2.3 names for the KWB: HYRAS for
 // precipitation and FAO-56 grass reference ET₀ for evaporation. The earlier
 // `precip_*`/`et0_*` files came from multi_annual/precipitation and
 // multi_annual/evapo_p — the latter is AMBAV/Haude, a different evaporation

@@ -360,7 +360,7 @@ export const AssignmentPage = () => {
                         Medizinal-, Agrar- und Futterpflanzen – also alle Kulturen, die nicht
                         zu den Hauptkulturen, zum Weinbau oder zu den Sport- und Grünflächen
                         gehören. Berechnet wird hier nach der KWB-Korrektur gegenüber dem
-                        Referenzstandort Potsdam (Kapitel 4.3), nicht nach den
+                        Referenzstandort Potsdam (Kapitel 4.4), nicht nach den
                         KWBv-Klassentabellen.
                     </InfoHint>
                     <div className="option-list">
@@ -423,7 +423,7 @@ export const AssignmentPage = () => {
                     <h2>{plantCategory === 'futter' ? 'Schnitte zur Samennutzung wählen' : 'Variante wählen'}</h2>
                     {selectedLevel0 === 'Silomais' && (
                         <p className="assignment-page__hint">
-                            Körnermais benötigt im Vergleich zu Silomais generell einen Zuschlag von +20 mm/a (Merkblatt Kapitel 4.2.2).
+                            Körnermais benötigt im Vergleich zu Silomais generell einen Zuschlag von +20 mm/a (Merkblatt Kapitel 4.3.2).
                         </p>
                     )}
                     <div className="option-list">
@@ -687,7 +687,7 @@ export const AssignmentPage = () => {
                 </>
             )}
 
-            {/* Irrigation period + surcharges — only for hauptkulturen / gemuese_obst (Spec Kapitel 4.2.2 / 4.3) */}
+            {/* Irrigation period + surcharges — only for hauptkulturen / gemuese_obst (Spec Kapitel 4.3.2 / 4.4) */}
             {showSurcharges && (module === 'hauptkulturen' || module === 'gemuese_obst') && (
                 <>
                     {needsIrrigationSelection && plantKey && availablePeriods.length > 0 && (
@@ -871,7 +871,7 @@ export const AssignmentPage = () => {
                 </section>
             )}
 
-            {/* Pick a value inside the literature span (Merkblatt Kapitel 4.2.2 allows it) */}
+            {/* Pick a value inside the literature span (Merkblatt Kapitel 4.3.2 allows it) */}
             {result && (result.type === 'hauptkulturen' || result.type === 'gemuese_obst') && result.normal &&
                 ('literatureRangeMm' in result.normal) && result.normal.hasValue &&
                 !result.normal.isUserCustom &&
@@ -885,7 +885,7 @@ export const AssignmentPage = () => {
                         Klasse brauchen mehr Zusatzwasser als solche am oberen.
                         <br /><br />
                         Für die wasserrechtliche Beantragung dürfen pauschalierte Werte innerhalb
-                        der angegebenen Spannen herangezogen werden (Kapitel 4.2.2). Sie können
+                        der angegebenen Spannen herangezogen werden (Kapitel 4.3.2). Sie können
                         hier einen Wert festlegen; die vollständige Spanne bleibt in den
                         Berechnungsgrundlagen sichtbar.
                     </InfoHint>

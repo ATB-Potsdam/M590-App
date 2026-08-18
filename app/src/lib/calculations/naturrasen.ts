@@ -1,5 +1,5 @@
 // src/lib/calculations/naturrasen.ts
-// DWA-M 590, Kap. 4.4.3, Tabelle 33: Naturrasensportplätze
+// DWA-M 590, Kap. 4.5.3, Tabelle 33: Naturrasensportplätze
 import type {Range} from "../../types/dataTypes";
 
 export type NaturrasenPrecipClass = "<500" | "500-700" | "700-900" | ">900";

@@ -50,7 +50,7 @@ export const KunstrasenResultCard = ({result, fieldName}: Props) => (
             </div>
             <div className="result-card__value-row">
                 <span>Quelle</span>
-                <span>DWA-M 590, Kap. 4.4.5 (Kunststoffrasenflächen)</span>
+                <span>DWA-M 590, Kap. 4.5.5 (Kunststoffrasenflächen)</span>
             </div>
         </details>
     </div>

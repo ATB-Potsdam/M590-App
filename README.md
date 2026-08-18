@@ -80,8 +80,8 @@ Details on each step follow.
 NetCDF products, aggregates them to a 30-year monthly mean, and writes a compact
 `uint16` binary plus a `.meta.json` describing grid, CRS and the months contained.
 
-**Which products, and why it matters.** Kapitel 4.1.3 of the Merkblatt names the
-two inputs to the KWB explicitly, and the tables in Kapitel 4.2/4.3 are declared
+**Which products, and why it matters.** Kapitel 4.2.3 of the Merkblatt names the
+two inputs to the KWB explicitly, and the tables in Kapitel 4.3/4.4 are declared
 valid *only* for them:
 
 | Raster | Product | CDC path |

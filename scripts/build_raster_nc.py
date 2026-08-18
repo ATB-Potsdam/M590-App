@@ -1,6 +1,6 @@
 """Build the M 590 climate rasters from the DWD products the Merkblatt names.
 
-Kapitel 4.1.3 defines KWBv = Nv - ETpv over the 1991-2020 reference period and
+Kapitel 4.2.3 defines KWBv = Nv - ETpv over the 1991-2020 reference period and
 names the two inputs explicitly: precipitation from HYRAS (Rauthe et al. 2013)
 and grass reference evapotranspiration after FAO-56 (Allen et al. 1998). Neither
 is published as a ready-made 30-year monthly mean, so this script aggregates them:
