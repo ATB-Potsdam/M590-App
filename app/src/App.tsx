@@ -17,7 +17,7 @@ import {useIsScrolledToBottom} from './hooks/useIsScrolledToBottom';
 import {isNative} from './lib/nativeShare';
 import {loadClimateLayerFromPublic, loadNfkweLayerFromPublic} from './lib/polylookup';
 import {createRasterLookup, et0RasterUrl, precipRasterUrl} from './lib/rasterData';
-import {hardResetAndReload, hasDowngraded, isStuckOnOldVersion, rememberRunningVersion} from './lib/swRegistration';
+import {forceUpdateAndReload, hardResetAndReload, hasDowngraded, isStuckOnOldVersion, purgeNativeServiceWorker, rememberRunningVersion} from './lib/swRegistration';
 import {AboutPage} from './pages/AboutPage';
 import {AssignmentPage} from './pages/AssignmentPage';
 import {FarmPage} from './pages/FarmPage';
@@ -80,17 +80,36 @@ const App = () => {
     // Two signals, cheapest first:
     //   1. the running bundle is OLDER than the one that last ran on this device
     //      — a downgrade, which only a stale cache can cause, no network needed;
-    //   2. the server advertises a different version and no update is staged.
+    //   2. the server advertises a different version at all — the worker's state
+    //      does not matter, a waiting worker is simply activated rather than
+    //      offered as a banner.
     // Acted on at most once per tab, so a genuinely broken deploy shows the real
     // error instead of reload-looping.
     useEffect(() => {
         const KEY = "dwa_sw_recovery_attempted";
-        if (isNative() || sessionStorage.getItem(KEY)) return;
+        if (sessionStorage.getItem(KEY)) return;
 
+        // Force the newest version onto the page without prompting: activate a
+        // waiting worker if there is one, otherwise purge and reload.
         const recover = () => {
             sessionStorage.setItem(KEY, "1");
-            void hardResetAndReload();
+            void forceUpdateAndReload();
         };
+
+        // Native: there must be no service worker at all. Not registering one is
+        // not enough — the WebView data directory survives an app update, so a
+        // worker from an install predating 0.1.43 is still there, still serving
+        // that install's precached bundle. Remove it, and reload only if it was
+        // actually controlling this page.
+        if (isNative()) {
+            void purgeNativeServiceWorker().then((wasControlling) => {
+                if (wasControlling && !sessionStorage.getItem(KEY)) {
+                    sessionStorage.setItem(KEY, "1");
+                    window.location.reload();
+                }
+            });
+            return;
+        }
 
         if (hasDowngraded(__APP_VERSION__)) {
             recover();
@@ -125,9 +144,13 @@ const App = () => {
                 track(createRasterLookup(et0RasterUrl), 3),
             ])
                 .then(([climateLayer, nfkweLayer, precipitationLookup, et0Lookup]) => {
-                    // Loaded fine, so arm the one-shot recovery again for any
-                    // future failure in this tab.
-                    sessionStorage.removeItem("dwa_sw_recovery_attempted");
+                    // Loaded fine, so arm the load-failure recovery again for any
+                    // future failure in this tab. The version-mismatch guard is a
+                    // SEPARATE key on purpose: clearing it here would re-arm the
+                    // mismatch check, which then reloads, loads fine, clears the
+                    // flag again — a reload loop whenever the server version does
+                    // not match and cannot be reconciled.
+                    sessionStorage.removeItem("dwa_load_recovery_attempted");
                     // Record what ran, so a later start that comes up OLDER can
                     // recognise itself as a stale cache without asking the server.
                     rememberRunningVersion(__APP_VERSION__);
@@ -144,7 +167,7 @@ const App = () => {
                     // flag makes it strictly one attempt — if the reload lands in
                     // the same state, show the error and its button instead of
                     // looping.
-                    const RETRY_KEY = "dwa_sw_recovery_attempted";
+                    const RETRY_KEY = "dwa_load_recovery_attempted";
                     if (!sessionStorage.getItem(RETRY_KEY)) {
                         sessionStorage.setItem(RETRY_KEY, "1");
                         void hardResetAndReload();

@@ -92,34 +92,58 @@ export const fetchServerVersion = (): Promise<string | null> => {
 };
 
 /**
- * True when the running bundle is older than what the server serves *and* the
- * normal update path has not resolved it.
+ * True when the bundle running here is not the one the server serves.
  *
- * This is the deadlock signature: the worker keeps serving an old bundle while
- * nothing is `waiting`, so `needRefresh` never fires and no banner appears. A
- * version mismatch on its own is NOT enough — during a normal update there is a
- * waiting worker and the banner handles it, which is the common case and must
- * not trigger a reset.
+ * Deliberately just a version comparison: at page load any mismatch should be
+ * resolved without asking, whether the worker has an update staged or believes
+ * itself current. See the note inside for why the worker state used to be
+ * consulted and why that was wrong.
  */
 export const isStuckOnOldVersion = (runningVersion: string): Promise<boolean> =>
-    fetchServerVersion().then((serverVersion) => {
-        if (!serverVersion || serverVersion === runningVersion) return false;
-        if (!("serviceWorker" in navigator)) return false;
-        return navigator.serviceWorker.getRegistration()
-            .then((reg) => {
-                // No worker at all: a plain reload will pick up the new bundle,
-                // no need for the heavy hammer.
-                if (!reg) return false;
-                // An update is already staged — the banner can finish the job.
-                if (reg.waiting || reg.installing) return false;
-                // Ask the server one more time. If this turns up an update the
-                // normal path takes over on the next tick.
-                return reg.update()
-                    .then(() => !reg.waiting && !reg.installing)
-                    .catch(() => true);
-            })
-            .catch(() => false);
-    });
+    fetchServerVersion().then((serverVersion) =>
+        // Any mismatch at startup counts, whatever the worker's state.
+        //
+        // An earlier version bailed out when a worker was already `waiting`, on
+        // the reasoning that the banner could finish the job. That was wrong: it
+        // is precisely the common case — a new deploy leaves a waiting worker —
+        // so the mismatch surfaced as a banner on a *fresh start*, asking the
+        // user to confirm an update to a version they had never seen. The banner
+        // belongs to a deploy that lands mid-session, not to page load.
+        !!serverVersion && serverVersion !== runningVersion);
+
+/**
+ * Remove any service worker left behind in the native WebView.
+ *
+ * Not registering one (since 0.1.43) is not the same as not having one: the
+ * Capacitor WebView keeps its data directory across app updates, so a worker
+ * registered by an install from before that change is still active and still
+ * controls the page. It then serves that old install's precached bundle, which
+ * is how a freshly installed Play Store version can come up as the previous
+ * release and ask to be updated.
+ *
+ * Unregistering alone would leave the caches, and the next worker would adopt
+ * them, so the caches go too. Nothing on native depends on either: the assets
+ * are on disk in the APK.
+ *
+ * Returns true when something was actually removed, i.e. the page is currently
+ * being served by a worker that should not exist and the caller should reload.
+ */
+export const purgeNativeServiceWorker = (): Promise<boolean> => {
+    if (!("serviceWorker" in navigator)) return Promise.resolve(false);
+
+    return navigator.serviceWorker.getRegistrations()
+        .then((regs) => {
+            if (regs.length === 0) return false;
+            return Promise.all(regs.map((r) => r.unregister()))
+                .then(() => ("caches" in window
+                    ? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k))))
+                    : Promise.resolve([])))
+                // Only worth reloading if a worker was actually controlling this
+                // page; an idle registration can be dropped silently.
+                .then(() => !!navigator.serviceWorker.controller);
+        })
+        .catch(() => false);
+};
 
 /**
  * Unregister every service worker, purge every cache, then reload.
@@ -147,3 +171,45 @@ export const hardResetAndReload = (): Promise<void> => {
             : Promise.resolve([])))
         .then(() => reload(), () => reload());
 };
+
+/**
+ * Bring the page onto the newest available version, without asking.
+ *
+ * Prefers the gentle route: if a worker is already waiting, tell it to take over
+ * and reload — that is what the "Aktualisieren" button does, minus the button.
+ * Only when no update is staged (the stuck case, where the worker believes it is
+ * current) does it fall back to unregistering and purging.
+ *
+ * Either way the page ends up on the version the server serves.
+ */
+export const forceUpdateAndReload = (): Promise<void> => {
+    if (!("serviceWorker" in navigator)) {
+        window.location.reload();
+        return Promise.resolve();
+    }
+
+    return navigator.serviceWorker.getRegistration()
+        .then((reg) => {
+            const waiting = reg?.waiting;
+            if (!waiting) return hardResetAndReload();
+
+            // controllerchange fires once the waiting worker takes over; reload
+            // then so the page is served by it. The timeout is a safety net —
+            // a worker that never activates must not leave the app hanging on
+            // the old version forever.
+            return new Promise<void>((resolve) => {
+                let done = false;
+                const go = () => {
+                    if (done) return;
+                    done = true;
+                    window.location.reload();
+                    resolve();
+                };
+                navigator.serviceWorker.addEventListener("controllerchange", go, {once: true});
+                waiting.postMessage({type: "SKIP_WAITING"});
+                setTimeout(go, 3000);
+            });
+        })
+        .catch(() => hardResetAndReload());
+};
+
