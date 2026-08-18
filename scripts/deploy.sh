@@ -41,16 +41,28 @@ done
 
 python3 - <<'PY' || exit 1
 import json, sys, pathlib
-meta = pathlib.Path("public/data/precip_1991-2020_full_year.meta.json")
-if not meta.exists():
-    sys.exit("DEPLOY ABORTED: precipitation raster missing. Run ./scripts/build_all.sh")
-months = json.loads(meta.read_text())["months"]
-if months != list(range(1, 13)):
-    sys.exit(f"DEPLOY ABORTED: precipitation raster covers months {months}, expected 1-12. "
-             "Run ./scripts/build_all.sh")
+
+# The month span and the source product both matter: a Mar-Oct precipitation
+# raster shifts every sport/green precipitation class, and an ET0 raster built
+# from evapo_p (AMBAV/Haude) instead of FAO-56 puts the KWB correction on a
+# basis the Merkblatt does not allow. Both are silent failures in the UI.
+for name, expect_months, expect_source in [
+    ("preciphyras_1991-2020_full_year", list(range(1, 13)), "hyras_de"),
+    ("et0fao_1991-2020_mar_oct",        list(range(3, 11)), "evaporation_fao"),
+]:
+    meta = pathlib.Path(f"public/data/{name}.meta.json")
+    if not meta.exists():
+        sys.exit(f"DEPLOY ABORTED: raster {name} missing. Run ./scripts/build_all.sh")
+    m = json.loads(meta.read_text())
+    if m["months"] != expect_months:
+        sys.exit(f"DEPLOY ABORTED: {name} covers months {m['months']}, "
+                 f"expected {expect_months}. Run ./scripts/build_all.sh")
+    if expect_source not in m.get("source", ""):
+        sys.exit(f"DEPLOY ABORTED: {name} was not built from {expect_source} "
+                 f"(source={m.get('source', '<missing>')}). Run ./scripts/build_all.sh")
 PY
 
-echo "Geodata OK (.fgb layers intact, precipitation raster covers 12 months)"
+echo "Geodata OK (.fgb layers intact, rasters are HYRAS + FAO-56 with the right spans)"
 
 # --- Build -------------------------------------------------------------------
 
