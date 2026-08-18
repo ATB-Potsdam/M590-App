@@ -12,6 +12,26 @@ promoted.
   the DWA to reproduce the tables/values (not merely to cite them)? Contact:
   DWA e.V. (https://www.dwa.de). Technical support from ATB does not
   automatically replace the reproduction license.
+  Note that this covers **two** things: the tables, and the annex climate map,
+  which ships as a polygon layer (`app/public/data/Klimaraeume.fgb`) — the KWBv
+  class the app shows is read straight from it.
+  On the agenda for the 2026-08-19 meeting (`app/doc/feedback/`, item B).
+
+- [ ] **Who may use the app?** Not settled: freely available to anyone with the
+  link (as today), or restricted to subscribers of the code of practice. This is
+  the DWA's call rather than a technical one, but the consequences are technical
+  and large — the app currently keeps everything in the browser, with no accounts
+  and no server holding user data. Any restriction introduces sign-in, user
+  administration and a different data-protection position, and is far cheaper to
+  plan for than to retrofit. On the agenda for the 2026-08-19 meeting (item A).
+
+- [ ] **DWD attribution.** The climate rasters come from the DWD Climate Data
+  Center, whose OpenData terms (`Terms_of_use.pdf`, May 2024) put the area under
+  CC BY 4.0 — the HYRAS dataset description says so explicitly, the FAO-56 one
+  names only "© Deutscher Wetterdienst" and no licence. CC BY requires
+  attribution; the app credits the DWD under "Datenquellen" but, unlike the map
+  tiles, does not name or link the licence. Low risk, cheap to fix: state licence
+  and source per dataset in `AboutPage.tsx`.
 
 - [ ] **Confirm supervisory authority.** The privacy policy names the LDA
   Brandenburg (seat in Potsdam) as the competent supervisory authority. Have
