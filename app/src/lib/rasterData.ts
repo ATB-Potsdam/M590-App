@@ -48,13 +48,27 @@ export const createRasterLookup = (url: string): Promise<RasterLookup> => {
     const load = (): Promise<void> => {
         if (buffer) return Promise.resolve();
 
+        // `r.ok` alone is not enough: a stale service worker answers an unknown
+        // path with the SPA navigation fallback, i.e. HTTP 200 and index.html.
+        // Parsing that as JSON produced "Unexpected token '<'", which reads like
+        // a corrupt file rather than "this raster is gone". Check the payload is
+        // really what we asked for and report it in terms the user can act on.
+        const staleSwHint = "Bitte die Seite neu laden (Strg+F5).";
+        const assertNotHtml = (r: Response, what: string): void => {
+            if ((r.headers.get("content-type") ?? "").includes("text/html")) {
+                throw new Error(`${what} wurde nicht gefunden. ${staleSwHint}`);
+            }
+        };
+
         return Promise.all([
             fetch(binUrl).then((r) => {
                 if (!r.ok) throw new Error(`Failed to fetch ${binUrl}: ${r.status}`);
+                assertNotHtml(r, "Klimadaten (Raster)");
                 return r.arrayBuffer();
             }),
             fetch(metaUrl).then((r) => {
                 if (!r.ok) throw new Error(`Failed to fetch ${metaUrl}: ${r.status}`);
+                assertNotHtml(r, "Klimadaten (Metadaten)");
                 return r.json() as Promise<RasterMeta>;
             }),
         ]).then(([buf, meta]) => {

@@ -74,6 +74,16 @@ export default defineConfig(({mode}) => {
           // On first install (no SW controlling yet) take control immediately
           // so the page doesn't need a reload to be served from cache.
           clientsClaim: true,
+          // Never answer a /data/ request with index.html. The SPA navigation
+          // fallback turns any miss into HTTP 200 + "<!doctype html>", so a
+          // renamed or not-yet-deployed raster surfaced as
+          // "Unexpected token '<' ... is not valid JSON" instead of a 404 —
+          // which is what happened to every client still running the previous
+          // service worker when the rasters were renamed in 0.1.44.
+          // Built from `base` so it keeps working under VITE_BASE_PATH.
+          navigateFallbackDenylist: [
+            new RegExp('^' + (base + 'data/').replace(/\/+/g, '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+          ],
         },
       }),
     ],

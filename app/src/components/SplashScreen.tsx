@@ -26,7 +26,28 @@ export const SplashScreen = ({state, errorMessage, loadProgress, onDismissed}: P
             <div className="splash__progress-bar" style={{width: `${loadProgress}%`}} />
         </div>
         {state === "error" && errorMessage && (
-            <p className="splash__error">{errorMessage}</p>
+            <div className="splash__error">
+                <p>{errorMessage}</p>
+                {/* The usual cause is a stale service worker still serving the
+                    previous release's file list, which no reload of the page
+                    alone can fix — the worker has to go first. */}
+                <button
+                    type="button"
+                    className="splash__error-button"
+                    onClick={() => {
+                        const done = () => window.location.reload();
+                        if (!("serviceWorker" in navigator)) return done();
+                        navigator.serviceWorker.getRegistrations()
+                            .then((rs) => Promise.all(rs.map((r) => r.unregister())))
+                            .then(() => "caches" in window
+                                ? caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k))))
+                                : undefined)
+                            .then(done, done);
+                    }}
+                >
+                    Neu laden
+                </button>
+            </div>
         )}
     </div>
 );
