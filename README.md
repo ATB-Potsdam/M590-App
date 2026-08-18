@@ -134,7 +134,8 @@ what the app ships.
 **2. Polygon layers — stored in git-lfs, nothing to run:**
 
 `Klimaraeume.fgb` (KWBv zones A–H, from the DWA-M 590 annex) and `nfkwe.fgb`
-(nFKWe classes, from BÜK 200/1000) are prepared GIS exports with no build recipe
+(nFKWe classes, derived from BÜK250 V6.0 © BGR — the BGR terms prescribe that
+exact citation) are prepared GIS exports with no build recipe
 in this repository. Because they cannot be regenerated from source here, they are
 committed via git-lfs rather than passed between machines by hand; `git clone`
 with lfs installed brings them down ready to use.

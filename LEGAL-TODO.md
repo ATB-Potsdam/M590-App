@@ -25,14 +25,6 @@ promoted.
   administration and a different data-protection position, and is far cheaper to
   plan for than to retrofit. On the agenda for the 2026-08-19 meeting (item A).
 
-- [ ] **DWD attribution.** The climate rasters come from the DWD Climate Data
-  Center, whose OpenData terms (`Terms_of_use.pdf`, May 2024) put the area under
-  CC BY 4.0 — the HYRAS dataset description says so explicitly, the FAO-56 one
-  names only "© Deutscher Wetterdienst" and no licence. CC BY requires
-  attribution; the app credits the DWD under "Datenquellen" but, unlike the map
-  tiles, does not name or link the licence. Low risk, cheap to fix: state licence
-  and source per dataset in `AboutPage.tsx`.
-
 - [ ] **Confirm supervisory authority.** The privacy policy names the LDA
   Brandenburg (seat in Potsdam) as the competent supervisory authority. Have
   ATB / the data protection officer confirm that this applies to ATB as the
@@ -48,6 +40,13 @@ promoted.
   https://operations.osmfoundation.org/policies/tiles/
 
 ## Done
+
+- [x] **Source and licence per dataset** in the ?-dialog (`DATA_SOURCES` in
+  `app/src/constants/contact.ts`, rendered by `AboutPage.tsx`). CC BY 4.0 for both
+  DWD rasters, ODbL for the map tiles, and the BGR's prescribed citation for the
+  soil map. Two errors surfaced while doing this: the nFKWe data is **BÜK250
+  V6.0**, not "BÜK 200/1000" as the app and README claimed, and the BGR terms
+  require a verbatim citation string that was missing entirely.
 
 - [x] Third-party license texts bundled (`THIRD-PARTY-LICENSES.txt`), linked in
   the ?-dialog.

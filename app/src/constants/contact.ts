@@ -46,6 +46,60 @@ export const MAP_TILE_SOURCE = {
     copyrightUrl: "https://www.openstreetmap.org/copyright",
 } as const;
 
+/**
+ * The data the app ships, with the attribution each source requires.
+ *
+ * CC BY and the BGR terms both oblige us to name source and licence, so these
+ * are legal obligations rather than courtesy. Keep `attribution` exactly as the
+ * provider prescribes it — the BGR states the wording verbatim in the BÜK250
+ * metadata ("Datenquelle: BÜK250 V6.0, © BGR, Hannover, 2024.").
+ *
+ * See LEGAL-TODO.md; the M 590 entry is the one still needing a decision, since
+ * reproducing the tables and the annex map goes beyond citation.
+ */
+export const DATA_SOURCES = [
+    {
+        subject: "Kartenkacheln",
+        name: "OpenStreetMap",
+        url: MAP_TILE_SOURCE.url,
+        attribution: "© OpenStreetMap-Mitwirkende",
+        licence: "ODbL",
+        licenceUrl: MAP_TILE_SOURCE.copyrightUrl,
+    },
+    {
+        subject: "Klimaräume und KWBv-Klassen",
+        name: "DWA-M 590, Anhang",
+        url: "https://www.dwa.de",
+        attribution: "© DWA, Hennef",
+        licence: null,
+        licenceUrl: null,
+    },
+    {
+        subject: "Niederschlag (1991–2020)",
+        name: "HYRAS-DE-PR v6.1, DWD Climate Data Center",
+        url: "https://opendata.dwd.de/climate_environment/CDC/grids_germany/monthly/hyras_de/precipitation/",
+        attribution: "© Deutscher Wetterdienst",
+        licence: "CC BY 4.0",
+        licenceUrl: "https://creativecommons.org/licenses/by/4.0/deed.de",
+    },
+    {
+        subject: "Verdunstung ET₀ (1991–2020)",
+        name: "Grasreferenzverdunstung nach FAO-56, DWD Climate Data Center",
+        url: "https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/evaporation_fao/",
+        attribution: "© Deutscher Wetterdienst",
+        licence: "CC BY 4.0",
+        licenceUrl: "https://creativecommons.org/licenses/by/4.0/deed.de",
+    },
+    {
+        subject: "nFKWe-Klassen",
+        name: "Bodenübersichtskarte 1:250.000 (BÜK250)",
+        url: "https://www.bgr.bund.de",
+        attribution: "Datenquelle: BÜK250 V6.0, © BGR, Hannover, 2024.",
+        licence: "BGR-AGB",
+        licenceUrl: "https://www.bgr.bund.de/AGB",
+    },
+] as const;
+
 const COPYRIGHT_START_YEAR = 2025;
 
 export const COPYRIGHT = {

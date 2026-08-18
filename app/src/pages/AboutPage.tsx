@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {Link, useLocation} from "react-router";
-import {COPYRIGHT, DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
+import {COPYRIGHT, DATA_SOURCES, DEVELOPER, IMPRINT, MAP_TILE_SOURCE, OPERATOR, STANDARD} from "../constants/contact";
 import {BackButton} from "../components/BackButton";
 import {IosInstallOverlay} from "../components/IosInstallOverlay";
 import {useInstallApp} from "../hooks/useInstallApp";
@@ -159,14 +159,22 @@ export const AboutPage = () => {
 
         <section className="info-page__section">
             <h2>Datenquellen</h2>
-            <ul>
-                <li>
-                    Kartenkacheln: <a href={MAP_TILE_SOURCE.url} target="_blank" rel="noopener noreferrer">{MAP_TILE_SOURCE.name}</a>{" "}
-                    (© OpenStreetMap-Mitwirkende, <a href={MAP_TILE_SOURCE.copyrightUrl} target="_blank" rel="noopener noreferrer">Lizenz</a>)
-                </li>
-                <li>Klimaräume und KWBv-Zonen: DWA-M 590, Anhang</li>
-                <li>Niederschlag und ET₀: monatliche Rasterdaten (Deutscher Wetterdienst, Referenzperiode)</li>
-                <li>nFKWe-Klassen: Bodenübersichtskarte BÜK 200/{'\u200b'}1000</li>
+            <ul className="info-page__sources">
+                {DATA_SOURCES.map((s) => (
+                    <li key={s.subject}>
+                        {s.subject}:{" "}
+                        <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
+                        <span className="info-page__source-meta">
+                            {s.attribution}
+                            {s.licence && (
+                                <>
+                                    {" · "}
+                                    <a href={s.licenceUrl ?? undefined} target="_blank" rel="noopener noreferrer">{s.licence}</a>
+                                </>
+                            )}
+                        </span>
+                    </li>
+                ))}
             </ul>
         </section>
 

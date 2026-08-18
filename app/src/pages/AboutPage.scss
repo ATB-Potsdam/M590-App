@@ -61,6 +61,20 @@
         text-align: left;
     }
 
+    &__sources {
+        li + li {
+            margin-top: 10px;
+        }
+    }
+
+    // Attribution and licence sit under the source name: required by CC BY and
+    // the BGR terms, but secondary reading, so quieter and on its own line.
+    &__source-meta {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--color-text-secondary);
+    }
+
     &__update-hint {
         margin-top: 6px !important;
         font-size: 0.8rem;
