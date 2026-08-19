@@ -26,55 +26,49 @@ export const UpdateBanner = () => (isNative() ? null : <UpdateBannerWeb />);
 
 const UpdateBannerWeb = () => {
     const {needRefresh: [needRefresh, setNeedRefresh], updateServiceWorker} = useRegisterSW({
+        // Every route to the banner ends here, so this is the only place the
+        // version check can live.
+        //
+        // Workbox calls this from TWO situations, and they are easy to conflate:
+        //   1. a worker reaches `waiting` while the page is open (a deploy
+        //      landing mid-session), and
+        //   2. a worker is ALREADY waiting when the page registers — left over
+        //      from an earlier visit, surfaced on the next load.
+        //
+        // An earlier fix guarded only our own `updatefound` listener, which is
+        // case 1. Case 2 goes straight from Workbox's "waiting" event to
+        // onNeedRefresh and bypassed the check entirely: a phone that reloaded
+        // onto 0.1.51 still got a banner offering 0.1.51, because a worker from
+        // a previous deploy was sitting there waiting. Guarding here covers both.
+        //
+        // Returning without setNeedRefresh(true) simply leaves the worker
+        // waiting. That is safe precisely because of what was checked: it
+        // precaches the SAME version, so whether it takes over on a later load
+        // or keeps waiting, the assets are equivalent.
+        onNeedRefresh() {
+            // A new worker is not the same thing as a new version. Every deploy
+            // rewrites sw.js — the precache manifest hashes move even when no
+            // user-visible file did — so redeploying the same release still
+            // installs a worker and would prompt for an update to what is
+            // already running.
+            //
+            // fetchServerVersion() reads data/version.json, which the worker
+            // never precaches, so the answer comes from the network rather than
+            // from the cache being questioned. It returns null on any doubt
+            // (offline, malformed, HTML fallback); treat that as "cannot rule it
+            // out" and show the banner, so an unreachable server never hides a
+            // genuine update.
+            void fetchServerVersion().then((serverVersion) => {
+                if (serverVersion === __APP_VERSION__) return;
+                setNeedRefresh(true);
+            });
+        },
         onRegisteredSW(_swUrl, registration) {
             if (!registration) return;
             setSwRegistration(registration);
             setInterval(() => {
                 registration.update().catch(() => {/* offline / transient */});
             }, 10 * 60 * 1000);
-
-            // Deliberately NOT surfacing an already-waiting worker here. A
-            // mismatch that exists at startup is handled in App.tsx, which
-            // resets and reloads silently — asking the user to click
-            // "Aktualisieren" for something they never saw change is noise, and
-            // in the stuck case the banner could not fix it anyway (nothing is
-            // `waiting`, so it never appeared). The banner is reserved for a
-            // deploy that lands while the app is open, which the updatefound
-            // listener below catches — and then only when the version actually
-            // moved, see there.
-            registration.addEventListener("updatefound", () => {
-                const newWorker = registration.installing;
-                if (!newWorker) return;
-                newWorker.addEventListener("statechange", () => {
-                    if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-                        // A new worker is not the same thing as a new version.
-                        // Every deploy rewrites sw.js (the precache manifest hashes
-                        // change even when no user-visible file did), so redeploying
-                        // the same release still installs a worker and would prompt
-                        // every open session to "update" to what it is already
-                        // running. Ask the server what it serves and stay silent
-                        // when it matches.
-                        //
-                        // fetchServerVersion() reads data/version.json, which the
-                        // worker never precaches, so this is the live figure and not
-                        // an answer from the cache we are asking about. It returns
-                        // null on any doubt (offline, malformed, HTML fallback) —
-                        // treat that as "cannot rule it out" and show the banner, so
-                        // an unreachable server never hides a genuine update.
-                        // Suppressing leaves the new worker `waiting` (registerType
-                        // is 'prompt', so nothing calls skipWaiting for it). That is
-                        // harmless here and specifically because of what was just
-                        // checked: it precaches the SAME version, so whether it
-                        // takes over on a later load or keeps waiting, the assets
-                        // are equivalent. Nobody can be stranded on stale content by
-                        // a prompt we withheld.
-                        void fetchServerVersion().then((serverVersion) => {
-                            if (serverVersion === __APP_VERSION__) return;
-                            setNeedRefresh(true);
-                        });
-                    }
-                });
-            });
         },
         onRegisterError(error) {
             console.error("SW registration failed:", error);
