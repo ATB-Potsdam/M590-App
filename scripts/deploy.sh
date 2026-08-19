@@ -80,3 +80,45 @@ done
 
 rsync -avH --delete --checksum --inplace --no-times \
     dist/ tesla.runlevel3.de:/var/www/vhosts/dwa.runlevel3.de/
+
+# --- Post-deploy: the service worker must not be HTTP-cached -----------------
+#
+# sw.js is how a client discovers that anything changed. If the browser's HTTP
+# cache is allowed to keep it, the client never re-fetches it and can never move
+# off the version it first installed — a reload does nothing, and the update
+# banner (correctly) keeps reporting an old running version forever.
+#
+# This is exactly what happened on 2026-08-19: nginx's generic
+# snippets/cache-expire.conf matches `js$`, which catches sw.js, and served it
+# with `expires max` (max-age=315360000, ten years, public). A phone sat on
+# 0.1.52 across reloads while the server had 0.1.54.
+#
+# Warn rather than fail: the deploy itself succeeded and the files are correct;
+# what is wrong is the server config, which this script cannot change.
+sw_cc=$(curl -sI "https://dwa.runlevel3.de/sw.js" | tr -d '\r' \
+    | grep -i '^cache-control:' | head -1 || true)
+case "$sw_cc" in
+    *no-cache*|*no-store*|*max-age=0*)
+        echo "sw.js cache headers OK (${sw_cc:-none})" ;;
+    "")
+        echo "WARNING: sw.js sends no Cache-Control header." >&2
+        echo "  Browsers then heuristically cache it, which can strand clients" >&2
+        echo "  on an old version. Serve it with 'no-cache'." >&2 ;;
+    *)
+        echo "WARNING: sw.js is HTTP-cacheable — clients may never see this deploy." >&2
+        echo "  Got: $sw_cc" >&2
+        echo "  Fix in the nginx vhost for dwa.runlevel3.de, BEFORE the generic" >&2
+        echo "  js/css caching rule (snippets/cache-expire.conf):" >&2
+        echo "" >&2
+        echo "      location = /sw.js {" >&2
+        echo "          add_header Cache-Control \"no-cache\" always;" >&2
+        echo "          expires -1;" >&2
+        echo "      }" >&2
+        echo "      location = /index.html {" >&2
+        echo "          add_header Cache-Control \"no-cache\" always;" >&2
+        echo "          expires -1;" >&2
+        echo "      }" >&2
+        echo "" >&2
+        echo "  The hashed files under assets/ SHOULD stay long-cached: their" >&2
+        echo "  names change every build, so they can never go stale." >&2 ;;
+esac
