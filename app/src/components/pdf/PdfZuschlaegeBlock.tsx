@@ -44,7 +44,15 @@ export const PdfZuschlaegeBlock = ({module, result}: Props) => {
     if (module === "gemuese_obst") {
         const go = r as GemueseObstResult;
         if (go.surchargeEmergenceMm > 0) {
-            rows.push(["Auflaufbewässerung", `+${formatNumDe(go.surchargeEmergenceMm, 0)} mm`]);
+            rows.push(["Auflaufbewässerung (A/J)", `+${formatNumDe(go.surchargeEmergenceMm, 0)} mm`]);
+        }
+        // The Merkblatt allows the A/J value to be adjusted only with a stated
+        // reason, so the reason belongs in the document the applicant hands in.
+        if (go.ajDeviatesFromTable && go.ajJustification) {
+            if (go.ajSuggestedMm !== null) {
+                rows.push(["Tabelle 21 (A/J)", `${formatNumDe(go.ajSuggestedMm, 0)} mm`]);
+            }
+            rows.push(["Begründung der Abweichung", go.ajJustification]);
         }
     }
 

@@ -46,6 +46,15 @@ export interface FieldAssignment {
     /** Sommergetreide (e.g. Sommerhafer) for "sonst. Getreide" — unlocks Zwischenfrucht/Auflaufbewässerung. undefined = false. */
     isSummerCereal?: boolean;
     /**
+     * Justification for deviating from the Tabelle 21 A/J value (gemuese_obst).
+     * The Merkblatt allows the A/J value to be adjusted for very spring-dry
+     * conditions, but only with a stated reason — so a deviation is accepted
+     * only together with this text, and the text is printed in the result and
+     * the PDF (working-group decision 2026-08-19, tester feedback items 4/21).
+     * Empty/undefined means the table value is used unchanged.
+     */
+    ajJustification?: string;
+    /**
      * User-defined additional irrigation (mm/a) for crops without a literature value.
      * Replaces missing table values with the user-estimated demand.
      * Only effective when the table value is null (hasValue=false).

@@ -121,13 +121,28 @@ export const GemueseObstResultCard = ({result, dryResult, fieldName, plantName, 
             </table>
         </details>
 
+        {/* A justified deviation from the Tabelle 21 A/J value has to travel with the
+            number — that stated reason is what makes the value defensible in a
+            water-rights application (decision 2026-08-19). Shown outside the
+            collapsible block so it cannot be missed. */}
+        {result.ajDeviatesFromTable && result.ajJustification && (
+            <div className="result-card__block result-card__aj-note">
+                <strong>
+                    Abweichender A/J-Wert: {formatNum(result.surchargeEmergenceMm, 0)} mm
+                    {result.ajSuggestedMm !== null &&
+                        ` statt ${formatNum(result.ajSuggestedMm, 0)} mm nach Tabelle 21`}
+                </strong>
+                <p>Begründung: {result.ajJustification}</p>
+            </div>
+        )}
+
         {/* Block 3: Surcharges (Zuschläge) — itemized */}
         {result.totalSurchargeMm > 0 && (
             <details className="result-card__block result-card__details">
                 <summary>Zuschläge (+{formatNum(result.totalSurchargeMm, 0)} mm)</summary>
                 {result.surchargeEmergenceMm > 0 && (
                     <div className="result-card__value-row">
-                        <span>Auflaufbewässerung</span>
+                        <span>Auflaufbewässerung (A/J)</span>
                         <span>+{formatNum(result.surchargeEmergenceMm, 0)} mm</span>
                     </div>
                 )}

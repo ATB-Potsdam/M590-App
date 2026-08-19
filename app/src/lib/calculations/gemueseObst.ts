@@ -21,6 +21,12 @@ export interface GemueseObstInput {
     et0: MonthValueType;
     // Surcharges (Spec Kapitel 4.4 only allows Auflaufbewässerung A/J — no Zwischenfrucht surcharge)
     surchargeEmergence: number;
+    // Table 21 A/J value for this crop, for comparison with surchargeEmergence.
+    ajTableMm?: number | null;
+    // Stated reason for deviating from the table A/J value. The Merkblatt permits
+    // the adjustment only with a justification, so it travels with the result and
+    // is printed alongside the number.
+    ajJustification?: string;
     // Position within the literature span (0 = min, 0.5 = mean, 1 = max).
     // undefined keeps the full span.
     spanPosition?: number;
@@ -44,6 +50,9 @@ export interface GemueseObstResult {
     deltaKwb: number;
     correctionMm: number;
     ajSuggestedMm: number | null;
+    // Set when the A/J value used differs from the table value; carries the reason.
+    ajJustification?: string;
+    ajDeviatesFromTable: boolean;
     optionalSurchargeMm: number;
     surchargeEmergenceMm: number;
     totalSurchargeMm: number;
@@ -69,7 +78,8 @@ const mmToM3 = (r: Range, ha: number): Range => [r[0] * ha * 10, r[1] * ha * 10]
 export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult => {
     const {
         plant, nFkweClass, areaHa, scenario, irrigationPeriod,
-        precipitation, et0, surchargeEmergence, userCustomMm, spanPosition} = input;
+        precipitation, et0, surchargeEmergence, userCustomMm, spanPosition,
+        ajTableMm, ajJustification} = input;
 
     const rawData = allOtherPlants[plant];
     if (!rawData) {
@@ -77,6 +87,7 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         const zero: Range = [0, 0];
         return {
             baseRangeMm: zero, deltaKwb: 0, correctionMm: 0, ajSuggestedMm: null,
+            ajDeviatesFromTable: false,
             optionalSurchargeMm: 0, surchargeEmergenceMm: 0,
             totalSurchargeMm: 0, literatureRangeMm: zero, totalRangeMm: zero,
             totalRangeM3: zero, scenario, monthlyRows: [], hasValue: false,
@@ -143,11 +154,18 @@ export const calculateGemueseObst = (input: GemueseObstInput): GemueseObstResult
         : applySpanPosition(literatureRangeMm, spanPosition);
     const totalRangeM3 = mmToM3(totalRangeMm, areaHa);
 
+    // A/J deviation is judged against the table value the caller passed in, falling
+    // back to the constant so a caller that does not track it still gets the flag.
+    const ajReference = ajTableMm ?? ajSuggestedMm;
+    const ajDeviatesFromTable = ajReference !== null && surchargeEmergence !== ajReference;
+
     return {
         baseRangeMm,
         deltaKwb: Math.round(deltaKwb),
         correctionMm,
         ajSuggestedMm,
+        ajDeviatesFromTable,
+        ajJustification: ajDeviatesFromTable ? ajJustification : undefined,
         optionalSurchargeMm,
         surchargeEmergenceMm,
         totalSurchargeMm,

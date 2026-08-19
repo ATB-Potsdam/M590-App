@@ -3,6 +3,7 @@ import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from "../../types/
 import type {Field} from "../../types/farm";
 import type {FieldAssignment, ModuleType} from "../../types/project";
 import {hasDryYearScenario} from "../../constants/modules";
+import {rawVegetableDataAj} from "../../constants/plantDataRaw";
 import {calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
 import type {HauptkulturenResult} from "./hauptkulturen";
 import {calculateHauptkulturenBoth} from "./hauptkulturen";
@@ -75,6 +76,10 @@ export const getAssignmentResult = (
             precipitation: field.climateData.precipitation,
             et0: field.climateData.et0,
             surchargeEmergence: fa.surchargeEmergence,
+            ajTableMm: fa.plantKey
+                ? (rawVegetableDataAj as Record<string, number | null>)[fa.plantKey] ?? null
+                : null,
+            ajJustification: fa.ajJustification,
             userCustomMm: fa.userCustomMm,
             spanPosition: fa.spanPosition,
         };

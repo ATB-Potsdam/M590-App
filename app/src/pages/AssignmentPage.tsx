@@ -62,6 +62,9 @@ export const AssignmentPage = () => {
     // Speisekartoffeln (table potatoes): undefined for old projects → true (keep previous behaviour)
     const [isTablePotato, setIsTablePotato] = useState(assignment?.isTablePotato ?? true);
     const [isSummerCereal, setIsSummerCereal] = useState(assignment?.isSummerCereal ?? false);
+    // Reason for deviating from the Tabelle 21 A/J value (gemuese_obst). Required
+    // before a deviation is accepted — see the Zuschläge section below.
+    const [ajJustification, setAjJustification] = useState(assignment?.ajJustification ?? "");
     const [userCustomMm, setUserCustomMm] = useState<number | "">(assignment?.userCustomMm ?? "");
     // Chosen value within the literature span (undefined = show the full span)
     const [spanPosition, setSpanPosition] = useState<number | undefined>(assignment?.spanPosition);
@@ -106,6 +109,7 @@ export const AssignmentPage = () => {
         }
     }, [module, plantCategory, selectedLevel0, plantKey]);
 
+
     if (!project || !assignment || !field) {
         return (
             <div className="page">
@@ -140,11 +144,30 @@ export const AssignmentPage = () => {
         else setIrrigationPeriod(undefined);
     };
 
+    // Gemüse/Obst: adopt the crop's Tabelle 21 A/J value as the default. The
+    // Merkblatt's value applies unless the user justifies a deviation, so picking
+    // a new crop also clears any justification carried over from the old one
+    // (working-group decision 2026-08-19).
+    const autoSetAjValue = (fullKey: string) => {
+        if (module !== 'gemuese_obst') return;
+        const tableAj = (rawVegetableDataAj as Record<string, number | null>)[fullKey] ?? null;
+        setSurchargeEmergence(tableAj ?? 0);
+        setAjJustification("");
+    };
+
     // A/J suggestion for Gemüse/Obst (vegetables/fruit)
     const ajSuggested: number | null =
         module === 'gemuese_obst' && plantKey
             ? ((rawVegetableDataAj as Record<string, number | null>)[plantKey] ?? null)
             : null;
+
+    // A deviation from the Tabelle 21 A/J value only counts once it is justified.
+    // Without a reason the table value is what gets calculated, so an unfinished
+    // edit can never silently change the result (decision 2026-08-19).
+    const ajDeviates = module === 'gemuese_obst' && ajSuggested !== null && surchargeEmergence !== ajSuggested;
+    const ajJustificationMissing = ajDeviates && ajJustification.trim() === "";
+    const effectiveSurchargeEmergence =
+        ajJustificationMissing && ajSuggested !== null ? ajSuggested : surchargeEmergence;
 
     const needsPlantSelection = module === 'gemuese_obst' || module === 'hauptkulturen';
     const needsIrrigationSelection = module === 'gemuese_obst';
@@ -196,7 +219,9 @@ export const AssignmentPage = () => {
                 irrigationPeriod,
                 precipitation: field.climateData.precipitation,
                 et0: field.climateData.et0,
-                surchargeEmergence,
+                surchargeEmergence: effectiveSurchargeEmergence,
+                ajTableMm: ajSuggested,
+                ajJustification: ajJustificationMissing ? undefined : ajJustification.trim() || undefined,
                 userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
                 spanPosition,
             };
@@ -269,10 +294,15 @@ export const AssignmentPage = () => {
             plantKey,
             irrigationPeriod,
             surchargeIntermediate,
-            surchargeEmergence,
+            // An unjustified deviation is not persisted — the table value is.
+            surchargeEmergence: module === 'gemuese_obst' ? effectiveSurchargeEmergence : surchargeEmergence,
             surchargeHeavySoil,
             isTablePotato,
             isSummerCereal,
+            ajJustification:
+                module === 'gemuese_obst' && ajDeviates && !ajJustificationMissing
+                    ? ajJustification.trim()
+                    : undefined,
             userCustomMm: userCustomMm === "" ? undefined : userCustomMm,
             spanPosition,
             isJunganlage,
@@ -404,8 +434,7 @@ export const AssignmentPage = () => {
                                             setPlantKey(key);
                                             autoSetIrrigationPeriod(key);
                                         }
-                                        const suggested = (rawVegetableDataAj as Record<string, number | null>)[name];
-                                        if (suggested != null) setSurchargeEmergence(suggested);
+                                        autoSetAjValue(name);
                                         setSearchTerm('');
                                     }}
                                 >
@@ -434,8 +463,7 @@ export const AssignmentPage = () => {
                                 onClick={() => {
                                     setPlantKey(opt.fullKey);
                                     autoSetIrrigationPeriod(opt.fullKey);
-                                    const suggested = (rawVegetableDataAj as Record<string, number | null>)[selectedLevel0];
-                                    if (suggested != null) setSurchargeEmergence(suggested);
+                                    autoSetAjValue(selectedLevel0);
                                 }}
                             >
                                 {[opt.level1, opt.level2].filter(Boolean).join(' · ')}
@@ -714,41 +742,102 @@ export const AssignmentPage = () => {
                     <section className="assignment-section">
                         <h2>Zuschläge</h2>
 
+                        {/* A/J value (Tabelle 21). The table value is the default and is
+                            applied automatically; the Merkblatt allows a deviation for very
+                            spring-dry conditions, but only with a stated reason — so the
+                            justification field is mandatory as soon as the value differs, and
+                            it is printed in the result and the PDF. The old 0–40 mm slider
+                            merged the table value with a +20 mm surcharge the Merkblatt grants
+                            only to Hauptkulturen; 40 mm appears in no table (working-group
+                            decision 2026-08-19, tester feedback items 4/21). */}
                         {module === 'gemuese_obst' && ajSuggested !== null && (
-                            <label className="surcharge-row">
-                                <span>
-                                    Auflaufbewässerung
-                                    {ajSuggested !== surchargeEmergence && (
-                                        <button
-                                            type="button"
-                                            className="link-btn assignment-page__suggestion-btn"
-                                            onClick={() => setSurchargeEmergence(ajSuggested)}
-                                        >
-                                            Vorschlag: {ajSuggested} mm
-                                        </button>
-                                    )}
-                                    {ajSuggested !== null && ajSuggested === surchargeEmergence && (
-                                        <span className="assignment-page__suggestion-ok">✓ Vorschlagswert</span>
-                                    )}
-                                </span>
-                                <input
-                                    type="range" min={0} max={40} step={5}
-                                    value={surchargeEmergence}
-                                    onChange={(e) => setSurchargeEmergence(Number(e.target.value))}
-                                />
-                                <span className="surcharge-value">{surchargeEmergence} mm</span>
-                            </label>
+                            <div className="assignment-page__aj">
+                                <div className="assignment-page__aj-head">
+                                    <span>
+                                        Auflaufbewässerung (A/J)
+                                        <span className="surcharge-hint"> · Tabelle 21: {ajSuggested} mm</span>
+                                    </span>
+                                    <span className="surcharge-value">{surchargeEmergence} mm</span>
+                                </div>
+
+                                {ajDeviates ? (
+                                    <>
+                                        <p className="assignment-page__aj-state assignment-page__aj-state--custom">
+                                            ⚠️ Abweichung vom Tabellenwert
+                                            <button
+                                                type="button"
+                                                className="link-btn assignment-page__suggestion-btn"
+                                                onClick={() => {
+                                                    setSurchargeEmergence(ajSuggested);
+                                                    setAjJustification("");
+                                                }}
+                                            >
+                                                Tabellenwert übernehmen
+                                            </button>
+                                        </p>
+                                        <label className="assignment-page__aj-reason">
+                                            <span>Begründung <span className="surcharge-hint">(erforderlich)</span></span>
+                                            <textarea
+                                                rows={3}
+                                                value={ajJustification}
+                                                placeholder="Warum weicht der Wert vom Tabellenwert ab? Die Begründung erscheint im Ergebnis und im PDF."
+                                                onChange={(e) => setAjJustification(e.target.value)}
+                                            />
+                                        </label>
+                                        {ajJustificationMissing && (
+                                            <p className="assignment-page__aj-error">
+                                                Ohne Begründung wird der Tabellenwert von {ajSuggested} mm
+                                                gerechnet.
+                                            </p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <p className="assignment-page__aj-state">
+                                        ✓ Tabellenwert nach DWA-M 590, Tabelle 21.
+                                    </p>
+                                )}
+
+                                <details className="assignment-page__aj-adjust">
+                                    <summary>Wert begründet anpassen</summary>
+                                    <p className="assignment-page__aj-note">
+                                        Das Merkblatt lässt eine Anpassung des A/J-Werts bei sehr
+                                        frühjahrstrockenen Bedingungen zu, nennt dafür aber keinen
+                                        festen Zuschlag. Tragen Sie den fachlich begründeten Wert
+                                        ein — er wird zusammen mit Ihrer Begründung ausgewiesen.
+                                    </p>
+                                    <label className="surcharge-row">
+                                        <span>A/J-Wert</span>
+                                        <input
+                                            type="number" min={0} max={60} step={1}
+                                            value={surchargeEmergence}
+                                            onChange={(e) => setSurchargeEmergence(Number(e.target.value))}
+                                        />
+                                        <span className="surcharge-value">mm</span>
+                                    </label>
+                                </details>
+                            </div>
                         )}
 
+                        {/* The +20 mm is for Speisekartoffeln only (working group, 2026-08-19).
+                            Other Verwertungsrichtungen get no surcharge, so the label names
+                            that consequence instead of just the surcharge. */}
                         {module === 'hauptkulturen' && isPotato && (
-                            <label className="surcharge-row">
-                                <input
-                                    type="checkbox"
-                                    checked={isTablePotato}
-                                    onChange={(e) => setIsTablePotato(e.target.checked)}
-                                />
-                                Speisekartoffeln <span className="surcharge-hint">+20 mm</span>
-                            </label>
+                            <>
+                                <label className="surcharge-row">
+                                    <input
+                                        type="checkbox"
+                                        checked={isTablePotato}
+                                        onChange={(e) => setIsTablePotato(e.target.checked)}
+                                    />
+                                    Speisekartoffeln <span className="surcharge-hint">+20 mm</span>
+                                </label>
+                                {!isTablePotato && (
+                                    <p className="surcharge-note">
+                                        Ohne Haken: kein Zuschlag. Das Merkblatt sieht die
+                                        +20 mm ausdrücklich nur für Speisekartoffeln vor.
+                                    </p>
+                                )}
+                            </>
                         )}
 
                         {module === 'hauptkulturen' && isOtherCereal && (

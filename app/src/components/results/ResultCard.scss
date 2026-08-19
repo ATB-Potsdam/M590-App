@@ -73,6 +73,22 @@
         line-height: 1.4;
     }
 
+    // Justified deviation from the Tabelle 21 A/J value. Deliberately as
+    // prominent as the missing-value warning: the stated reason is what carries
+    // the number in a water-rights application.
+    &__aj-note {
+        font-size: 12px;
+        color: var(--color-warning-hint);
+        background: var(--color-warning-bg-light);
+        border-left: 3px solid var(--color-warning-border);
+        padding: 8px 10px;
+        line-height: 1.45;
+
+        p {
+            margin: 4px 0 0;
+        }
+    }
+
     &__custom-tag {
         font-size: 11px;
         font-weight: 500;
