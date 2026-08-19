@@ -64,29 +64,55 @@ promoted.
   `index.html` sends **no** `Cache-Control` at all, which leaves it to browser
   heuristics. Same fix applies.
 
-  Nothing in the app can fix either. The serving nginx needs, ahead of whatever
-  generic js/css caching rule is in force:
+  **Cause, confirmed 2026-08-19:** a `snippets/cache-expire.conf` whose regex
+  `location ~* .(…|js|…)$ { expires max; add_header Cache-Control public; }`
+  matches `sw.js` along with the app bundles. nginx runs in a Docker container,
+  so this is the container's copy of that snippet, not the tesla host's.
+
+  Nothing in the app can fix it. The serving nginx needs:
 
   ```nginx
+  # Unhashed entry points — never let the HTTP cache hold these.
   location = /sw.js {
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
+
   location = /index.html {
+      add_header Cache-Control "no-cache" always;
+      expires -1;
+  }
+
+  # Update detection reads this; it must always come from the network.
+  # .json is not in cache-expire.conf's extension list today — pin it so a
+  # later edit to that list cannot silently break updates.
+  location = /data/version.json {
+      add_header Cache-Control "no-cache" always;
+      expires -1;
+  }
+
+  # WASM glue (polylookup.js) is unhashed and would otherwise be cached
+  # for ten years against a rebuilt .wasm.
+  location ^~ /pkg/ {
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
   ```
 
-  Keep the long cache for `assets/**` — those filenames contain a content hash
-  and change every build, so they can never go stale. Only the two unhashed
-  entry points need `no-cache`.
+  Three things that decide whether this actually works:
 
-  **Where that config lives is not yet established.** nginx runs in a Docker
-  container, not on the host, so the host's own `/etc/nginx/` is a different
-  instance and its `snippets/cache-expire.conf` is probably not the rule in
-  effect — an earlier version of this note wrongly blamed it. Start from the
-  container's config and its mounted volumes.
+  - **`location =` outranks a regex `location`,** whatever the include order, so
+    the exact-match form sidesteps the question of where the block sits relative
+    to `cache-expire.conf`. `^~` likewise stops regex evaluation for a prefix.
+  - **`always` is required on `add_header`.** Without it the header is dropped on
+    `304 Not Modified` — precisely the revalidating case that matters here.
+  - **`add_header` does not inherit:** a block containing any `add_header` loses
+    every inherited one, which is why `expires -1` is repeated per block rather
+    than set once outside.
+
+  Keep the long cache for `assets/**` — those filenames contain a content hash
+  and change every build, so they can never go stale. `workbox-*.js` is hashed
+  too and can stay cached.
 
   `scripts/deploy.sh` checks the live `Cache-Control` on `sw.js` after every
   deploy and warns until this is fixed; that check reads the response header, so
