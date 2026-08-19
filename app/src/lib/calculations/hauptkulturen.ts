@@ -117,6 +117,11 @@ export const calculateHauptkulturen = (input: HauptkulturenInput): Hauptkulturen
 
     // Automatic surcharge. For Kartoffeln only if Speisekartoffeln
     // (isTablePotato); undefined = true (backward compatibility).
+    //
+    // The +20 mm applies to Speisekartoffeln ONLY — confirmed by the working group
+    // on 2026-08-19 (tester feedback item 5). Verarbeitungskartoffeln get nothing;
+    // the +20 mm the internal Funktionsweise3.0.md spec listed for them has no
+    // basis in the Merkblatt and was a transcription error. Do not reinstate it.
     const potatoSurchargeActive = crop !== "Kartoffeln" || isTablePotato !== false;
     const autoSurchargeMm = potatoSurchargeActive ? (AUTO_SURCHARGE_MM[crop] ?? 0) : 0;
     const autoSurchargeLabel = potatoSurchargeActive ? AUTO_SURCHARGE_LABEL[crop] : undefined;
