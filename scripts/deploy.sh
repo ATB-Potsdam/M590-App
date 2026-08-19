@@ -88,10 +88,14 @@ rsync -avH --delete --checksum --inplace --no-times \
 # off the version it first installed — a reload does nothing, and the update
 # banner (correctly) keeps reporting an old running version forever.
 #
-# This is exactly what happened on 2026-08-19: nginx's generic
-# snippets/cache-expire.conf matches `js$`, which catches sw.js, and served it
-# with `expires max` (max-age=315360000, ten years, public). A phone sat on
-# 0.1.52 across reloads while the server had 0.1.54.
+# This is exactly what happened on 2026-08-19: sw.js came back with
+# `max-age=315360000, public` (ten years), and a phone sat on 0.1.52 across
+# reloads while the server had 0.1.54. The uploaded files were correct — only
+# the response headers were wrong.
+#
+# The offending rule has not been located yet: nginx runs in a Docker container,
+# so the host's own /etc/nginx/ is a different instance. See LEGAL-TODO.md. This
+# check reads the response header, so it does not depend on knowing that.
 #
 # Warn rather than fail: the deploy itself succeeded and the files are correct;
 # what is wrong is the server config, which this script cannot change.
@@ -107,8 +111,8 @@ case "$sw_cc" in
     *)
         echo "WARNING: sw.js is HTTP-cacheable — clients may never see this deploy." >&2
         echo "  Got: $sw_cc" >&2
-        echo "  Fix in the nginx vhost for dwa.runlevel3.de, BEFORE the generic" >&2
-        echo "  js/css caching rule (snippets/cache-expire.conf):" >&2
+        echo "  Fix in the serving nginx (runs in Docker, not on the host)," >&2
+        echo "  ahead of whatever generic js/css caching rule is in force:" >&2
         echo "" >&2
         echo "      location = /sw.js {" >&2
         echo "          add_header Cache-Control \"no-cache\" always;" >&2
