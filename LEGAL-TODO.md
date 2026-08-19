@@ -61,10 +61,11 @@ promoted.
   the 304 still carries `Cache-Control`, confirming the `always` flag works.
   `scripts/deploy.sh` now reports `sw.js cache headers OK`.
 
-  Cosmetic leftover: the `no-cache` blocks emit `Cache-Control` twice, because
-  `expires -1` sets it in addition to the explicit `add_header`. Identical
-  values, so it is harmless; dropping `expires -1` from those blocks would
-  tidy it.
+  `expires -1` was then removed from the `no-cache` blocks: it duplicated the
+  `Cache-Control` the explicit `add_header` already sets, and added a redundant
+  `Expires`. Re-checked afterwards — exactly one `Cache-Control: no-cache` per
+  path, no `Expires`, all three policies and both security headers unchanged,
+  and the 304 still carries `Cache-Control` and HSTS.
 
   <details><summary>Original diagnosis, kept for the reasoning</summary>
 
