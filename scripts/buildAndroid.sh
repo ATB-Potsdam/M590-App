@@ -294,6 +294,14 @@ else
     # Use `yarn bump` to move versionName — that bumps versionCode too, so a
     # bump-then-build sequence advances it once via bump and once here, which is
     # harmless: uniqueness is all Play requires, not contiguity.
+    #
+    # This bump is unconditional, and that is the whole point. Do NOT edit
+    # versionCode by hand beforehand to make a build land on a particular number
+    # — not to reuse a code whose bundle was never uploaded, not to keep the
+    # sequence gapless. Play only cares that a code is higher than the last one
+    # it accepted, so gaps are free and hand-editing is pure risk: rebuilding a
+    # release then silently produces a duplicate code, which fails at upload
+    # time rather than here.
     current_code=$(grep -oP 'versionCode \K\d+' app/build.gradle)
     [ -n "$current_code" ] || fail "could not read versionCode from app/build.gradle."
     next_code=$((current_code + 1))
