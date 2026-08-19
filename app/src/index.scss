@@ -38,7 +38,13 @@ a {
 body {
   margin: 0;
   min-width: 320px;
+  // 100dvh, not 100vh. On mobile `100vh` is the viewport height with the URL
+  // bar HIDDEN, so while the bar is visible the body is taller than the screen
+  // and the page scrolls by that difference even when it is nearly empty —
+  // enough to raise the scroll shadow above the logo bar. `100dvh` tracks the
+  // actually visible height. The 100vh fallback is for browsers without dvh.
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-y: scroll;
 }
 
