@@ -61,6 +61,14 @@ promoted.
   the 304 still carries `Cache-Control`, confirming the `always` flag works.
   `scripts/deploy.sh` now reports `sw.js cache headers OK`.
 
+  **Existing clients recover on their own — no cache clearing to communicate.**
+  A client stuck on an old version still has a newer worker in `waiting` (that
+  is what raises the banner). Activating it reloads the page, and the reload now
+  re-fetches `/` and `/sw.js` because both answer `no-cache`, so the client lands
+  on the current build. Even without pressing anything, the next SW update check
+  re-fetches `sw.js` for the same reason. Clearing site data was only necessary
+  while the ten-year header was still being served.
+
   `expires -1` was then removed from the `no-cache` blocks: it duplicated the
   `Cache-Control` the explicit `add_header` already sets, and added a redundant
   `Expires`. Re-checked afterwards — exactly one `Cache-Control: no-cache` per
