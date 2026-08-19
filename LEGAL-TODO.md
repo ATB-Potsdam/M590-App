@@ -42,8 +42,31 @@ promoted.
 - [ ] **Overall legal review.** Have the imprint, privacy policy, and
   disclaimer reviewed by a qualified legal party before public promotion.
 
-- [ ] **`sw.js` is served with a ten-year HTTP cache** (found 2026-08-19). Not a
-  legal item, but it needs a change on the web server rather than in the app.
+- [x] **`sw.js` was served with a ten-year HTTP cache** (found 2026-08-19,
+  **fixed and verified the same day**). Not a legal item; it needed a change on
+  the web server rather than in the app.
+
+  **Verified against the live site after the nginx restart:**
+
+  | Path | Cache-Control | Expected |
+  |---|---|---|
+  | `/`, `/about` (via `try_files`) | `no-cache` | ✓ |
+  | `/sw.js`, `/index.html`, `/manifest.webmanifest` | `no-cache` | ✓ |
+  | `assets/index-*.js` | `public, max-age=31536000, immutable` | ✓ |
+  | `/data/Klimaraeume.fgb` | `public, max-age=604800` | ✓ |
+  | `/data/version.json` | `no-cache` (`=` outranks `^~ /data/`) | ✓ |
+
+  Every path also carries HSTS and `Vary`, so the `add_header` inheritance trap
+  is handled. A conditional request on `sw.js` returns **304 with 0 bytes** and
+  the 304 still carries `Cache-Control`, confirming the `always` flag works.
+  `scripts/deploy.sh` now reports `sw.js cache headers OK`.
+
+  Cosmetic leftover: the `no-cache` blocks emit `Cache-Control` twice, because
+  `expires -1` sets it in addition to the explicit `add_header`. Identical
+  values, so it is harmless; dropping `expires -1` from those blocks would
+  tidy it.
+
+  <details><summary>Original diagnosis, kept for the reasoning</summary>
 
   What was measured, from the HTTP response itself:
 
@@ -135,6 +158,8 @@ promoted.
 
   `no-cache` means *revalidate*, not *do not store*. Verified against the live
   site: an `If-None-Match` on `Klimaraeume.fgb` returns **304 with 0 bytes**.
+
+  </details>
 
   `scripts/deploy.sh` checks the live `Cache-Control` on `sw.js` after every
   deploy and warns until this is fixed; that check reads the response header, so
