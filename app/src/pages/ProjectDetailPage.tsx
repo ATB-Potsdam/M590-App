@@ -4,7 +4,7 @@ import {useNavigate, useParams} from "react-router";
 import {OnboardingBanner} from "../components/OnboardingBanner";
 import {DemoHint} from "../components/DemoHint";
 import {InfoHint} from "../components/InfoHint";
-import {getModuleLabel, fieldTerm, isSubAreaModule} from "../constants/modules";
+import {getModuleLabel, fieldTerm, isSubAreaModule, hasDryYearScenario} from "../constants/modules";
 import {useFarm} from "../hooks/useFarm";
 import {useProjects} from "../hooks/useProjects";
 import {getAssignmentResult, getMissingData, sumResults, type AssignmentResult} from "../lib/calculations/getAssignmentResult";
@@ -81,17 +81,25 @@ export const ProjectDetailPage = () => {
         return getAssignmentResult(fa, field);
     });
 
-    const {normalM3, dryM3, totalAltWasserM3, nettoM3: nettoM3Raw} = sumResults(
-        assignmentResults.filter((r): r is AssignmentResult => r !== null)
-    );
+    const {
+        normalM3, dryM3, yearlyM3, yearlyCount, totalAltWasserM3,
+        nettoM3: nettoM3Raw, nettoYearlyM3,
+    } = sumResults(assignmentResults.filter((r): r is AssignmentResult => r !== null));
 
-    const normalCount = assignmentResults.filter(r =>
+    // Completeness is judged per block: the scenario counts compare against the
+    // crop assignments only, since the sport/green ones are not missing from a
+    // scenario sum — they were never part of it (see hasDryYearScenario).
+    const scenarioResults = assignmentResults.filter(r => r && hasDryYearScenario(r.module));
+    const normalCount = scenarioResults.filter(r =>
         r?.normal && (!("hasValue" in r.normal) || r.normal.hasValue)
     ).length;
-    const dryCount = assignmentResults.filter(r =>
+    const dryCount = scenarioResults.filter(r =>
         r?.dry && (!("hasValue" in r.dry) || r.dry.hasValue)
     ).length;
-    const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
+    const scenarioAssignedCount = project.fieldAssignments
+        .filter(fa => fa.module && hasDryYearScenario(fa.module)).length;
+    const yearlyAssignedCount = project.fieldAssignments
+        .filter(fa => fa.module && !hasDryYearScenario(fa.module)).length;
 
     // Adapt the terminology to the project context: pure sport/golf projects
     // say "Fläche" (area) instead of "Schlag"/"Feld" (field).
@@ -100,10 +108,12 @@ export const ProjectDetailPage = () => {
     const termPlural = fieldTerm(projectModules, true);
     const hasSubAreaModule = projectModules.some(isSubAreaModule);
 
-    // Only show netto deduction when ALL assigned fields contribute to that scenario
-    const nettoM3: [number, number] | null = normalCount === assignedCount ? nettoM3Raw : null;
-    const nettoDryM3: [number, number] | null = dryM3 && totalAltWasserM3 > 0 && dryCount === assignedCount
-        ? [Math.max(0, dryM3[0] - totalAltWasserM3), Math.max(0, dryM3[1] - totalAltWasserM3)]
+    // Only show netto deduction when ALL crop assignments contribute to that scenario
+    const nettoM3: [number, number] | null = normalCount === scenarioAssignedCount ? nettoM3Raw : null;
+    const cropAltWasserM3 = assignmentResults.reduce(
+        (sum, r) => sum + (r && hasDryYearScenario(r.module) ? r.altWasserM3 ?? 0 : 0), 0);
+    const nettoDryM3: [number, number] | null = dryM3 && cropAltWasserM3 > 0 && dryCount === scenarioAssignedCount
+        ? [Math.max(0, dryM3[0] - cropAltWasserM3), Math.max(0, dryM3[1] - cropAltWasserM3)]
         : null;
 
     const pendingCount = project.fieldAssignments.filter((fa) => !fa.module).length;
@@ -231,10 +241,18 @@ export const ProjectDetailPage = () => {
 
                                     if (result) return (
                                         <div className="assignment-list__result">
+                                            {/* Sport/green: the value is a Jahresrichtwert, so it
+                                                gets the neutral pill rather than the Normaljahr one. */}
                                             {normalHasValue && result.normal && (
-                                                <span className="result-pill result-pill--normal">
-                                                    🌤 {formatRange(result.normal.totalRangeM3, "m³/a")} · {formatRange(result.normal.totalRangeMm, "mm/a")}
-                                                </span>
+                                                hasDryYearScenario(result.module) ? (
+                                                    <span className="result-pill result-pill--normal">
+                                                        🌤 {formatRange(result.normal.totalRangeM3, "m³/a")} · {formatRange(result.normal.totalRangeMm, "mm/a")}
+                                                    </span>
+                                                ) : (
+                                                    <span className="result-pill result-pill--yearly" title="Jahresrichtwert – das Merkblatt unterscheidet hier nicht zwischen Normal- und Trockenjahr">
+                                                        📅 {formatRange(result.normal.totalRangeM3, "m³/a")} · {formatRange(result.normal.totalRangeMm, "mm/a")}
+                                                    </span>
+                                                )
                                             )}
                                             {dryHasValue && result.dry && (
                                                 <span className="result-pill result-pill--dry">
@@ -401,6 +419,11 @@ export const ProjectDetailPage = () => {
                                         const field = farm.fields.find((f) => f.id === fa.fieldId);
                                         if (!field) return null;
                                         const result = assignmentResults[i];
+                                        // Sport/green rows have one Jahresrichtwert instead of
+                                        // two scenario values — span it across both scenario
+                                        // columns rather than printing it under "Normal" with
+                                        // a dash under "Trocken", which read as a missing value.
+                                        const scenarioFree = !!fa.module && !hasDryYearScenario(fa.module);
                                         return (
                                             <tr key={fa.id}>
                                                 <td>
@@ -415,6 +438,23 @@ export const ProjectDetailPage = () => {
                                                     )}
                                                 </td>
                                                 <td>{formatNum(field.areaHa, 2)} ha</td>
+                                                {scenarioFree ? (
+                                                    <td colSpan={2} className="project-summary__yearly-cell">
+                                                        {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
+                                                            <div className="project-summary__two-line">
+                                                                <span>{formatRange(result.normal.totalRangeM3, "m³/a")}</span>
+                                                                <span>
+                                                                    {formatRange(result.normal.totalRangeMm, "mm/a")}
+                                                                    {isSubAreaModule(fa.module) && <sup>†</sup>}
+                                                                </span>
+                                                                <span className="project-summary__yearly-note">
+                                                                    Jahresrichtwert<sup>‡</sup>
+                                                                </span>
+                                                            </div>
+                                                        ) : result?.normal ? "k. W." : "–"}
+                                                    </td>
+                                                ) : (
+                                                <>
                                                 <td>
                                                     {result?.normal && (!('hasValue' in result.normal) || result.normal.hasValue) ? (
                                                         <div className="project-summary__two-line">
@@ -437,6 +477,8 @@ export const ProjectDetailPage = () => {
                                                         </div>
                                                     ) : result?.dry ? "k. W." : "–"}
                                                 </td>
+                                                </>
+                                                )}
                                                 {totalAltWasserM3 > 0 && (
                                                     <td>
                                                         {result?.altWasserM3
@@ -452,6 +494,9 @@ export const ProjectDetailPage = () => {
                                     <tr className="project-summary__total-row">
                                         <td colSpan={2}><strong>Gesamt ({project.fieldAssignments.length} {termPlural})</strong></td>
                                         <td><strong>{formatNum(totalAreaHa, 2)} ha</strong></td>
+                                        {/* The scenario columns total the crop rows only;
+                                            the Jahresrichtwert rows are summed in their own
+                                            line below the table, not into a scenario. */}
                                         <td>
                                             {normalM3 ? formatRange(normalM3, "m³/a") : "–"}
                                         </td>
@@ -465,6 +510,11 @@ export const ProjectDetailPage = () => {
                                 </tfoot>
                             </table>
                         </div>
+                        </div>
+                        {/* Footnotes sit OUTSIDE __table-wrap-outer: that wrapper carries the
+                            horizontal scroll shadows as full-height ::before/::after overlays,
+                            so anything inside it gets the gradient painted over it even though
+                            only the table scrolls. */}
                         {hasSubAreaModule && (
                             <p className="project-summary__table-footnote">
                                 † Beim Golfplatz bezieht sich der mm/a-Wert auf die
@@ -474,15 +524,28 @@ export const ProjectDetailPage = () => {
                                 aufsummiert.
                             </p>
                         )}
-                        </div>
+                        {yearlyM3 && (
+                            <p className="project-summary__table-footnote">
+                                ‡ Für Sport-, Grün- und Golfflächen nennt das Merkblatt
+                                einen einzelnen Jahresrichtwert und unterscheidet nicht
+                                zwischen Normal- und Trockenjahr. Diese Flächen werden
+                                deshalb getrennt summiert und nicht in die
+                                Szenariosummen eingerechnet.
+                            </p>
+                        )}
                     </details>
 
-                    {/* Brutto (gross) / Alt. Wasser / Netto (net) */}
+                    {/* Brutto (gross) / Alt. Wasser / Netto (net).
+                        Three blocks, each rendered only when it has a value: the two
+                        scenario sums over the crop areas, and the scenario-free sum over
+                        the sport/green areas. A pure agricultural project therefore never
+                        sees the Jahresrichtwert block, a pure golf project never sees the
+                        scenario rows. */}
                     {normalM3 && (
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 Brutto Normaljahr
-                                {normalCount < assignedCount && <span className="project-summary__partial"> * ({normalCount}/{assignedCount} {termPlural})</span>}
+                                {normalCount < scenarioAssignedCount && <span className="project-summary__partial"> * ({normalCount}/{scenarioAssignedCount} {termPlural})</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(normalM3, "m³/a")}</strong>
@@ -493,10 +556,39 @@ export const ProjectDetailPage = () => {
                         <div className="project-summary__row project-summary__row--result">
                             <span>
                                 Brutto Trockenjahr
-                                {dryCount < assignedCount && <span className="project-summary__partial"> * ({dryCount}/{assignedCount} {termPlural})</span>}
+                                {dryCount < scenarioAssignedCount && <span className="project-summary__partial"> * ({dryCount}/{scenarioAssignedCount} {termPlural})</span>}
                             </span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(dryM3, "m³/a")}</strong>
+                            </span>
+                        </div>
+                    )}
+                    {yearlyM3 && (
+                        <div className="project-summary__row project-summary__row--result project-summary__row--yearly">
+                            <span>
+                                Brutto Jahresrichtwert
+                                <span className="project-summary__partial">
+                                    {" "}({yearlyCount === yearlyAssignedCount
+                                        ? `${yearlyCount} ${yearlyCount === 1 ? "Sport-/Grünfläche" : "Sport-/Grünflächen"}`
+                                        : `${yearlyCount}/${yearlyAssignedCount} Sport-/Grünflächen`})
+                                </span>
+                            </span>
+                            <span className="project-summary__result-value">
+                                <strong>{formatRange(yearlyM3, "m³/a")}</strong>
+                            </span>
+                        </div>
+                    )}
+                    {yearlyM3 && (
+                        <div className="project-summary__row project-summary__row--footnote">
+                            <span>
+                                Sport-, Grün- und Golfflächen werden{" "}
+                                <strong>getrennt ausgewiesen</strong> und in keiner der
+                                beiden Szenariosummen mitgezählt: das Merkblatt bemisst sie
+                                nach Fläche, Niederschlag und Verdunstung und nennt dafür
+                                einen einzelnen Jahresrichtwert – einen Wert für das
+                                mittlere Trockenjahr gibt es dort nicht. Für den Antrag
+                                sind die Beträge zu addieren; welches Szenario Sie für die
+                                Kulturflächen ansetzen, bleibt Ihre Entscheidung.
                             </span>
                         </div>
                     )}
@@ -506,7 +598,7 @@ export const ProjectDetailPage = () => {
                             <strong>−{formatNum(totalAltWasserM3, 0)} m³/a</strong>
                         </div>
                     )}
-                    {nettoM3 && totalAltWasserM3 > 0 && (
+                    {nettoM3 && cropAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
                             <span>Netto-Antragsmenge (Normaljahr)</span>
                             <span className="project-summary__result-value">
@@ -514,11 +606,19 @@ export const ProjectDetailPage = () => {
                             </span>
                         </div>
                     )}
-                    {nettoDryM3 && totalAltWasserM3 > 0 && (
+                    {nettoDryM3 && cropAltWasserM3 > 0 && (
                         <div className="project-summary__row project-summary__row--netto">
                             <span>Netto-Antragsmenge (Trockenjahr)</span>
                             <span className="project-summary__result-value">
                                 <strong>{formatRange(nettoDryM3, "m³/a")}</strong>
+                            </span>
+                        </div>
+                    )}
+                    {nettoYearlyM3 && totalAltWasserM3 - cropAltWasserM3 > 0 && (
+                        <div className="project-summary__row project-summary__row--netto">
+                            <span>Netto-Antragsmenge (Sport-/Grünflächen)</span>
+                            <span className="project-summary__result-value">
+                                <strong>{formatRange(nettoYearlyM3, "m³/a")}</strong>
                             </span>
                         </div>
                     )}
@@ -528,14 +628,14 @@ export const ProjectDetailPage = () => {
                             <span>{pendingCount} {pendingCount === 1 ? term : termPlural}</span>
                         </div>
                     )}
-                    {(normalCount < assignedCount || dryCount < assignedCount) && (
+                    {(normalCount < scenarioAssignedCount || dryCount < scenarioAssignedCount) && (
                         <div className="project-summary__row project-summary__row--footnote">
                             <span>
-                                * Summe umfasst nicht alle {termPlural}
-                                {normalCount < assignedCount && ` (Normaljahr: ${normalCount}/${assignedCount})`}
-                                {dryCount < assignedCount && ` (Trockenjahr: ${dryCount}/${assignedCount})`}
-                                {" – nicht alle Nutzungen liefern beide Szenariowerte."}
-                                {totalAltWasserM3 > 0 && " Netto-Antragsmenge wird nur bei vollständigen Szenarien ausgewiesen."}
+                                * Summe umfasst nicht alle Kulturflächen
+                                {normalCount < scenarioAssignedCount && ` (Normaljahr: ${normalCount}/${scenarioAssignedCount})`}
+                                {dryCount < scenarioAssignedCount && ` (Trockenjahr: ${dryCount}/${scenarioAssignedCount})`}
+                                {" – für einzelne Kulturen liegt kein Literaturwert vor."}
+                                {cropAltWasserM3 > 0 && " Netto-Antragsmenge wird nur bei vollständigen Szenarien ausgewiesen."}
                             </span>
                         </div>
                     )}
@@ -562,6 +662,12 @@ export const ProjectDetailPage = () => {
                         Hinweis: Nur die Kulturmodule (Hauptkulturen, Gemüse/{'​'}Obst,
                         Weinbau) liefern einen Trockenjahr-Wert; Sport- und Grünflächen werden
                         nach Fläche und Niederschlag bemessen und kennen kein Trockenjahr.
+                        Ihr Bedarf wird daher <strong>getrennt als Jahresrichtwert
+                        ausgewiesen</strong> und nicht in die beiden Szenariosummen
+                        eingerechnet – sonst stünde er unter „Normaljahr“, obwohl er keines
+                        ist, und fehlte im Trockenjahr ganz. Für die Antragsmenge addieren
+                        Sie den Jahresrichtwert zu dem Szenario, das Sie für die
+                        Kulturflächen ansetzen.
                     </InfoHint>
 
                 </section>
@@ -576,11 +682,13 @@ export const ProjectDetailPage = () => {
                         farm,
                         assignmentResults,
                         normalM3, dryM3,
-                        totalAltWasserM3, nettoM3, nettoDryM3,
+                        yearlyM3, yearlyCount, yearlyAssignedCount,
+                        totalAltWasserM3, nettoM3, nettoDryM3, nettoYearlyM3,
                         totalAreaHa,
                         pendingCount,
                         normalCount,
                         dryCount,
+                        scenarioAssignedCount,
                         logoAtbDataUrl,
                         logoDwaDataUrl,
                         createdDateStr: new Date().toLocaleDateString("de-DE"),

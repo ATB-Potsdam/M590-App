@@ -1,7 +1,8 @@
 // src/lib/calculations/getAssignmentResult.ts
 import type {AnyPlantName, CropName, KwbZone, NFkweClassName} from "../../types/dataTypes";
 import type {Field} from "../../types/farm";
-import type {FieldAssignment} from "../../types/project";
+import type {FieldAssignment, ModuleType} from "../../types/project";
+import {hasDryYearScenario} from "../../constants/modules";
 import {calculateGemueseObstBoth, type GemueseObstResult} from "./gemueseObst";
 import type {HauptkulturenResult} from "./hauptkulturen";
 import {calculateHauptkulturenBoth} from "./hauptkulturen";
@@ -21,6 +22,12 @@ export interface AssignmentResult {
     altWasserM3?: number;
     /** Field area in ha — for weighted mm/a calculation in sumResults */
     areaHa: number;
+    /**
+     * The module this result came from. sumResults() needs it to keep the
+     * modules without a Trockenjahr out of the scenario sums — see
+     * hasDryYearScenario().
+     */
+    module: ModuleType;
 }
 
 export const getAssignmentResult = (
@@ -50,7 +57,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateHauptkulturenBoth(input);
-        return {normal, dry, areaHa: field.areaHa};
+        return {normal, dry, areaHa: field.areaHa, module: fa.module};
     }
     if (
         fa.module === "gemuese_obst" &&
@@ -73,7 +80,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateGemueseObstBoth(input);
-        return {normal, dry, areaHa: field.areaHa};
+        return {normal, dry, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -93,7 +100,7 @@ export const getAssignmentResult = (
         };
 
         const {normal, dry} = calculateWeinbauBoth(input);
-        return {normal, dry, areaHa: field.areaHa};
+        return {normal, dry, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -116,7 +123,7 @@ export const getAssignmentResult = (
             periodEnd: fa.fllPeriodEnd ?? 9,
         });
         // Grünflächen has no scenario differentiation — store as normal only
-        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -127,7 +134,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
         if (annualPrecipMm === null) return null;
         const result = calculateNaturrasen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -146,7 +153,7 @@ export const getAssignmentResult = (
             teeM2: fa.golfTeeM2,
             fairwayM2: fa.golfFairwayM2,
         });
-        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -159,7 +166,7 @@ export const getAssignmentResult = (
             weeks: fa.kunstrasenWeeks,
             mmPerWeek: fa.kunstrasenMmPerWeek,
         });
-        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa, module: fa.module};
     }
 
     if (
@@ -170,7 +177,7 @@ export const getAssignmentResult = (
         const annualPrecipMm = annualPrecipitationMm(field.climateData.precipitation);
         if (annualPrecipMm === null) return null;
         const result = calculateTennen({annualPrecipMm, areaHa: field.areaHa});
-        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa};
+        return {normal: result, altWasserM3: fa.altWasserM3, areaHa: field.areaHa, module: fa.module};
     }
 
     return null;
@@ -180,22 +187,64 @@ export const getAssignmentResult = (
   }
 };
 
-// Sums m³/a ranges across all assignments (mm/a is derived by the caller from volume ÷ area)
-export const sumResults = (results: AssignmentResult[]): {
+export interface SummedResults {
+    /** Normaljahr sum over the crop modules only */
     normalM3: [number, number] | null;
     normalAreaHa: number;
+    /** Mittleres Trockenjahr sum over the crop modules only */
     dryM3: [number, number] | null;
     dryAreaHa: number;
+    /**
+     * Sum over the modules the Merkblatt gives a single Jahresrichtwert for
+     * (Grün-/Sportflächen, Golf, Kunstrasen, Tennen). Deliberately outside both
+     * scenario sums — see hasDryYearScenario(). null when the project has none.
+     */
+    yearlyM3: [number, number] | null;
+    yearlyAreaHa: number;
+    /** Number of assignments contributing to yearlyM3 */
+    yearlyCount: number;
     totalAltWasserM3: number;
     nettoM3: [number, number] | null;
-} => {
+    nettoYearlyM3: [number, number] | null;
+}
+
+// Sums m³/a ranges across all assignments (mm/a is derived by the caller from volume ÷ area).
+//
+// Three sums, not two: the crop modules carry a Normaljahr and a Trockenjahr
+// value, the sport/green modules carry one Jahresrichtwert that belongs to
+// neither scenario. Folding the latter into the Normaljahr sum (as this did
+// until 2026-08-19) labelled it as a scenario value it is not, and left the
+// Trockenjahr sum quietly incomplete.
+export const sumResults = (results: AssignmentResult[]): SummedResults => {
     let normalM3Min = 0, normalM3Max = 0, normalAreaHa = 0, hasNormal = false;
     let dryM3Min = 0, dryM3Max = 0, dryAreaHa = 0, hasDry = false;
+    let yearlyM3Min = 0, yearlyM3Max = 0, yearlyAreaHa = 0, yearlyCount = 0;
     let totalAltWasserM3 = 0;
+    // Alternative water belonging to the scenario-free block, so each netto
+    // figure only deducts the sources of the areas it actually covers.
+    let yearlyAltWasserM3 = 0;
 
     results.forEach((r) => {
+        const scenarioBearing = hasDryYearScenario(r.module);
         const normalHasValue = r.normal && (!('hasValue' in r.normal) || r.normal.hasValue);
         const dryHasValue = r.dry && (!('hasValue' in r.dry) || r.dry.hasValue);
+
+        if (!scenarioBearing) {
+            // Single Jahresrichtwert — stored as `normal` by the calculation
+            // modules, but it is not a Normaljahr figure.
+            if (normalHasValue && r.normal) {
+                yearlyM3Min += r.normal.totalRangeM3[0];
+                yearlyM3Max += r.normal.totalRangeM3[1];
+                yearlyAreaHa += r.areaHa ?? 0;
+                yearlyCount += 1;
+            }
+            if (r.altWasserM3) {
+                yearlyAltWasserM3 += r.altWasserM3;
+                totalAltWasserM3 += r.altWasserM3;
+            }
+            return;
+        }
+
         if (normalHasValue && r.normal) {
             normalM3Min += r.normal.totalRangeM3[0];
             normalM3Max += r.normal.totalRangeM3[1];
@@ -213,9 +262,17 @@ export const sumResults = (results: AssignmentResult[]): {
         }
     });
 
-    // Netto = gross normal minus alternative water sources (never negative)
+    // Netto = gross minus alternative water sources (never negative). Crop and
+    // scenario-free blocks deduct only their own sources; today only the
+    // sport/green modules offer altWasserM3 at all, so cropAltWasserM3 is
+    // normally 0 — computed rather than assumed so it stays correct if that
+    // changes.
+    const cropAltWasserM3 = totalAltWasserM3 - yearlyAltWasserM3;
     const nettoM3: [number, number] | null = hasNormal
-        ? [Math.max(0, normalM3Min - totalAltWasserM3), Math.max(0, normalM3Max - totalAltWasserM3)]
+        ? [Math.max(0, normalM3Min - cropAltWasserM3), Math.max(0, normalM3Max - cropAltWasserM3)]
+        : null;
+    const nettoYearlyM3: [number, number] | null = yearlyCount > 0
+        ? [Math.max(0, yearlyM3Min - yearlyAltWasserM3), Math.max(0, yearlyM3Max - yearlyAltWasserM3)]
         : null;
 
     return {
@@ -223,8 +280,12 @@ export const sumResults = (results: AssignmentResult[]): {
         normalAreaHa,
         dryM3: hasDry ? [dryM3Min, dryM3Max] : null,
         dryAreaHa,
+        yearlyM3: yearlyCount > 0 ? [yearlyM3Min, yearlyM3Max] : null,
+        yearlyAreaHa,
+        yearlyCount,
         totalAltWasserM3,
         nettoM3,
+        nettoYearlyM3,
     };
 };
 

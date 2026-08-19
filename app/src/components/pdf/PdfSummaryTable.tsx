@@ -2,7 +2,7 @@
 import {Text, View} from "@react-pdf/renderer";
 import {styles} from "./PdfStyles";
 import {formatNumDe, formatRangeDe} from "./pdfFormatNum";
-import {getModuleLabel, fieldTerm} from "../../constants/modules";
+import {getModuleLabel, fieldTerm, hasDryYearScenario} from "../../constants/modules";
 import type {SummaryPdfData} from "../../lib/generateSummaryPdf";
 
 interface Props {
@@ -22,15 +22,19 @@ const COL = {
 export const PdfSummaryTable = ({data}: Props) => {
     const {
         project, farm, assignmentResults,
-        normalM3, dryM3,
-        totalAltWasserM3, nettoM3, nettoDryM3,
+        normalM3, dryM3, yearlyM3, yearlyCount, yearlyAssignedCount,
+        totalAltWasserM3, nettoM3, nettoDryM3, nettoYearlyM3,
         totalAreaHa, pendingCount,
-        normalCount, dryCount,
+        normalCount, dryCount, scenarioAssignedCount,
     } = data;
 
-    const assignedCount = project.fieldAssignments.filter(fa => fa.module).length;
-    const normalPartial = normalCount < assignedCount;
-    const dryPartial = dryCount < assignedCount;
+    // Partial = a crop assignment has no literature value. Sport/green areas are
+    // not counted here: they are summed separately, not missing from a scenario.
+    const normalPartial = normalCount < scenarioAssignedCount;
+    const dryPartial = dryCount < scenarioAssignedCount;
+    const yearlyAltWasserM3 = assignmentResults.reduce(
+        (sum, r) => sum + (r && !hasDryYearScenario(r.module) ? r.altWasserM3 ?? 0 : 0), 0);
+    const cropAltWasserM3 = totalAltWasserM3 - yearlyAltWasserM3;
 
     // Adapt terminology to the project context (pure golf/sport projects: "Fläche")
     const projectModules = project.fieldAssignments.map((fa) => fa.module);
@@ -64,6 +68,10 @@ export const PdfSummaryTable = ({data}: Props) => {
                     const result = assignmentResults[i];
                     const normalHasValue = result?.normal && (!("hasValue" in result.normal) || result.normal.hasValue);
                     const dryHasValue = result?.dry && (!("hasValue" in result.dry) || result.dry.hasValue);
+                    // Sport/green: one Jahresrichtwert. @react-pdf has no colSpan, so
+                    // the value stays in the Normaljahr column but is labelled, and the
+                    // Trockenjahr cell says why it is empty instead of showing "–".
+                    const scenarioFree = !!fa.module && !hasDryYearScenario(fa.module);
 
                     return (
                         <View key={fa.id} style={styles.tableRow}>
@@ -92,6 +100,9 @@ export const PdfSummaryTable = ({data}: Props) => {
                                         <Text style={styles.twoLinePrimary}>
                                             {formatRangeDe(result.normal.totalRangeMm, "mm/a")}
                                         </Text>
+                                        {scenarioFree && (
+                                            <Text style={styles.tableCellMuted}>Jahresrichtwert ‡</Text>
+                                        )}
                                     </>
                                 ) : (
                                     <Text style={styles.tableCellMuted}>
@@ -100,7 +111,9 @@ export const PdfSummaryTable = ({data}: Props) => {
                                 )}
                             </View>
                             <View style={{flex: COL.trocken, padding: 4, alignItems: "flex-end"}}>
-                                {dryHasValue && result?.dry ? (
+                                {scenarioFree ? (
+                                    <Text style={styles.tableCellMuted}>entfällt ‡</Text>
+                                ) : dryHasValue && result?.dry ? (
                                     <>
                                         <Text style={styles.twoLineSecondary}>
                                             {formatRangeDe(result.dry.totalRangeM3, "m³/a")}
@@ -168,22 +181,40 @@ export const PdfSummaryTable = ({data}: Props) => {
                     <Text style={styles.summaryRowValue}>{formatRangeDe(dryM3, "m³/a")}</Text>
                 </View>
             )}
+            {yearlyM3 && (
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryRowLabel}>
+                        {"Brutto Jahresrichtwert ‡ ("}
+                        {yearlyCount === yearlyAssignedCount
+                            ? `${yearlyCount} ${yearlyCount === 1 ? "Sport-/Grünfläche" : "Sport-/Grünflächen"}`
+                            : `${yearlyCount}/${yearlyAssignedCount} Sport-/Grünflächen`}
+                        {")"}
+                    </Text>
+                    <Text style={styles.summaryRowValue}>{formatRangeDe(yearlyM3, "m³/a")}</Text>
+                </View>
+            )}
             {totalAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryRowLabel}>Alternative Wasserquellen</Text>
                     <Text style={styles.summaryRowAlt}>−{formatNumDe(totalAltWasserM3, 0)} m³/a</Text>
                 </View>
             )}
-            {nettoM3 && totalAltWasserM3 > 0 && (
+            {nettoM3 && cropAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Normaljahr)</Text>
                     <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoM3, "m³/a")}</Text>
                 </View>
             )}
-            {nettoDryM3 && totalAltWasserM3 > 0 && (
+            {nettoDryM3 && cropAltWasserM3 > 0 && (
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Trockenjahr)</Text>
                     <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoDryM3, "m³/a")}</Text>
+                </View>
+            )}
+            {nettoYearlyM3 && yearlyAltWasserM3 > 0 && (
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryRowLabel}>Netto-Antragsmenge (Sport-/Grünflächen)</Text>
+                    <Text style={styles.summaryRowNetto}>{formatRangeDe(nettoYearlyM3, "m³/a")}</Text>
                 </View>
             )}
             {pendingCount > 0 && (
@@ -194,11 +225,21 @@ export const PdfSummaryTable = ({data}: Props) => {
             )}
             {(normalPartial || dryPartial) && (
                 <Text style={[styles.sourceLine, {marginTop: 4}]}>
-                    {`* Summe umfasst nicht alle ${termPlural}`}
-                    {normalPartial ? ` (Normaljahr: ${normalCount}/${assignedCount})` : ""}
-                    {dryPartial ? ` (Trockenjahr: ${dryCount}/${assignedCount})` : ""}
-                    {" \u2013 nicht alle Nutzungen liefern beide Szenariowerte."}
-                    {totalAltWasserM3 > 0 ? " Netto-Antragsmenge wird nur bei vollst\u00E4ndigen Szenarien ausgewiesen." : ""}
+                    {"* Summe umfasst nicht alle Kulturfl\u00E4chen"}
+                    {normalPartial ? ` (Normaljahr: ${normalCount}/${scenarioAssignedCount})` : ""}
+                    {dryPartial ? ` (Trockenjahr: ${dryCount}/${scenarioAssignedCount})` : ""}
+                    {" \u2013 f\u00FCr einzelne Kulturen liegt kein Literaturwert vor."}
+                    {cropAltWasserM3 > 0 ? " Netto-Antragsmenge wird nur bei vollst\u00E4ndigen Szenarien ausgewiesen." : ""}
+                </Text>
+            )}
+            {yearlyM3 && (
+                <Text style={[styles.sourceLine, {marginTop: 4}]}>
+                    {"\u2021 Sport-, Gr\u00FCn- und Golffl\u00E4chen bemisst das Merkblatt nach Fl\u00E4che, "}
+                    {"Niederschlag und Verdunstung und nennt daf\u00FCr einen einzelnen "}
+                    {"Jahresrichtwert; ein Wert f\u00FCr das mittlere Trockenjahr existiert dort "}
+                    {"nicht. Diese Fl\u00E4chen werden deshalb getrennt summiert und in keiner der "}
+                    {"beiden Szenariosummen mitgez\u00E4hlt. F\u00FCr die Antragsmenge sind die Betr\u00E4ge "}
+                    {"zu addieren."}
                 </Text>
             )}
             <Text style={[styles.sourceLine, {marginTop: 4}]}>

@@ -17,15 +17,22 @@ export interface SummaryPdfData {
     // reference areas across modules (see ProjectDetailPage).
     normalM3: [number, number] | null;
     dryM3: [number, number] | null;
+    // Sport/green areas: one Jahresrichtwert, deliberately outside both scenario
+    // sums (see hasDryYearScenario). null when the project has no such area.
+    yearlyM3: [number, number] | null;
+    yearlyCount: number;
+    yearlyAssignedCount: number;
     totalAltWasserM3: number;
     nettoM3: [number, number] | null;
     nettoDryM3: [number, number] | null;
+    nettoYearlyM3: [number, number] | null;
     // Derived scalars
     totalAreaHa: number;
     pendingCount: number;
-    // How many assignments contribute to each scenario total (for footnote)
+    // How many crop assignments contribute to each scenario total (for footnote)
     normalCount: number;
     dryCount: number;
+    scenarioAssignedCount: number;
     // Pre-rasterized logos as PNG data URIs
     logoAtbDataUrl: string;
     logoDwaDataUrl: string;

@@ -78,7 +78,7 @@ export const ProjectsPage = () => {
                             return getAssignmentResult(fa, field);
                         })
                         .filter((r): r is AssignmentResult => r !== null);
-                    const {normalM3, dryM3, nettoM3, totalAltWasserM3} = sumResults(results);
+                    const {normalM3, dryM3, yearlyM3, nettoM3, totalAltWasserM3} = sumResults(results);
 
                     return (
                     <li key={project.id} className="project-list__item-wrap">
@@ -97,14 +97,25 @@ export const ProjectsPage = () => {
                                     </small>
                                 </div>
                                 {project.description && <span className="project-list__description">{project.description}</span>}
-                                {normalM3 && (
+                                {/* One pill per sum that exists. Sport/green areas carry a
+                                    single Jahresrichtwert and get their own pill instead of
+                                    being folded into the Normaljahr one — a pure golf
+                                    project has no scenario pills at all. */}
+                                {(normalM3 || yearlyM3) && (
                                     <div className="project-list__water">
-                                        <span className="result-pill result-pill--normal">
-                                            🌤 {formatRange(normalM3, "m³/a")}
-                                        </span>
+                                        {normalM3 && (
+                                            <span className="result-pill result-pill--normal">
+                                                🌤 {formatRange(normalM3, "m³/a")}
+                                            </span>
+                                        )}
                                         {dryM3 && (
                                             <span className="result-pill result-pill--dry">
                                                 ☀️ {formatRange(dryM3, "m³/a")}
+                                            </span>
+                                        )}
+                                        {yearlyM3 && (
+                                            <span className="result-pill result-pill--yearly" title="Jahresrichtwert Sport-/Grünflächen – kein Normal-/Trockenjahr">
+                                                📅 {formatRange(yearlyM3, "m³/a")}
                                             </span>
                                         )}
                                         {totalAltWasserM3 > 0 && nettoM3 && (

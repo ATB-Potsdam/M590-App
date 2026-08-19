@@ -240,6 +240,13 @@
         color: var(--color-error);
     }
 
+    // Sport/green Jahresrichtwert — belongs to neither scenario, so it must not
+    // reuse the normal (accent) or dry (warning) colour.
+    &--yearly {
+        background: var(--color-primary-bg);
+        color: var(--color-primary-dark);
+    }
+
     &--link {
         cursor: pointer;
         border: none;
@@ -351,6 +358,12 @@
             color: var(--color-primary);
             font-size: 15px;
         }
+    }
+
+    // Scenario-free sum (sport/green Jahresrichtwert): visually detached from the
+    // two scenario rows above it, so it does not read as a third scenario.
+    &__row--yearly {
+        border-top: 1px dashed var(--color-border-dashed);
     }
 
     &__result-value {
@@ -513,10 +526,23 @@
         span:first-child {
             font-weight: 600;
         }
-        span:last-child {
+        // Secondary lines (mm/a, and the Jahresrichtwert note on sport/green rows).
+        // Selected by "not the first" rather than :last-child so a third line does
+        // not steal the styling from the mm/a line.
+        span:not(:first-child) {
             font-size: 11px;
             color: var(--color-text-secondary);
         }
+    }
+
+    // The single Jahresrichtwert of a sport/green row, spanning both scenario columns.
+    &__yearly-cell {
+        border-left: 1px dashed var(--color-border-dashed);
+    }
+
+    &__yearly-note {
+        font-style: italic;
+        color: var(--color-text-muted);
     }
 
     &__table tfoot td:nth-child(2) {

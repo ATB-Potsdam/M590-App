@@ -55,6 +55,26 @@ const AGRICULTURAL_MODULES: ReadonlySet<ModuleType> = new Set([
 export const isSubAreaModule = (type: ModuleType | undefined): boolean =>
     type === "golf";
 
+// Modules that distinguish Normaljahr from mittleres Trockenjahr. The crop
+// modules read both scenarios from the literature tables; the sport and green
+// modules are dimensioned from area, precipitation and evaporation and the
+// Merkblatt gives them a single Jahresrichtwert — no dry-year variant exists.
+//
+// Their demand must therefore NOT be folded into either scenario sum: doing so
+// reported an area's Jahresrichtwert as if it were a Normaljahr figure while the
+// Trockenjahr sum silently omitted it (working-group decision 2026-08-19, tester
+// feedback items 15 and 22). It is summed and shown on its own instead.
+//
+// Deliberately a separate predicate from AGRICULTURAL_MODULES, which answers a
+// different question (terminology: "Feld" vs. "Fläche") and happens to hold the
+// same members today.
+const DRY_YEAR_MODULES: ReadonlySet<ModuleType> = new Set([
+    "hauptkulturen", "gemuese_obst", "weinbau",
+]);
+
+export const hasDryYearScenario = (type: ModuleType | undefined): boolean =>
+    !!type && DRY_YEAR_MODULES.has(type);
+
 // Suitable area label for a context without agricultural modules
 // (e.g. pure golf-course projects). `modules` = all modules used in the context.
 export const fieldTerm = (
