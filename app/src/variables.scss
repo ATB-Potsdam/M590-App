@@ -89,14 +89,27 @@
 
     // ── Layout ──────────────────────────────────────────────────────
     // How much space the Betrieb/Szenarien nav occupies at the BOTTOM of the
-    // viewport. Anything fixed to the bottom edge (toasts, the tour tooltip and
-    // its floating buttons) offsets by this instead of hard-coding 64px, so the
-    // desktop switch to a top nav only has to be expressed once — here.
+    // viewport. The logo bar positions itself directly above the nav using this,
+    // so the desktop switch to a top nav only has to be expressed once — here.
     // Kept in sync with $nav-top-breakpoint in App.scss.
     --nav-bottom-height: 64px;
 
+    // Height of the logo/legal bar (ATB + DWA logos, Impressum, Datenschutz).
+    // Hidden on short viewports, where it contributes nothing — see LogoBar.scss.
+    --logo-bar-height: 28px;
+
+    // Everything permanently fixed to the bottom edge, stacked: nav + logo bar.
+    // FLOATING elements (toasts, the tour tooltip and its buttons) must clear
+    // THIS, not just the nav — offsetting by the nav alone put them on top of the
+    // logo bar and made "Über die App" unclickable.
+    --bottom-furniture-height: calc(var(--nav-bottom-height) + var(--logo-bar-height));
+
+    @media (max-height: 600px) {
+        --logo-bar-height: 0px;
+    }
+
     @media (min-width: 900px) {
-        // Nav moved to the top; the bottom edge is free.
+        // Nav moved to the top; only the logo bar is left at the bottom edge.
         --nav-bottom-height: 0px;
     }
 }

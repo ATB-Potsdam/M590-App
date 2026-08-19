@@ -152,7 +152,7 @@
         position: fixed;
         left: 50%;
         transform: translateX(-50%);
-        bottom: calc(var(--nav-bottom-height) + 8px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(var(--bottom-furniture-height) + 8px + env(safe-area-inset-bottom, 0px));
         width: min(360px, calc(100vw - 24px));
         max-width: none;
     }

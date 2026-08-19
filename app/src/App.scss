@@ -57,7 +57,7 @@ $nav-top-breakpoint: 900px;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1001; // above .bottom-bar-wrapper, which keeps the logo bar
+  z-index: 1001;
   background: var(--color-bg);
 
   @media (min-width: $nav-top-breakpoint) {
@@ -89,7 +89,13 @@ $nav-top-breakpoint: 900px;
 
 .bottom-bar-wrapper {
   position: fixed;
-  bottom: 0;
+  // Sits directly above the nav rather than behind it. Both are fixed to the
+  // bottom edge, and the nav is opaque and stacked higher, so without this
+  // offset the nav covers the logo bar completely — logos and the
+  // Impressum/Datenschutz links simply vanish on mobile.
+  // --nav-bottom-height is 0 above the breakpoint, where the nav moves to the
+  // top and the logo bar has the bottom edge to itself again.
+  bottom: calc(var(--nav-bottom-height) + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   z-index: 1000;
@@ -116,15 +122,11 @@ $nav-top-breakpoint: 900px;
 .page {
   max-width: 720px;
   margin: 0 auto;
-  // bottom padding = nav + logo bar (28px) + safe area + breathing room.
-  // --nav-bottom-height drops to 0 above the breakpoint, where the nav is at
-  // the top instead and its height is added to padding-top below.
-  padding: 16px 16px calc(var(--nav-bottom-height) + 28px + env(safe-area-inset-bottom) + 16px);
-
-  @media (max-height: 600px) {
-    // logo bar is hidden at this height — reduce bottom padding accordingly
-    padding-bottom: calc(var(--nav-bottom-height) + env(safe-area-inset-bottom) + 16px);
-  }
+  // Clear all the fixed bottom furniture (nav + logo bar), plus the safe area
+  // and some breathing room. --bottom-furniture-height already accounts for the
+  // nav moving to the top above the breakpoint and for the logo bar hiding on
+  // short viewports, so no separate media queries are needed here.
+  padding: 16px 16px calc(var(--bottom-furniture-height) + env(safe-area-inset-bottom) + 16px);
 
   @media (min-width: $nav-top-breakpoint) {
     padding-top: calc(56px + 16px);
