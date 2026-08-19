@@ -52,15 +52,26 @@ const UpdateBannerWeb = () => {
             // installs a worker and would prompt for an update to what is
             // already running.
             //
+            // NOTE the direction of this check. useRegisterSW calls
+            // `setNeedRefresh(true)` itself and only THEN invokes this callback,
+            // so the banner is already showing by the time we get here: the only
+            // thing that works is switching it back OFF once the versions turn
+            // out to match. An earlier attempt guarded a `setNeedRefresh(true)`
+            // of its own, which the library had already performed — so it never
+            // suppressed anything.
+            //
             // fetchServerVersion() reads data/version.json, which the worker
             // never precaches, so the answer comes from the network rather than
             // from the cache being questioned. It returns null on any doubt
             // (offline, malformed, HTML fallback); treat that as "cannot rule it
-            // out" and show the banner, so an unreachable server never hides a
-            // genuine update.
+            // out" and leave the banner up, so an unreachable server never hides
+            // a genuine update.
+            //
+            // Leaving the worker waiting is safe precisely because the versions
+            // match: it precaches the same assets, so whether it takes over on a
+            // later load or keeps waiting, nothing the user sees differs.
             void fetchServerVersion().then((serverVersion) => {
-                if (serverVersion === __APP_VERSION__) return;
-                setNeedRefresh(true);
+                if (serverVersion === __APP_VERSION__) setNeedRefresh(false);
             });
         },
         onRegisteredSW(_swUrl, registration) {
