@@ -8,6 +8,13 @@
     // iOS safe area (Capacitor)
     padding-bottom: env(safe-area-inset-bottom);
 
+    // Which edge carries the active-tab marker. It points at the page content,
+    // so it is the top edge while the bar sits at the bottom of the screen and
+    // the bottom edge once the bar moves to the top (see .nav-bar-wrapper in
+    // App.scss, which overrides this).
+    --nav-marker-top: var(--color-primary);
+    --nav-marker-bottom: transparent;
+
     &__item {
         flex: 1;
         display: flex;
@@ -19,6 +26,7 @@
         border: none;
         border-radius: 0;
         border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
         cursor: pointer;
         color: var(--color-text-muted);
         transition: color 0.15s, background 0.15s;
@@ -26,16 +34,12 @@
 
         &:focus {
             outline: none;
-            border-top-color: transparent;
-        }
-
-        &--active:focus {
-            border-top-color: var(--color-primary);
         }
 
         &--active {
             color: var(--color-primary);
-            border-top-color: var(--color-primary);
+            border-top-color: var(--nav-marker-top);
+            border-bottom-color: var(--nav-marker-bottom);
         }
 
         &:active {

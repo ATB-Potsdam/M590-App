@@ -86,6 +86,19 @@
 
     // Text painted on top of a solid coloured fill (buttons/pills).
     --color-on-fill: #ffffff;
+
+    // ── Layout ──────────────────────────────────────────────────────
+    // How much space the Betrieb/Szenarien nav occupies at the BOTTOM of the
+    // viewport. Anything fixed to the bottom edge (toasts, the tour tooltip and
+    // its floating buttons) offsets by this instead of hard-coding 64px, so the
+    // desktop switch to a top nav only has to be expressed once — here.
+    // Kept in sync with $nav-top-breakpoint in App.scss.
+    --nav-bottom-height: 64px;
+
+    @media (min-width: 900px) {
+        // Nav moved to the top; the bottom edge is free.
+        --nav-bottom-height: 0px;
+    }
 }
 
 // Reusable field label style

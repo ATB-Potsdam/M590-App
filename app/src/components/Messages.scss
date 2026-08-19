@@ -1,6 +1,6 @@
 .messages {
     position: fixed;
-    bottom: calc(64px + 28px + env(safe-area-inset-bottom) + 8px);
+    bottom: calc(var(--nav-bottom-height) + 28px + env(safe-area-inset-bottom) + 8px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1500;

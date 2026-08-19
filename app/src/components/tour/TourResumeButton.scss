@@ -3,7 +3,7 @@
 .tour-resume {
     position: fixed;
     // Sit above the bottom navigation bar.
-    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--nav-bottom-height) + 8px + env(safe-area-inset-bottom, 0px));
     left: 50%;
     transform: translateX(-50%);
     z-index: 1400;

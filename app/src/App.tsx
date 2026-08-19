@@ -266,10 +266,19 @@ const App = () => {
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </ErrorBoundary>
+                    {/* The nav lives in its own fixed wrapper so CSS alone can move it to the
+                        top on wide screens (desktop testers kept missing it at the bottom —
+                        tester feedback item 14) while it stays in thumb reach on mobile.
+                        One instance only: duplicating it would give two elements the tour's
+                        data-tour="nav-scenarios" target. */}
+                    {hasFarm && (
+                        <div className="nav-bar-wrapper">
+                            <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />
+                        </div>
+                    )}
                     <div className="bottom-bar-wrapper">
                         <div className={`bottom-bar-wrapper__shadow${atBottom ? " bottom-bar-wrapper__shadow--hidden" : ""}`} />
                         <LogoBar />
-                        {hasFarm && <BottomNav onShowHelp={() => setOverlayForcedOpen(true)} />}
                     </div>
                     <TourOverlay demoProjectId={demoProjectId} />
                     <TourResumeButton />

@@ -46,6 +46,47 @@ h1, h2 {
   color: var(--color-text-muted);
 }
 
+// Breakpoint at which the Betrieb/Szenarien nav moves from the bottom (mobile,
+// one-handed reach) to the top (desktop, where testers kept overlooking it —
+// tester feedback item 14, decided 2026-08-19). Chosen above the 720px .page
+// width so the switch only happens once the layout is clearly desktop-wide.
+$nav-top-breakpoint: 900px;
+
+.nav-bar-wrapper {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001; // above .bottom-bar-wrapper, which keeps the logo bar
+  background: var(--color-bg);
+
+  @media (min-width: $nav-top-breakpoint) {
+    top: 0;
+    bottom: auto;
+    // Full-width rule under the bar; the nav itself stays centred on the page
+    // width, so the divider does not stop mid-screen.
+    border-bottom: 1px solid var(--color-border);
+
+    .bottom-nav {
+      // At the top of the screen a top border reads as browser chrome — the
+      // wrapper carries the divider instead.
+      border-top: none;
+      // No iOS safe area to clear at the top.
+      padding-bottom: 0;
+      height: 56px;
+      // Align with the centred page content instead of stretching two buttons
+      // across a wide desktop viewport.
+      max-width: 720px;
+      margin: 0 auto;
+
+      // Flip the active-tab marker to the lower edge: it should point at the
+      // page content, which is now below the bar rather than above it.
+      --nav-marker-top: transparent;
+      --nav-marker-bottom: var(--color-primary);
+    }
+  }
+}
+
 .bottom-bar-wrapper {
   position: fixed;
   bottom: 0;
@@ -75,12 +116,18 @@ h1, h2 {
 .page {
   max-width: 720px;
   margin: 0 auto;
-  // bottom padding = nav (64px) + logo bar (28px) + safe area + breathing room
-  padding: 16px 16px calc(64px + 28px + env(safe-area-inset-bottom) + 16px);
+  // bottom padding = nav + logo bar (28px) + safe area + breathing room.
+  // --nav-bottom-height drops to 0 above the breakpoint, where the nav is at
+  // the top instead and its height is added to padding-top below.
+  padding: 16px 16px calc(var(--nav-bottom-height) + 28px + env(safe-area-inset-bottom) + 16px);
 
   @media (max-height: 600px) {
     // logo bar is hidden at this height — reduce bottom padding accordingly
-    padding-bottom: calc(64px + env(safe-area-inset-bottom) + 16px);
+    padding-bottom: calc(var(--nav-bottom-height) + env(safe-area-inset-bottom) + 16px);
+  }
+
+  @media (min-width: $nav-top-breakpoint) {
+    padding-top: calc(56px + 16px);
   }
 }
 
