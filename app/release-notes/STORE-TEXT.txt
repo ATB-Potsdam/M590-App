@@ -1,8 +1,8 @@
 <de-DE>
 Neuerungen
 
-• Die Klimatische Wasserbilanz beruht jetzt auf den im DWA-M 590 vorgesehenen DWD-Daten (HYRAS, FAO-56). Der Zusatzwasserbedarf bei „Gemüse/Obst“ und „Grünflächen“ fällt dadurch meist höher aus.
-• Vorhandene Flächen werden automatisch umgestellt, Ihre Daten bleiben erhalten.
-• Eine neuere Fassung wird beim Start automatisch geladen, ohne Nachfrage.
-• Unter „Über die App“ sind Quelle und Lizenz jetzt für jeden verwendeten Datensatz einzeln angegeben.
+• Die Klimatische Wasserbilanz beruht auf den im DWA-M 590 vorgesehenen DWD-Daten (HYRAS, FAO-56). Der Bedarf bei „Gemüse/Obst“ und „Grünflächen“ fällt dadurch meist höher aus.
+• Grün-, Sport- und Golfflächen werden getrennt als Jahresrichtwert ausgewiesen und nicht mehr im Normaljahr mitgezählt.
+• Bei Gemüse und Obst gilt der A/J-Wert der Tabelle 21; eine Abweichung erfordert eine Begründung, die im Ergebnis und im PDF erscheint.
+• Am Computer sitzt die Navigation jetzt oben.
 </de-DE>
