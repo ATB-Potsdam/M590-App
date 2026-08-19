@@ -83,16 +83,27 @@ const App = () => {
     //   2. the server advertises a different version at all — the worker's state
     //      does not matter, a waiting worker is simply activated rather than
     //      offered as a banner.
-    // Acted on at most once per tab, so a genuinely broken deploy shows the real
-    // error instead of reload-looping.
+    // Acted on at most once per VERSION, so a genuinely broken deploy shows the
+    // real error instead of reload-looping, while the next deploy re-arms it.
     useEffect(() => {
-        const KEY = "dwa_sw_recovery_attempted";
-        if (sessionStorage.getItem(KEY)) return;
+        // Guard against reload loops, but scoped to ONE version rather than to
+        // the session. The key used to be a bare flag: once set, the silent
+        // recovery never ran again for the life of the session. In a browser tab
+        // that is survivable; in an installed PWA the session outlives many
+        // deploys, so the app permanently lost its ability to update itself and
+        // the only way forward was the "Aktualisieren" button — which is exactly
+        // the complaint this guard exists to prevent.
+        //
+        // Keying on the version the recovery was attempted FOR means a later
+        // deploy re-arms it automatically, while a genuinely unreconcilable
+        // mismatch still only reloads once.
+        const KEY = "dwa_sw_recovery_attempted_for";
+        if (sessionStorage.getItem(KEY) === __APP_VERSION__) return;
 
         // Force the newest version onto the page without prompting: activate a
         // waiting worker if there is one, otherwise purge and reload.
         const recover = () => {
-            sessionStorage.setItem(KEY, "1");
+            sessionStorage.setItem(KEY, __APP_VERSION__);
             void forceUpdateAndReload();
         };
 
@@ -103,8 +114,8 @@ const App = () => {
         // actually controlling this page.
         if (isNative()) {
             void purgeNativeServiceWorker().then((wasControlling) => {
-                if (wasControlling && !sessionStorage.getItem(KEY)) {
-                    sessionStorage.setItem(KEY, "1");
+                if (wasControlling && sessionStorage.getItem(KEY) !== __APP_VERSION__) {
+                    sessionStorage.setItem(KEY, __APP_VERSION__);
                     window.location.reload();
                 }
             });
@@ -116,7 +127,7 @@ const App = () => {
             return;
         }
         void isStuckOnOldVersion(__APP_VERSION__).then((stuck) => {
-            if (stuck && !sessionStorage.getItem(KEY)) recover();
+            if (stuck && sessionStorage.getItem(KEY) !== __APP_VERSION__) recover();
         });
     }, []);
 
