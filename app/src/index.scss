@@ -35,16 +35,26 @@ a {
   }
 }
 
+// `min-height: 100%` rather than any viewport unit.
+//
+// Both 100vh and 100dvh resolve against the *screen* in an installed PWA on
+// Android, while window.innerHeight excludes the system navigation/gesture bar.
+// The body was therefore floored at 803px inside a 747px viewport: 56px of
+// empty, scrollable page that no element occupied, which also kept the scroll
+// shadow above the logo bar permanently visible. Measured on a phone in
+// standalone mode; a browser tab never showed it, and dvh did not help because
+// a PWA has no URL bar for dvh to account for.
+//
+// Percentages resolve against the containing block instead, so html/body follow
+// the real viewport with no unit-resolution ambiguity.
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   min-width: 320px;
-  // 100dvh, not 100vh. On mobile `100vh` is the viewport height with the URL
-  // bar HIDDEN, so while the bar is visible the body is taller than the screen
-  // and the page scrolls by that difference even when it is nearly empty —
-  // enough to raise the scroll shadow above the logo bar. `100dvh` tracks the
-  // actually visible height. The 100vh fallback is for browsers without dvh.
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100%;
   overflow-y: scroll;
 }
 
