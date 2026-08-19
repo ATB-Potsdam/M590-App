@@ -138,6 +138,28 @@ promoted.
   and change every build, so they can never go stale. `workbox-*.js` is hashed
   too and can stay cached.
 
+  **Side effect, checked and accepted:** putting the headers on `location /`
+  also marks the 53 MB of geodata under `/data/` (`nfkwe.fgb` 28 MB,
+  the two rasters 14 MB and 9 MB, `Klimaraeume.fgb` 2.8 MB) as `no-cache`.
+  That is not "do not store" but "revalidate before reuse": the browser keeps
+  the file and sends a conditional request. Verified against the live site — an
+  `If-None-Match` on `Klimaraeume.fgb` returns **304 with 0 bytes**, so the cost
+  is one round-trip per file, not the payload. The service worker precaches
+  these anyway, so in normal use they never reach the network.
+
+  Optional, if first-load-after-revisit on a slow connection ever matters:
+
+  ```nginx
+  location ^~ /data/ {
+      include snippets/hsts-header.conf;
+      add_header Vary X-Requested-With;
+      add_header Cache-Control "public, max-age=604800" always;
+  }
+  ```
+
+  The exact-match block for `/data/version.json` still outranks this prefix
+  block, so update detection stays correct.
+
   `scripts/deploy.sh` checks the live `Cache-Control` on `sw.js` after every
   deploy and warns until this is fixed; that check reads the response header, so
   it stays valid regardless of where the config turns out to be.
