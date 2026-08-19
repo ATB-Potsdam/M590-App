@@ -39,6 +39,64 @@ promoted.
   Switch to an own/paid tile service as usage grows.
   https://operations.osmfoundation.org/policies/tiles/
 
+- [ ] **Usage figures for the Gelbdruck release** (requested 2026-08-19, not yet
+  decided). During the Gelbdruck release the code of practice goes to a selected
+  group of users, and we would like to know **how many of them actually took up
+  the app** — for that test window only, not permanently.
+
+  *The constraint that shapes every option:* the privacy policy currently states
+  under „Kein Tracking" that the app uses no analysis tools, and under „Ihre
+  Rechte" that no personal data reaches the operators at all. Anything added to
+  the **app** contradicts those sentences and needs the policy changed and the
+  ATB data protection officer involved. Anything read from the **web server**,
+  which already logs requests and already processes IP addresses, does not — it
+  is existing processing, not new collection.
+
+  *There is also no clean definition of a "download".* The web version is a PWA:
+  visiting it, installing it and re-opening it look similar from outside, and a
+  cached load may not reach the server at all. An honest answer is two numbers,
+  not one.
+
+  Recommended, cheapest first:
+
+  1. **Web-server log analysis** on `tesla.runlevel3.de` (GoAccess or AWStats).
+     No app change, no new data, nothing to remove afterwards. Report *distinct
+     IPs fetching the app shell* over the test window; hits on
+     `manifest.webmanifest` / `sw.js` give a weak extra signal for installs.
+     Caveats to state whenever the number is quoted: shared and dynamic IPs
+     distort it in both directions, and a tester who returns daily is one user,
+     not many.
+
+     **Checked on the server 2026-08-19 — this needs work before it can be
+     used:**
+     - nginx serves the site (files are deployed to
+       `/var/www/vhosts/dwa.runlevel3.de/`), but **no vhost config names
+       `dwa.runlevel3.de`** — it is not in `sites-enabled/`, and no file under
+       `/etc/nginx/` mentions the host. It is evidently served by a catch-all
+       (`server_name _;`) that was not tracked down. Other vhosts each write to
+       `/var/www/logs/<host>/access.log`; **there is no such directory for this
+       host**, so per-site figures cannot be extracted today. Giving the vhost
+       its own `access_log` is the prerequisite, and it is a small change.
+     - Log rotation is `weekly` with `rotate 52` — **logs are kept for a year.**
+       That is far longer than a Gelbdruck test needs. Shorten it for this host,
+       or anonymise the IP in the log format (nginx `map` on `$remote_addr` to
+       drop the last octet), and **name the retention period in the privacy
+       policy** — server logs containing IPs are personal data under the GDPR
+       even though nobody looks at them today.
+  2. **Play Console statistics** for the Android build. Already exists, costs
+     nothing, and genuinely counts installs — but only Android, while the testers
+     will mostly use the web version. A complement, never the whole answer.
+
+  Deliberately *not* recommended for this purpose: a counting endpoint fired on
+  first launch (contradicts „Kein Tracking" as written, needs consent and DPO
+  sign-off for a single number), or self-hosted Matomo (far more apparatus than
+  the question warrants). Per-tester access codes would answer it exactly, but
+  they depend on the still-open question of who may use the app at all (see
+  above) — revisit only if access gets restricted anyway.
+
+  **Decide before the Gelbdruck release starts**, since the count only exists if
+  the logging is in place from day one.
+
 ## Done
 
 - [x] **Source and licence per dataset** in the ?-dialog (`DATA_SOURCES` in
