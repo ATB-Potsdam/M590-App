@@ -42,6 +42,42 @@ promoted.
 - [ ] **Overall legal review.** Have the imprint, privacy policy, and
   disclaimer reviewed by a qualified legal party before public promotion.
 
+- [ ] **`sw.js` is served with a ten-year HTTP cache** (found 2026-08-19). Not a
+  legal item, but it belongs with the other things that need a change on
+  `tesla.runlevel3.de` rather than in the app.
+
+  nginx's generic `snippets/cache-expire.conf` matches `js$` — which catches
+  `sw.js` — and serves it with `expires max`
+  (`cache-control: max-age=315360000, public`). The service worker script is how
+  a client learns that anything changed, so a browser that caches it can never
+  move off the version it first installed: reloading does nothing, and the update
+  banner keeps correctly reporting an old running version. Observed on a phone
+  sitting on 0.1.52 across reloads while the server served 0.1.54.
+
+  Nothing in the app can fix this. Add to the nginx vhost, **before** the generic
+  js/css rule:
+
+  ```nginx
+  location = /sw.js {
+      add_header Cache-Control "no-cache" always;
+      expires -1;
+  }
+  location = /index.html {
+      add_header Cache-Control "no-cache" always;
+      expires -1;
+  }
+  ```
+
+  Keep the long cache for `assets/**` — those filenames contain a content hash
+  and change every build, so they can never go stale. `index.html` currently
+  sends no `Cache-Control` at all, which leaves it to browser heuristics; the
+  block above fixes that too.
+
+  Finding the right file needs root: no config under `/etc/nginx/` names
+  `dwa.runlevel3.de` and it is not in `sites-enabled/`, so a wildcard server
+  block serves it. `sudo nginx -T | grep -n 'server_name'` will identify which.
+  `scripts/deploy.sh` now warns after every deploy until this is fixed.
+
 - [ ] **OSM tile usage.** The app loads map tiles directly from
   `tile.openstreetmap.org`. The OSMF tile usage policy forbids "heavy use".
   Switch to an own/paid tile service as usage grows.
