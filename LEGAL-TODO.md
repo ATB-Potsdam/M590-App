@@ -15,7 +15,8 @@ promoted.
   Note that this covers **two** things: the tables, and the annex climate map,
   which ships as a polygon layer (`app/public/data/Klimaraeume.fgb`) — the KWBv
   class the app shows is read straight from it.
-  On the agenda for the 2026-08-19 meeting (`app/doc/feedback/`, item B).
+  Raised at the 2026-08-19 meeting (`app/doc/feedback/`, item B): **postponed —
+  the DWA will discuss it internally.** No answer yet, so the question stands.
 
 - [ ] **Who may use the app?** Not settled: freely available to anyone with the
   link (as today), or restricted to subscribers of the code of practice. This is
@@ -23,7 +24,14 @@ promoted.
   and large — the app currently keeps everything in the browser, with no accounts
   and no server holding user data. Any restriction introduces sign-in, user
   administration and a different data-protection position, and is far cheaper to
-  plan for than to retrofit. On the agenda for the 2026-08-19 meeting (item A).
+  plan for than to retrofit.
+  Raised at the 2026-08-19 meeting (item A): **postponed — the DWA will discuss
+  it internally.**
+
+  Both A and B therefore remain blockers for **public promotion**, and both now
+  sit with the DWA rather than with us. The app stays freely reachable in the
+  meantime (test phase, not publicly advertised), which is the status quo the
+  meeting left in place — not a decision that it should stay that way.
 
 - [ ] **Confirm supervisory authority.** The privacy policy names the LDA
   Brandenburg (seat in Potsdam) as the competent supervisory authority. Have
