@@ -72,13 +72,26 @@ promoted.
   Nothing in the app can fix it. The serving nginx needs:
 
   ```nginx
-  # Unhashed entry points — never let the HTTP cache hold these.
-  location = /sw.js {
+  # The SPA fallback, and therefore the start_url. `try_files … /index.html`
+  # rewrites INTERNALLY, which does not re-run location matching — so a
+  # `location = /index.html` block alone would only catch the literal path and
+  # miss `/` and every deep link. The headers have to sit here.
+  # Safe: `location /` is the lowest-priority prefix, so hashed files under
+  # /assets/ still match the cache-expire.conf regex and keep their long cache.
+  location / {
+      index index.html;
+      try_files $uri $uri/ /index.html;
+
+      include snippets/hsts-header.conf;   # add_header does not inherit
+      add_header Vary X-Requested-With;    # ditto
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
 
-  location = /index.html {
+  # Unhashed entry points — never let the HTTP cache hold these.
+  location = /sw.js {
+      include snippets/hsts-header.conf;
+      add_header Vary X-Requested-With;
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
@@ -87,6 +100,8 @@ promoted.
   # .json is not in cache-expire.conf's extension list today — pin it so a
   # later edit to that list cannot silently break updates.
   location = /data/version.json {
+      include snippets/hsts-header.conf;
+      add_header Vary X-Requested-With;
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
@@ -94,21 +109,30 @@ promoted.
   # WASM glue (polylookup.js) is unhashed and would otherwise be cached
   # for ten years against a rebuilt .wasm.
   location ^~ /pkg/ {
+      include snippets/hsts-header.conf;
+      add_header Vary X-Requested-With;
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
   ```
 
-  Three things that decide whether this actually works:
+  Four things that decide whether this actually works:
 
   - **`location =` outranks a regex `location`,** whatever the include order, so
     the exact-match form sidesteps the question of where the block sits relative
     to `cache-expire.conf`. `^~` likewise stops regex evaluation for a prefix.
+  - **`try_files` rewrites internally and does NOT re-run location matching.**
+    `/` and every SPA deep link are served as index.html from `location /`, so
+    headers put only on `location = /index.html` never reach them — including the
+    manifest's `start_url` (`/`), which is what an installed PWA requests. This
+    was the trap in the first draft of this config.
   - **`always` is required on `add_header`.** Without it the header is dropped on
     `304 Not Modified` — precisely the revalidating case that matters here.
   - **`add_header` does not inherit:** a block containing any `add_header` loses
-    every inherited one, which is why `expires -1` is repeated per block rather
-    than set once outside.
+    every inherited one. Server-level `Vary` and the HSTS snippet therefore have
+    to be repeated inside each block that sets a header. Measured on the live
+    site before the change: `/index.html` sent HSTS + Vary, while
+    `assets/index-*.js` sent neither, because `cache-expire.conf` sets headers.
 
   Keep the long cache for `assets/**` — those filenames contain a content hash
   and change every build, so they can never go stale. `workbox-*.js` is hashed
