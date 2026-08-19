@@ -69,48 +69,46 @@ promoted.
   matches `sw.js` along with the app bundles. nginx runs in a Docker container,
   so this is the container's copy of that snippet, not the tesla host's.
 
-  Nothing in the app can fix it. The serving nginx needs:
+  Nothing in the app can fix it. Cache **by path, not by extension** — matching
+  on `js$` is what caught `sw.js` in the first place, and it does not reflect how
+  the build is laid out: only `assets/**` is content-hashed, everything else is
+  unhashed. Drop `cache-expire.conf` from this vhost and state the three
+  policies explicitly:
 
   ```nginx
-  # The SPA fallback, and therefore the start_url. `try_files … /index.html`
-  # rewrites INTERNALLY, which does not re-run location matching — so a
-  # `location = /index.html` block alone would only catch the literal path and
-  # miss `/` and every deep link. The headers have to sit here.
-  # Safe: `location /` is the lowest-priority prefix, so hashed files under
-  # /assets/ still match the cache-expire.conf regex and keep their long cache.
+  # snippets/dwa-common-headers.conf — because add_header does not inherit
+  #     include snippets/hsts-header.conf;
+  #     add_header Vary X-Requested-With;
+
+  # Default: everything unhashed — index.html and the SPA fallback, sw.js,
+  # manifest, logos, icons, fonts, pkg/. Must revalidate, or a client can be
+  # stranded on an old version. try_files rewrites INTERNALLY and does not
+  # re-run location matching, so this block is what serves `/` (the manifest
+  # start_url, i.e. what an installed PWA requests) and every deep link.
   location / {
-      index index.html;
       try_files $uri $uri/ /index.html;
 
-      include snippets/hsts-header.conf;   # add_header does not inherit
-      add_header Vary X-Requested-With;    # ditto
+      include snippets/dwa-common-headers.conf;
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
 
-  # Unhashed entry points — never let the HTTP cache hold these.
-  location = /sw.js {
-      include snippets/hsts-header.conf;
-      add_header Vary X-Requested-With;
-      add_header Cache-Control "no-cache" always;
-      expires -1;
+  # Hashed build output: the filename changes whenever the content does.
+  location ^~ /assets/ {
+      include snippets/dwa-common-headers.conf;
+      add_header Cache-Control "public, max-age=31536000, immutable" always;
   }
 
-  # Update detection reads this; it must always come from the network.
-  # .json is not in cache-expire.conf's extension list today — pin it so a
-  # later edit to that list cannot silently break updates.
+  # Geodata: 53 MB, unhashed, changes only on a data rebuild.
+  location ^~ /data/ {
+      include snippets/dwa-common-headers.conf;
+      add_header Cache-Control "public, max-age=604800" always;
+  }
+
+  # Update detection reads this. `=` outranks the `^~` above, so it stays
+  # uncached even though it sits under /data/.
   location = /data/version.json {
-      include snippets/hsts-header.conf;
-      add_header Vary X-Requested-With;
-      add_header Cache-Control "no-cache" always;
-      expires -1;
-  }
-
-  # WASM glue (polylookup.js) is unhashed and would otherwise be cached
-  # for ten years against a rebuilt .wasm.
-  location ^~ /pkg/ {
-      include snippets/hsts-header.conf;
-      add_header Vary X-Requested-With;
+      include snippets/dwa-common-headers.conf;
       add_header Cache-Control "no-cache" always;
       expires -1;
   }
@@ -118,47 +116,25 @@ promoted.
 
   Four things that decide whether this actually works:
 
-  - **`location =` outranks a regex `location`,** whatever the include order, so
-    the exact-match form sidesteps the question of where the block sits relative
-    to `cache-expire.conf`. `^~` likewise stops regex evaluation for a prefix.
+  - **`location =` outranks `^~`, which outranks a regex `location`,** whatever
+    the include order. Priority is by match type, not by position in the file.
   - **`try_files` rewrites internally and does NOT re-run location matching.**
-    `/` and every SPA deep link are served as index.html from `location /`, so
-    headers put only on `location = /index.html` never reach them — including the
-    manifest's `start_url` (`/`), which is what an installed PWA requests. This
-    was the trap in the first draft of this config.
+    Headers put only on `location = /index.html` never reach `/` or a deep link.
+    This was the trap in the first draft of this config.
   - **`always` is required on `add_header`.** Without it the header is dropped on
     `304 Not Modified` — precisely the revalidating case that matters here.
   - **`add_header` does not inherit:** a block containing any `add_header` loses
-    every inherited one. Server-level `Vary` and the HSTS snippet therefore have
-    to be repeated inside each block that sets a header. Measured on the live
-    site before the change: `/index.html` sent HSTS + Vary, while
-    `assets/index-*.js` sent neither, because `cache-expire.conf` sets headers.
+    every inherited one, hence the shared snippet in each block. Measured on the
+    live site beforehand: `/index.html` sent HSTS + Vary, while
+    `assets/index-*.js` sent neither, because `cache-expire.conf` set headers.
 
-  Keep the long cache for `assets/**` — those filenames contain a content hash
-  and change every build, so they can never go stale. `workbox-*.js` is hashed
-  too and can stay cached.
+  Accepted trade-off: the unhashed brand assets (3 SVG logos, 3 PNG icons, 4 TTF
+  fonts, `manifest.webmanifest`) move from cached-forever to revalidate. They are
+  small, the service worker precaches them, and the alternative reintroduces the
+  extension-based matching that caused this bug.
 
-  **Side effect, checked and accepted:** putting the headers on `location /`
-  also marks the 53 MB of geodata under `/data/` (`nfkwe.fgb` 28 MB,
-  the two rasters 14 MB and 9 MB, `Klimaraeume.fgb` 2.8 MB) as `no-cache`.
-  That is not "do not store" but "revalidate before reuse": the browser keeps
-  the file and sends a conditional request. Verified against the live site — an
-  `If-None-Match` on `Klimaraeume.fgb` returns **304 with 0 bytes**, so the cost
-  is one round-trip per file, not the payload. The service worker precaches
-  these anyway, so in normal use they never reach the network.
-
-  Optional, if first-load-after-revisit on a slow connection ever matters:
-
-  ```nginx
-  location ^~ /data/ {
-      include snippets/hsts-header.conf;
-      add_header Vary X-Requested-With;
-      add_header Cache-Control "public, max-age=604800" always;
-  }
-  ```
-
-  The exact-match block for `/data/version.json` still outranks this prefix
-  block, so update detection stays correct.
+  `no-cache` means *revalidate*, not *do not store*. Verified against the live
+  site: an `If-None-Match` on `Klimaraeume.fgb` returns **304 with 0 bytes**.
 
   `scripts/deploy.sh` checks the live `Cache-Control` on `sw.js` after every
   deploy and warns until this is fixed; that check reads the response header, so
