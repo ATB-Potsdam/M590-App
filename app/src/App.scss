@@ -122,14 +122,21 @@ $nav-top-breakpoint: 900px;
 .page {
   max-width: 720px;
   margin: 0 auto;
-  // Clear all the fixed bottom furniture (nav + logo bar), plus the safe area
-  // and some breathing room. --bottom-furniture-height already accounts for the
-  // nav moving to the top above the breakpoint and for the logo bar hiding on
-  // short viewports, so no separate media queries are needed here.
-  padding: 16px 16px calc(var(--bottom-furniture-height) + env(safe-area-inset-bottom) + 16px);
+  // Clear all the fixed bottom furniture (nav + logo bar) plus some breathing
+  // room. --bottom-furniture-height already accounts for the nav moving to the
+  // top above the breakpoint and for the logo bar hiding on short viewports, so
+  // no separate media queries are needed here.
+  //
+  // The safe-area inset is deliberately NOT added again here: .bottom-nav
+  // already carries `padding-bottom: env(safe-area-inset-bottom)` and, with the
+  // global `box-sizing: border-box`, absorbs it inside its own 64px. Adding it
+  // a second time reserved space nothing occupies, which made a nearly empty
+  // page scroll in the installed PWA.
+  padding: 16px 16px calc(var(--bottom-furniture-height) + 16px);
 
   @media (min-width: $nav-top-breakpoint) {
-    padding-top: calc(56px + 16px);
+    // 56px nav + the wrapper's 1px bottom border, matching what is rendered.
+    padding-top: calc(57px + 16px);
   }
 }
 
