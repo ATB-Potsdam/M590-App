@@ -59,8 +59,8 @@ android {
         applicationId "de.runlevel3.m590"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 64
-        versionName "0.1.58"
+        versionCode 66
+        versionName "0.1.59"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
