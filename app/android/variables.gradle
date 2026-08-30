@@ -1,7 +1,7 @@
 ext {
     minSdkVersion = 24
-    compileSdkVersion = 36
-    targetSdkVersion = 36
+    compileSdkVersion = 37
+    targetSdkVersion = 37
 
     // Only the versions app/build.gradle references directly are pinned here.
     // Everything the Capacitor runtime itself pulls in (core, activity, fragment,
