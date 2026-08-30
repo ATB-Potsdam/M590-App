@@ -18,3 +18,4 @@ app/doc/
 # through here; only the aggregated output under app/public/data/ is committed.
 .rastercache/
 scripts/.venv/
+.screenshot-profile/
