@@ -14,8 +14,8 @@
 # default to the values below. The passwords are resolved in this order:
 #
 #   1. the environment (M590_KEYSTORE_PASSWORD / M590_KEY_PASSWORD) — for CI
-#   2. app/android/keystore.properties, if present — gitignored, chmod 600,
-#      sourced as shell (see scripts/keystore.properties.example)
+#   2. app/.env.local, if present — gitignored, chmod 600, shared with Gradle
+#      (see app/.env.example)
 #   3. an interactive prompt
 #
 # Without them the build would still run but produce an UNSIGNED bundle, which
@@ -35,7 +35,7 @@
 #     app/android/app/src/main/assets/public/ are missing and Gradle fails.
 #   - Gradle needs JDK 21. The system default here is JDK 25, which the Android
 #     Gradle Plugin does not accept, so JAVA_HOME is pinned explicitly.
-#   - The build needs SDK platform 36 (targetSdk 36 is a Play requirement).
+#   - The build needs SDK platform 37 (targetSdk 37 is a Play requirement).
 #     Its absence surfaces as a confusing "failed to find target" from Gradle,
 #     so it is checked up front.
 
@@ -50,9 +50,11 @@ cd "$(dirname "$0")/.."
 readonly KEYSTORE_DEFAULT="app/android/upload-keystore.jks"
 readonly KEY_ALIAS_DEFAULT="upload"
 
-# Optional, gitignored file holding the signing passwords so they need not be
-# retyped for every build. Sourced as shell; see the signing block below.
-readonly KEYSTORE_PROPS="app/android/keystore.properties"
+# Optional, gitignored file holding the signing material so it need not be
+# retyped for every build. Same file Gradle reads (android/app/build.gradle);
+# see app/.env.example. Note it is app/.env.local, not app/.env — the latter is
+# tracked and this repository is public.
+readonly ENV_LOCAL="app/.env.local"
 readonly NODE_VERSION=22
 # ANDROID_HOME wins; otherwise try the usual locations. ~/Android/Sdk is what the
 # command-line tools and Android Studio both use by default, /opt/android-sdk is
@@ -65,10 +67,57 @@ else
     ANDROID_SDK=/opt/android-sdk
 fi
 readonly ANDROID_SDK
-readonly COMPILE_SDK=36
+# Keep in step with compileSdkVersion/targetSdkVersion in app/android/variables.gradle.
+# API 37 is the first minor-versioned SDK: it installs as "android-37.0" while
+# build-tools stay "37.0.0", so the platform directory needs its own suffix.
+readonly COMPILE_SDK=37
+readonly COMPILE_SDK_PLATFORM=37.0
 
 fail() { echo "BUILD ABORTED: $*" >&2; exit 1; }
 info() { echo "==> $*"; }
+
+# Fill any signing variable the environment left empty from $ENV_LOCAL, so the
+# material can be stored once on a workstation instead of retyped per build. The
+# same file Gradle reads, so both paths agree on the key.
+#
+# It is *parsed*, not sourced: .env.example ships commented lines and empty
+# placeholder values, and sourcing that would both execute whatever the file
+# contains and clobber real environment values with empty strings. Reading each
+# key individually also preserves the documented precedence (environment first)
+# without having to stash and restore.
+load_env_local() {
+    [ -f "$ENV_LOCAL" ] || return 0
+
+    # Refuse a world/group-readable file: the whole point is to keep the password
+    # off other users' terminals, and 0644 here would be a false sense of safety
+    # rather than an inconvenience. stat drops leading zeros (a 0600 file reports
+    # "600", a 0044 one "44"), so pad to three digits before splitting off the
+    # group/other digits.
+    local perms
+    perms=$(stat -c%a "$ENV_LOCAL")
+    case "${#perms}" in
+        1) perms="00$perms" ;;
+        2) perms="0$perms" ;;
+    esac
+    if [ "${perms#?}" != "00" ]; then
+        fail "$ENV_LOCAL is accessible to group or others (mode $perms).
+    Restrict it before building:  chmod 600 \"$ENV_LOCAL\""
+    fi
+
+    # Plain `[ ... ] && cmd` as the last command in an iteration would return
+    # non-zero when the test fails and trip `set -e`, so keep these if-blocks.
+    local var current value
+    for var in M590_KEYSTORE M590_KEYSTORE_PASSWORD M590_KEY_ALIAS M590_KEY_PASSWORD; do
+        eval "current=\${$var:-}"
+        if [ -z "$current" ]; then
+            # Last assignment wins, matching how the file reads top to bottom.
+            # The pattern anchors on the key so a commented-out line never matches.
+            value=$(sed -n "s/^[[:space:]]*$var=//p" "$ENV_LOCAL" | tail -n1)
+            if [ -n "$value" ]; then eval "$var=\$value"; fi
+        fi
+    done
+    info "read signing material from $ENV_LOCAL"
+}
 
 target=bundle
 case "${1:-}" in
@@ -116,9 +165,9 @@ export JAVA_HOME="$JAVA_HOME_21"
 [ -d "$ANDROID_SDK" ] || fail "Android SDK not found at $ANDROID_SDK. Set ANDROID_HOME."
 export ANDROID_HOME="$ANDROID_SDK"
 
-[ -d "$ANDROID_SDK/platforms/android-$COMPILE_SDK" ] || fail \
-    "SDK platform $COMPILE_SDK is missing. Install it with:
-    sdkmanager \"platforms;android-$COMPILE_SDK\" \"build-tools;$COMPILE_SDK.0.0\""
+[ -d "$ANDROID_SDK/platforms/android-$COMPILE_SDK_PLATFORM" ] || fail \
+    "SDK platform $COMPILE_SDK_PLATFORM is missing. Install it with:
+    sdkmanager \"platforms;android-$COMPILE_SDK_PLATFORM\" \"build-tools;$COMPILE_SDK.0.0\""
 
 # app/android/local.properties tells Gradle where the SDK is; it is gitignored,
 # so a fresh clone has to be told once.
@@ -155,6 +204,11 @@ info "Node $(node -v), JDK 21 ($JAVA_HOME_21), SDK $ANDROID_SDK"
 
 # Only relevant for the release bundle; the debug APK uses the debug keystore.
 if [ "$target" = bundle ]; then
+    # Load the env file first: it has to be read before the defaults below, or
+    # KEYSTORE_DEFAULT would win over a keystore path configured in the file and
+    # the build would look for a key that isn't there.
+    load_env_local
+
     M590_KEYSTORE="${M590_KEYSTORE:-$KEYSTORE_DEFAULT}"
     # Gradle resolves a relative storeFile against app/android/app/, not the repo
     # root, and a path that misses there disables signing *silently* — the build
@@ -190,50 +244,11 @@ if [ "$target" = bundle ]; then
         has_tty=yes
     fi
 
-    # Between the environment and the prompt sits an optional properties file, so
-    # the passwords can be stored once on a workstation instead of retyped per
-    # build. It is gitignored (app/android/.gitignore) and read with `.` rather
-    # than parsed, so only shell-assignment syntax belongs in it:
-    #
-    #   M590_KEYSTORE_PASSWORD=...
-    #   M590_KEY_PASSWORD=...          # omit if identical to the store password
-    #
-    # The environment still wins, so a CI run or a one-off override is unaffected
-    # by a file left on disk. Refuse a world/group-readable file: the whole point
-    # is to keep the password off other users' terminals, and 0644 here would be
-    # a false sense of safety rather than an inconvenience.
-    if [ -f "$KEYSTORE_PROPS" ]; then
-        # stat drops leading zeros (a 0600 file reports "600", a 0044 one "44"),
-        # so pad to three digits before splitting off the group/other digits.
-        perms=$(stat -c%a "$KEYSTORE_PROPS")
-        case "${#perms}" in
-            1) perms="00$perms" ;;
-            2) perms="0$perms" ;;
-        esac
-        if [ "${perms#?}" != "00" ]; then
-            fail "$KEYSTORE_PROPS is accessible to group or others (mode $perms).
-    Restrict it before building:  chmod 600 \"$KEYSTORE_PROPS\""
-        fi
-        # Sourcing overwrites variables unconditionally, so stash whatever the
-        # environment already provided and restore it afterwards — otherwise a
-        # stored password would silently beat an explicit inline override, which
-        # is the opposite of the documented precedence.
-        env_store="${M590_KEYSTORE_PASSWORD:-}"
-        env_key="${M590_KEY_PASSWORD:-}"
-        # shellcheck source=/dev/null
-        . "$KEYSTORE_PROPS"
-        # Plain `[ ... ] && assignment` would return non-zero when the test fails
-        # and trip `set -e`, so keep these as full if-blocks.
-        if [ -n "$env_store" ]; then M590_KEYSTORE_PASSWORD="$env_store"; fi
-        if [ -n "$env_key" ]; then M590_KEY_PASSWORD="$env_key"; fi
-        info "read signing passwords from $KEYSTORE_PROPS"
-    fi
-
     if [ -z "${M590_KEYSTORE_PASSWORD:-}" ]; then
         [ "$has_tty" = yes ] || fail \
             "no keystore password available and there is no terminal to prompt on.
     Either set M590_KEYSTORE_PASSWORD and M590_KEY_PASSWORD in the environment,
-    or put them in $KEYSTORE_PROPS (chmod 600)."
+    or put them in $ENV_LOCAL (chmod 600)."
         printf 'Keystore password for %s: ' "$(basename "$M590_KEYSTORE")" > /dev/tty
         IFS= read -rs M590_KEYSTORE_PASSWORD < /dev/tty
         echo > /dev/tty

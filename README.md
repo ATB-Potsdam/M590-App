@@ -220,15 +220,27 @@ seconds instead of at the signing step minutes later.
 
 Signing material never lives in the repository. The keystore defaults to
 `app/android/upload-keystore.jks` with alias `upload` — what
-`scripts/createUploadKeystore.sh` writes — and both are gitignored. Override with
-`M590_KEYSTORE` / `M590_KEY_ALIAS`, or put
-`storeFile`/`storePassword`/`keyAlias`/`keyPassword` into
-`app/android/keystore.properties` (also gitignored).
+`scripts/createUploadKeystore.sh` writes — and both are gitignored. Configure it
+in `app/.env.local`, which both Gradle and the build script read:
 
-Use an **absolute** path for `storeFile`: Gradle resolves a relative one against
-`app/android/app/`, not the repo root. A path that misses there used to disable
-signing silently; the build now fails with the resolved path instead. The build
-script always passes an absolute path.
+```bash
+cp app/.env.example app/.env.local
+chmod 600 app/.env.local          # the build refuses a group/world-readable file
+$EDITOR app/.env.local            # M590_KEYSTORE, M590_KEYSTORE_PASSWORD, M590_KEY_ALIAS
+```
+
+Note `.env.local`, **not** `.env`: `app/.env` is tracked and this repository is
+public, so it must never hold a secret. Every other `.env.*` is gitignored. The
+environment still wins over the file, so a one-off
+`M590_KEYSTORE_PASSWORD=… scripts/buildAndroid.sh` works unchanged, and CI can
+set the variables without a file at all.
+
+Use an **absolute** path for `M590_KEYSTORE`: Gradle resolves a relative one
+against `app/android/app/`, not the repo root. A path that misses there used to
+disable signing silently; the build now fails with the resolved path instead, and
+a keystore configured without a password or alias is likewise a hard error rather
+than an unsigned artifact that only Play rejects. The build script always passes
+an absolute path.
 
 A release build without signing material produces an **unsigned** bundle that the
 Play Console rejects — Gradle's `signReleaseBundle` task is a silent no-op when

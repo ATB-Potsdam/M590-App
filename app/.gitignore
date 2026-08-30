@@ -30,3 +30,7 @@ dist-ssr
 
 copyToTesla.sh
 .env.*
+
+# The template carries dummy values only and is meant to be committed;
+# every other .env.* (notably .env.local) holds real secrets and must not be.
+!.env.example

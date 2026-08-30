@@ -2,20 +2,30 @@ apply plugin: 'com.android.application'
 
 // Release signing material is supplied from outside the repository: either via
 // environment variables (M590_KEYSTORE / M590_KEYSTORE_PASSWORD / M590_KEY_ALIAS /
-// M590_KEY_PASSWORD) or a gitignored android/keystore.properties. When neither is
-// present the release build stays unsigned instead of failing, so debug builds and
-// CI checks still work on machines without the upload key.
-def keystorePropsFile = rootProject.file("keystore.properties")
-def keystoreProps = new Properties()
-if (keystorePropsFile.exists()) {
-    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+// M590_KEY_PASSWORD) or the gitignored app/.env.local, which uses those same
+// names as plain key=value lines. When neither is present the release build stays
+// unsigned instead of failing, so debug builds and CI checks still work on
+// machines without the upload key.
+//
+// .env.local rather than .env: .env is tracked and this repository is public, so
+// only a gitignored file may hold the passphrase. See app/.env.example.
+def envFile = rootProject.file("../.env.local")
+def envProps = new Properties()
+if (envFile.exists()) {
+    envFile.withInputStream { envProps.load(it) }
 }
 
-def signingValue = { String env, String prop ->
-    System.getenv(env) ?: keystoreProps.getProperty(prop)
+// The environment wins over the file, so a one-off inline override works without
+// editing .env.local. Blank entries count as absent — .env.example ships the keys
+// with empty values, and a copied-but-unfilled file must not look configured.
+def signingValue = { String name ->
+    def fromEnv = System.getenv(name)
+    if (fromEnv != null && !fromEnv.trim().isEmpty()) return fromEnv
+    def fromFile = envProps.getProperty(name)
+    return (fromFile != null && !fromFile.trim().isEmpty()) ? fromFile.trim() : null
 }
 
-def storePath = signingValue("M590_KEYSTORE", "storeFile")
+def storePath = signingValue("M590_KEYSTORE")
 def hasSigningKey = storePath != null && !storePath.isEmpty()
 
 // A configured-but-unresolvable keystore is always a mistake, and letting it
@@ -25,8 +35,21 @@ def hasSigningKey = storePath != null && !storePath.isEmpty()
 // root, so prefer an absolute path.
 if (hasSigningKey && !file(storePath).exists()) {
     throw new GradleException(
-        "M590_KEYSTORE/storeFile points at '${storePath}', which does not exist " +
+        "M590_KEYSTORE points at '${storePath}', which does not exist " +
         "(resolved to '${file(storePath).absolutePath}'). Use an absolute path.")
+}
+
+// Same reasoning for the rest of the material: a keystore configured without a
+// password or alias yields an unsigned artifact that only fails on upload to
+// Play, long after the build reported success. Fail here instead.
+if (hasSigningKey) {
+    def missing = ["M590_KEYSTORE_PASSWORD", "M590_KEY_ALIAS"].findAll { signingValue(it) == null }
+    if (!missing.isEmpty()) {
+        throw new GradleException(
+            "M590_KEYSTORE is set but ${missing.join(' and ')} " +
+            "${missing.size() == 1 ? 'is' : 'are'} missing. Set ${missing.size() == 1 ? 'it' : 'them'} " +
+            "in app/.env.local (see app/.env.example) or in the environment.")
+    }
 }
 
 android {
@@ -49,9 +72,12 @@ android {
         signingConfigs {
             release {
                 storeFile file(storePath)
-                storePassword signingValue("M590_KEYSTORE_PASSWORD", "storePassword")
-                keyAlias signingValue("M590_KEY_ALIAS", "keyAlias")
-                keyPassword signingValue("M590_KEY_PASSWORD", "keyPassword")
+                storePassword signingValue("M590_KEYSTORE_PASSWORD")
+                keyAlias signingValue("M590_KEY_ALIAS")
+                // Keystores created by scripts/createUploadKeystore.sh share one
+                // passphrase, so fall back to the store password when no separate
+                // key password is configured.
+                keyPassword signingValue("M590_KEY_PASSWORD") ?: signingValue("M590_KEYSTORE_PASSWORD")
             }
         }
     }
