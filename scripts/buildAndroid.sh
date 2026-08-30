@@ -306,9 +306,11 @@ else
     # Only versionCode moves here. versionName stays put on purpose: it ties the
     # bundle to the deployed web release (and to app/release-notes/<version>.*),
     # and a build must not silently claim a version the website does not serve.
-    # Use `yarn bump` to move versionName — that bumps versionCode too, so a
-    # bump-then-build sequence advances it once via bump and once here, which is
-    # harmless: uniqueness is all Play requires, not contiguity.
+    # Use `yarn bump` to move versionName. That bumps versionCode too, so a
+    # bump-then-build sequence would advance it twice; scripts/release.sh passes
+    # `yarn bump --no-version-code` for exactly that reason and leaves the single
+    # increment to this line. Either way Play only requires uniqueness, not
+    # contiguity, so a gap is never a problem.
     #
     # This bump is unconditional, and that is the whole point. Do NOT edit
     # versionCode by hand beforehand to make a build land on a particular number

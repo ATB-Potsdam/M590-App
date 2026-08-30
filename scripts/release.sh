@@ -97,10 +97,13 @@ fi
 # --- 1. Bump -----------------------------------------------------------------
 
 step "Bump version"
-(cd app && yarn bump)
+# --no-version-code: buildAndroid.sh raises versionCode unconditionally on every
+# release build (a standalone build has no other source of a fresh code), so
+# bumping it here too would advance it twice per release. versionName still moves
+# here, because that is what ties the bundle to the deployed web release.
+(cd app && yarn bump --no-version-code)
 new_version="$(node -p "require('./app/package.json').version")"
-version_code="$(grep -oP 'versionCode\s+\K\d+' app/android/app/build.gradle)"
-echo "version $old_version -> $new_version (versionCode $version_code)"
+echo "version $old_version -> $new_version"
 
 # --- 2. Web ------------------------------------------------------------------
 
@@ -127,7 +130,10 @@ fi
 
 # --- Done --------------------------------------------------------------------
 
-step "Released $new_version"
+# Read after the build, not after the bump: buildAndroid.sh is what raises it.
+version_code="$(grep -oP 'versionCode\s+\K\d+' app/android/app/build.gradle)"
+
+step "Released $new_version (versionCode $version_code)"
 cat <<EOF
 The bump touched tracked files; they are not committed yet.
 
