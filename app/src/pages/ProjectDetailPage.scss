@@ -313,14 +313,26 @@
 }
 
 .project-summary {
+    // One gutter for every direct child of the card, named once so a new row or
+    // an embedded component cannot quietly land on a different left edge — the
+    // table footnotes and the InfoHint had each drifted off it.
+    --summary-gutter: 14px;
+
     margin-top: 24px;
     border: 1px solid var(--color-border);
     border-radius: 8px;
     overflow: hidden;
 
+    // Shared components brought into the card carry their own (zero) horizontal
+    // padding, so the card inserts its gutter rather than the component
+    // hard-coding a page-specific one.
+    > .info-hint {
+        padding: 0 var(--summary-gutter) 8px;
+    }
+
     h2 {
         margin: 0;
-        padding: 10px 14px;
+        padding: 10px var(--summary-gutter);
         background: var(--color-bg-surface);
         font-size: 14px;
         color: var(--color-text-heading);
@@ -331,7 +343,7 @@
         display: flex;
         justify-content: space-between;
         align-items: baseline;
-        padding: 8px 14px;
+        padding: 8px var(--summary-gutter);
         font-size: 14px;
         border-bottom: 1px solid var(--color-border-light);
 
@@ -378,7 +390,11 @@
     }
 
     &__table-footnote {
+        // Same 14px gutter as &__row / &__row--footnote: these footnotes sit
+        // between the table and the Brutto rows, so a flush-left edge here made
+        // them step out of the card's text column against the explainer below.
         margin: 8px 0 0;
+        padding: 0 var(--summary-gutter);
         font-size: 11px;
         line-height: 1.45;
         color: var(--color-text-muted);
@@ -393,7 +409,7 @@
     &__row--footnote {
         font-size: 11px;
         color: var(--color-text-muted);
-        padding: 6px 14px;
+        padding: 6px var(--summary-gutter);
         border-bottom: none;
     }
 
@@ -427,7 +443,7 @@
 
     &__details {
         summary {
-            padding: 8px 14px;
+            padding: 8px var(--summary-gutter);
             font-size: 13px;
             color: var(--color-accent);
             cursor: pointer;
