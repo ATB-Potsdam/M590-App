@@ -3,10 +3,14 @@
 // Capture Play Store phone screenshots from the built app, headlessly.
 //
 // Usage:
-//   node scripts/captureScreenshots.mjs [--out DIR] [--port N] [--keep]
+//   node scripts/captureScreenshots.mjs [--locale L] [--port N] [--keep]
+//                                       [--devices phone,sevenInch,tenInch]
 //
 // Serves app/dist on a throwaway static server, drives system Chromium over the
-// DevTools protocol and writes PNGs to app/store/listings/de-DE/phoneScreenshots/.
+// DevTools protocol and writes PNGs into app/store/listings/<locale>/, one
+// directory per device kind — the same directory names deployAndroid.py's
+// IMAGE_KINDS expects (phoneScreenshots, sevenInchScreenshots,
+// tenInchScreenshots), so a capture run feeds the publisher directly.
 // Run `yarn build` first; this never builds, so what you see is what shipped.
 //
 // Chromium is launched as its OWN instance on its OWN port with a scratch
@@ -34,25 +38,36 @@ import {fileURLToPath} from "node:url";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DIST = join(REPO, "app/dist");
-const DEFAULT_OUT = join(REPO, "app/store/listings/de-DE/phoneScreenshots");
+const LISTINGS = join(REPO, "app/store/listings");
 
-// Play requires 320-3840 px on each edge and at most a 2:1 ratio.
+// Play requires 320-3840 px on each edge and at most a 2:1 ratio, and it keeps
+// phone, 7-inch and 10-inch screenshots as three separate image kinds.
 //
-// The CSS width must be a real phone width, not the output width: the app
-// switches to the mobile layout (bottom navigation) at max-width 720px, so
-// capturing at 1080 CSS px yields desktop screenshots with a top nav — not what
-// a phone user sees. 360x640 CSS at deviceScaleFactor 3 renders the mobile
-// layout and still writes a 1080x1920 PNG.
-const VIEWPORT = {width: 360, height: 640, scale: 3};
+// Each is captured at a real device CSS size, never at the output pixel size:
+// the layout is driven by CSS width, so rendering at 1080 CSS px would produce
+// a *desktop* screenshot filed under "phone". The nav sits at the bottom on
+// mobile and moves to the top at min-width 900px ($nav-top-breakpoint in
+// app/src/App.scss), and .page caps its content at 720px. Hence:
+//   phone    360x640  @3 -> 1080x1920, bottom nav, single column
+//   7-inch   600x960  @2 -> 1200x1920, bottom nav, the same touch layout wider
+//   10-inch  1280x800 @2 -> 2560x1600, top nav — the desktop-wide layout a 10"
+//            tablet really renders, in the landscape those are usually used in
+const DEVICES = {
+    phone:     {dir: "phoneScreenshots",     width: 360,  height: 640, scale: 3, mobile: true},
+    sevenInch: {dir: "sevenInchScreenshots", width: 600,  height: 960, scale: 2, mobile: true},
+    tenInch:   {dir: "tenInchScreenshots",   width: 1280, height: 800, scale: 2, mobile: false},
+};
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
     const i = args.indexOf(name);
     return i === -1 ? fallback : args[i + 1];
 };
-const OUT = resolve(flag("--out", DEFAULT_OUT));
+const LOCALE = flag("--locale", "de-DE");
 const PORT = Number(flag("--port", "9333"));
 const KEEP = args.includes("--keep");
+const DEVICE_KEYS = flag("--devices", Object.keys(DEVICES).join(","))
+    .split(",").map((k) => k.trim()).filter(Boolean);
 
 const die = (msg) => { console.error(`SCREENSHOTS ABORTED: ${msg}`); process.exit(1); };
 const info = (msg) => console.log(`==> ${msg}`);
@@ -106,8 +121,17 @@ const SEED = {
             {
                 // altWasserM3 is required for the sport/green modules; without it
                 // the row renders a "Fehlt:" warning instead of a result.
+                //
+                // golfAreaMode alone does NOT produce a result: getAssignmentResult
+                // dispatches on the three explicit sub-area values, and the mode is
+                // only the UI shortcut that fills them (TABLE_35 in golf.ts, applied
+                // by the mode buttons in AssignmentPage). Seeding the mode without
+                // them stores exactly what the app never stores, and the row renders
+                // an empty "–" instead of its Jahresrichtwert.
                 id: "a2", fieldId: "f2", module: "golf",
-                golfAreaMode: "18hole", altWasserM3: 1500,
+                golfAreaMode: "18hole",
+                golfGreensM2: 18000, golfTeeM2: 11700, golfFairwayM2: 176000,
+                altWasserM3: 1500,
                 surchargeIntermediate: false, surchargeEmergence: 0,
                 surchargeHeavySoil: 0,
             },
@@ -116,11 +140,40 @@ const SEED = {
 };
 
 // The pages worth showing in the listing, in the order Play displays them.
+//
+// `prepare` runs in the page after it has settled and before the capture. It
+// returns nothing; anything it needs to report goes through an exception, which
+// aborts the run. `scrollTo` names a selector to bring to the top of the
+// viewport instead of the default "scroll back to 0".
 const SHOTS = [
     {name: "01-projekte", path: "/", waitMs: 3500},
     {name: "02-flaechen", path: "/farm", waitMs: 3500},
     {name: "03-szenario", path: "/projects/p1", waitMs: 4000},
     {name: "04-zuweisung", path: "/projects/p1/assignment/a1", waitMs: 4500},
+    {
+        // The payoff screen: total demand across all areas.
+        //
+        // The per-area table lives in a collapsed <details>
+        // (ProjectDetailPage.tsx) and is only opened where it fits. On a 360 px
+        // phone the table scrolls horizontally — the numbers are cut mid-digit —
+        // and its two footnotes push the Netto-Antragsmenge and the PDF Export
+        // button off the bottom, so opening it costs the shot its payoff and
+        // shows clipped values instead. Closed, everything that matters fits.
+        // Tablets have the width for the full breakdown, so there it is opened.
+        name: "05-zusammenfassung",
+        path: "/projects/p1",
+        waitMs: 4000,
+        prepare: (device) => device.mobile && device.width < 600 ? null : `
+            const d = document.querySelector(".project-summary__details");
+            if (!d) throw new Error("summary <details> not found");
+            d.open = true;
+        `,
+        // Anchor on the section, not the page top: the summary sits below the
+        // assignment list and would otherwise be off-screen.
+        scrollTo: ".project-summary",
+        // Opening <details> reflows the page; let it settle before capturing.
+        afterPrepareMs: 900,
+    },
 ];
 
 // --- Minimal static server ---------------------------------------------------
@@ -252,15 +305,22 @@ const main = async () => {
         .find((p) => existsSync(p));
     if (!chromium) die("no chromium/chrome found");
 
-    await mkdir(OUT, {recursive: true});
+    const unknown = DEVICE_KEYS.filter((k) => !DEVICES[k]);
+    if (unknown.length) die(`unknown device(s): ${unknown.join(", ")} — known: ${Object.keys(DEVICES).join(", ")}`);
+
     const {server, port: httpPort} = await serve();
     info(`serving app/dist on 127.0.0.1:${httpPort}`);
 
+    // The window size only has to be big enough not to constrain anything;
+    // Emulation.setDeviceMetricsOverride is what actually sets each device's
+    // viewport, and it is re-issued per device below.
+    const widest = Math.max(...DEVICE_KEYS.map((k) => DEVICES[k].width * DEVICES[k].scale));
+    const tallest = Math.max(...DEVICE_KEYS.map((k) => DEVICES[k].height * DEVICES[k].scale));
     const profile = join(REPO, ".screenshot-profile");
     const browser = spawn(chromium, [
         "--headless=new", "--disable-gpu", "--no-sandbox", "--hide-scrollbars",
         `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`,
-        `--window-size=${VIEWPORT.width * VIEWPORT.scale},${VIEWPORT.height * VIEWPORT.scale}`,
+        `--window-size=${widest},${tallest}`,
         "about:blank",
     ], {stdio: "ignore"});
 
@@ -287,10 +347,6 @@ const main = async () => {
     const cdp = makeClient(sock);
     await cdp("Page.enable");
     await cdp("Runtime.enable");
-    await cdp("Emulation.setDeviceMetricsOverride", {
-        width: VIEWPORT.width, height: VIEWPORT.height,
-        deviceScaleFactor: VIEWPORT.scale, mobile: true,
-    });
 
     // Seed before any app code runs, on every document — a reload or an
     // in-app navigation must not land on an empty store.
@@ -309,30 +365,129 @@ const main = async () => {
         `,
     });
 
+    // Evaluate an expression and surface a thrown error as a failed run rather
+    // than letting it pass silently — a `prepare` that no longer matches the DOM
+    // must not quietly ship a screenshot of the wrong thing.
+    const evaluate = async (expression, what) => {
+        const res = await cdp("Runtime.evaluate", {expression, returnByValue: true, awaitPromise: true});
+        if (res.exceptionDetails) {
+            const msg = res.exceptionDetails.exception?.description
+                ?? res.exceptionDetails.text ?? "unknown error";
+            die(`${what}: ${msg.split("\n")[0]}`);
+        }
+        return res.result;
+    };
+
     const written = [];
-    for (const shot of SHOTS) {
-        const url = `http://127.0.0.1:${httpPort}${shot.path}`;
-        await cdp("Page.navigate", {url});
-        await wait(shot.waitMs);
-
-        // Fail loudly on an ErrorBoundary rather than shipping a screenshot of a
-        // crash to the store listing.
-        const {result} = await cdp("Runtime.evaluate", {
-            expression: `document.body.innerText.includes("Etwas ist schiefgelaufen")`,
-            returnByValue: true,
+    for (const key of DEVICE_KEYS) {
+        const device = DEVICES[key];
+        const out = join(LISTINGS, LOCALE, device.dir);
+        await mkdir(out, {recursive: true});
+        await cdp("Emulation.setDeviceMetricsOverride", {
+            width: device.width, height: device.height,
+            deviceScaleFactor: device.scale, mobile: device.mobile,
         });
-        if (result.value === true) die(`${shot.path} rendered the error boundary — seed data no longer matches the app's types`);
+        info(`--- ${key}: ${device.width}x${device.height} CSS @${device.scale} -> ${device.width * device.scale}x${device.height * device.scale}`);
 
-        // A route change keeps the previous scroll offset, so a deep page can be
-        // captured mid-content. Start every shot at the top of the page.
-        await cdp("Runtime.evaluate", {expression: `window.scrollTo(0, 0)`});
-        await wait(400);
+        for (const shot of SHOTS) {
+            const url = `http://127.0.0.1:${httpPort}${shot.path}`;
+            // Re-navigate even when the path is unchanged from the previous shot
+            // (05 revisits 03's route): a fresh document guarantees the page is
+            // in its default state and not still carrying 03's scroll or an
+            // earlier `prepare`'s open <details>.
+            await cdp("Page.navigate", {url: "about:blank"});
+            await cdp("Page.navigate", {url});
+            await wait(shot.waitMs);
 
-        const {data} = await cdp("Page.captureScreenshot", {format: "png"});
-        const file = join(OUT, `${shot.name}.png`);
-        await writeFile(file, Buffer.from(data, "base64"));
-        written.push(file);
-        info(`captured ${shot.name}.png`);
+            // Fail loudly on an ErrorBoundary rather than shipping a screenshot of a
+            // crash to the store listing.
+            const crashed = await evaluate(
+                `document.body.innerText.includes("Etwas ist schiefgelaufen")`,
+                `${key}/${shot.name}`,
+            );
+            if (crashed.value === true) die(`${shot.path} rendered the error boundary — seed data no longer matches the app's types`);
+
+            // `prepare` may be a plain string or a function of the device — the
+            // latter lets a shot opt out on a viewport where the extra content
+            // does not fit. Returning null means "nothing to prepare here".
+            const prepare = typeof shot.prepare === "function" ? shot.prepare(device) : shot.prepare;
+            if (prepare) {
+                await evaluate(`(() => {${prepare}})()`, `${key}/${shot.name} prepare`);
+                await wait(shot.afterPrepareMs ?? 500);
+            }
+
+            // An incomplete assignment does not crash — it renders an empty "–"
+            // cell, which looks like a deliberate layout and would ship a
+            // half-blank summary to the store. The seed once did exactly that
+            // (golfAreaMode without the sub-area values it is only a shortcut
+            // for). So assert every data row carries at least one scenario value.
+            //
+            // Counting columns does not work here: a sport/green row collapses
+            // Normal+Trocken into one colSpan=2 cell, and the optional "Alt.
+            // Wasser" column is legitimately "–" on a crop row. What every
+            // complete row does have is a value cell holding "m³/a".
+            if (shot.name === "05-zusammenfassung") {
+                const blank = await evaluate(`(() => {
+                    const rows = document.querySelectorAll(".project-summary__table tbody tr");
+                    if (!rows.length) throw new Error("summary table has no rows");
+                    // textContent, not innerText: inside a closed <details> the
+                    // rows are not laid out, and innerText — which is defined in
+                    // terms of rendered text — comes back empty for all of them.
+                    return [...rows]
+                        .filter((tr) => !/m³\\/a/.test(tr.textContent))
+                        .map((tr) => tr.querySelector("td").textContent.trim());
+                })()`, `${key}/${shot.name} completeness`);
+                if (blank.value?.length) {
+                    die(`summary rows without a result: ${blank.value.join(", ")} — the seed no longer satisfies getAssignmentResult()`);
+                }
+            }
+
+            // A route change keeps the previous scroll offset, so a deep page can be
+            // captured mid-content. Start every shot at the top of the page, unless
+            // it names a section to anchor on instead.
+            if (shot.scrollTo) {
+                await evaluate(`(() => {
+                    const el = document.querySelector(${JSON.stringify(shot.scrollTo)});
+                    if (!el) throw new Error("scrollTo target not found: " + ${JSON.stringify(shot.scrollTo)});
+                    // The nav is fixed — at the top on the wide layout, at the
+                    // bottom on mobile — so the usable band is the viewport minus
+                    // whichever edge it occupies. scrollIntoView ignores that and
+                    // would put the element under the top nav.
+                    const nav = document.querySelector(".nav-bar-wrapper");
+                    const navH = nav ? nav.offsetHeight : 0;
+                    const atTop = nav && getComputedStyle(nav).top === "0px";
+                    const top = atTop ? navH : 0;
+                    const usable = window.innerHeight - navH;
+                    const rect = el.getBoundingClientRect();
+                    const absTop = rect.top + window.scrollY;
+                    let y;
+                    if (rect.height < usable) {
+                        // Fits: centre it, so a short section is not left hugging
+                        // one edge and clipped by the opposite one.
+                        y = absTop - top - (usable - rect.height) / 2;
+                    } else {
+                        // Taller than the band, so something has to be cut. Anchor
+                        // the BOTTOM, flush and without padding: on this page the
+                        // section ends with the headline figure
+                        // (Netto-Antragsmenge), and losing that to keep a heading
+                        // in frame is the wrong trade for a store listing. Flush
+                        // rather than padded because the overflow here is only a
+                        // few px — every one of them buys back a line at the top.
+                        y = absTop + rect.height - top - usable;
+                    }
+                    window.scrollTo({top: Math.max(0, y), behavior: "instant"});
+                })()`, `${key}/${shot.name} scrollTo`);
+            } else {
+                await evaluate(`window.scrollTo(0, 0)`, `${key}/${shot.name} scroll`);
+            }
+            await wait(400);
+
+            const {data} = await cdp("Page.captureScreenshot", {format: "png"});
+            const file = join(out, `${shot.name}.png`);
+            await writeFile(file, Buffer.from(data, "base64"));
+            written.push(file);
+            info(`captured ${key}/${shot.name}.png`);
+        }
     }
 
     cleanup();
@@ -347,9 +502,12 @@ const main = async () => {
             catch { await wait(200); }
         }
     }
-    info(`${written.length} screenshot(s) in ${OUT}`);
-    const leftover = (await readdir(OUT)).filter((f) => f.endsWith(".png"));
-    info(`listing now holds: ${leftover.join(", ")}`);
+    info(`${written.length} screenshot(s) written`);
+    for (const key of DEVICE_KEYS) {
+        const dir = join(LISTINGS, LOCALE, DEVICES[key].dir);
+        const held = (await readdir(dir)).filter((f) => f.endsWith(".png"));
+        info(`${LOCALE}/${DEVICES[key].dir} now holds: ${held.join(", ")}`);
+    }
 };
 
 main().catch((e) => die(e.message));
